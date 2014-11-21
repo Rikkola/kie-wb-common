@@ -47,6 +47,9 @@ public class NewProjectWizard
     private GAVWizardPage gavWizardPage;
 
     @Inject
+    private ProjectTypeWizardPage projectTypeWizardPage;
+
+    @Inject
     private BusyIndicatorView busyIndicatorView;
 
     @Inject
@@ -65,7 +68,8 @@ public class NewProjectWizard
 
     @PostConstruct
     public void setupPages() {
-        pages.add( gavWizardPage );
+        pages.add(gavWizardPage);
+        pages.add(projectTypeWizardPage);
     }
 
     @Override
@@ -79,8 +83,13 @@ public class NewProjectWizard
     }
 
     @Override
-    public Widget getPageWidget( int pageNumber ) {
-        return gavWizardPage.asWidget();
+    public Widget getPageWidget(int pageNumber) {
+        if (pageNumber != 0) {
+            return projectTypeWizardPage.asWidget();
+        } else {
+
+            return gavWizardPage.asWidget();
+        }
     }
 
     @Override
@@ -94,36 +103,36 @@ public class NewProjectWizard
     }
 
     @Override
-    public void isComplete( final Callback<Boolean> callback ) {
+    public void isComplete(final Callback<Boolean> callback) {
         //We only have one page; this is simple!
-        gavWizardPage.isComplete( callback );
+        gavWizardPage.isComplete(callback);
     }
 
-    public void setContent( final String projectName ) {
+    public void setContent(final String projectName) {
         // The Project Name is used to generate the folder name and hence is only checked to be a valid file name.
         // The ArtifactID is initially set to the project name, subsequently validated against the maven regex,
         // and preserved as is in the pom.xml file. However, as it is used to construct the default workspace and
         // hence package names, it is sanitized in the ProjectService.newProject() method.
         pom = new POM();
-        pom.setName( projectName );
-        pom.getGav().setArtifactId( projectName );
-        pom.getGav().setVersion( "1.0" );
-        gavWizardPage.setPom( pom );
+        pom.setName(projectName);
+        pom.getGav().setArtifactId(projectName);
+        pom.getGav().setVersion("1.0");
+        gavWizardPage.setPom(pom);
     }
 
-    public void setContent( final String projectName,
-                            final String groupId,
-                            final String version ) {
+    public void setContent(final String projectName,
+                           final String groupId,
+                           final String version) {
         // The Project Name is used to generate the folder name and hence is only checked to be a valid file name.
         // The ArtifactID is initially set to the project name, subsequently validated against the maven regex,
         // and preserved as is in the pom.xml file. However, as it is used to construct the default workspace and
         // hence package names, it is sanitized in the ProjectService.newProject() method.
         pom = new POM();
-        pom.setName( projectName );
-        pom.getGav().setGroupId( groupId );
-        pom.getGav().setArtifactId( projectName );
-        pom.getGav().setVersion( version );
-        gavWizardPage.setPom( pom );
+        pom.setName(projectName);
+        pom.getGav().setGroupId(groupId);
+        pom.getGav().setArtifactId(projectName);
+        pom.getGav().setVersion(version);
+        gavWizardPage.setPom(pom);
     }
 
     @Override
@@ -131,19 +140,19 @@ public class NewProjectWizard
         super.complete();
 
         final String url = GWT.getModuleBaseURL();
-        final String baseUrl = url.replace( GWT.getModuleName() + "/", "" );
-        busyIndicatorView.showBusyIndicator( CommonConstants.INSTANCE.Saving() );
-        projectServiceCaller.call( getSuccessCallback(),
-                                   new HasBusyIndicatorDefaultErrorCallback( busyIndicatorView ) ).newProject( context.getActiveRepository(),
-                                                                                                               pom.getName(),
-                                                                                                               pom,
-                                                                                                               baseUrl );
+        final String baseUrl = url.replace(GWT.getModuleName() + "/", "");
+        busyIndicatorView.showBusyIndicator(CommonConstants.INSTANCE.Saving());
+        projectServiceCaller.call(getSuccessCallback(),
+                new HasBusyIndicatorDefaultErrorCallback(busyIndicatorView)).newProject(context.getActiveRepository(),
+                pom.getName(),
+                pom,
+                baseUrl);
     }
 
     @Override
     public void close() {
         super.close();
-        invokeCallback( null );
+        invokeCallback(null);
     }
 
     @Override
@@ -154,8 +163,8 @@ public class NewProjectWizard
     }
 
     @Override
-    public void start( Callback<Project> callback,
-                       boolean openEditor ) {
+    public void start(Callback<Project> callback,
+                      boolean openEditor) {
         this.projectCallback = callback;
         this.openEditor = openEditor;
         super.start();
@@ -165,20 +174,20 @@ public class NewProjectWizard
         return new RemoteCallback<KieProject>() {
 
             @Override
-            public void callback( final KieProject project ) {
+            public void callback(final KieProject project) {
                 busyIndicatorView.hideBusyIndicator();
-                notificationEvent.fire( new NotificationEvent( CommonConstants.INSTANCE.ItemCreatedSuccessfully() ) );
-                invokeCallback( project );
-                if ( openEditor ) {
-                    placeManager.goTo( "projectScreen" );
+                notificationEvent.fire(new NotificationEvent(CommonConstants.INSTANCE.ItemCreatedSuccessfully()));
+                invokeCallback(project);
+                if (openEditor) {
+                    placeManager.goTo("projectScreen");
                 }
             }
         };
     }
 
-    private void invokeCallback( Project project ) {
-        if ( projectCallback != null ) {
-            projectCallback.callback( project );
+    private void invokeCallback(Project project) {
+        if (projectCallback != null) {
+            projectCallback.callback(project);
             projectCallback = null;
         }
     }
