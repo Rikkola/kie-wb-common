@@ -18,16 +18,14 @@ package org.kie.workbench.common.widgets.decoratedgrid.client.widget.events;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 
-/**
- * An event to notify a column was deleted
- */
-public class AfterColumnDeleted extends GwtEvent<AfterColumnDeleted.Handler> {
+public class AfterColumnInserted
+        extends GwtEvent<AfterColumnInserted.Handler> {
 
     public static interface Handler
             extends
             EventHandler {
 
-        void onAfterDeletedColumn(AfterColumnDeleted event);
+        void onAfterColumnInserted(AfterColumnInserted event);
     }
 
     public static final Type<Handler> TYPE = new Type<Handler>();
@@ -38,8 +36,8 @@ public class AfterColumnDeleted extends GwtEvent<AfterColumnDeleted.Handler> {
     }
 
     @Override
-    protected void dispatch( AfterColumnDeleted.Handler handler ) {
-        handler.onAfterDeletedColumn(this);
+    protected void dispatch(AfterColumnInserted.Handler handler) {
+        handler.onAfterColumnInserted(this);
     }
 
 }
