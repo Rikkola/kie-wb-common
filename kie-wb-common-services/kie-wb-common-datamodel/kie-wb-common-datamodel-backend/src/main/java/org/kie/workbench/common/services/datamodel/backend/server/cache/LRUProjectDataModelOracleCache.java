@@ -61,9 +61,6 @@ public class LRUProjectDataModelOracleCache extends LRUCache<KieProject, Project
     private static final Logger log = LoggerFactory.getLogger( LRUProjectDataModelOracleCache.class );
 
     @Inject
-    private POMService pomService;
-
-    @Inject
     @Named("ioStrategy")
     private IOService ioService;
 

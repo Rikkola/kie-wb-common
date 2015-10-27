@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
 import org.guvnor.common.services.project.context.ProjectContext;
-import org.guvnor.common.services.project.model.GAV;
+import org.guvnor.common.services.project.events.NewProjectEvent;
 import org.guvnor.common.services.project.model.POM;
 import org.guvnor.common.services.project.model.Project;
 import org.guvnor.common.services.project.model.ProjectWizard;
@@ -110,7 +110,7 @@ public class NewProjectWizard
         //We only have one page; this is simple!
         gavWizardPage.isComplete( callback );
     }
-
+    
     @Override
     public void initialise() {
         // The Project Name is used to generate the folder name and hence is only checked to be a valid file name.
