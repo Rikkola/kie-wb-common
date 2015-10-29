@@ -16,6 +16,7 @@
 
 package org.kie.workbench.common.screens.projecteditor.client.editor;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.IsWidget;
@@ -91,7 +92,7 @@ public interface ProjectScreenView
 
     boolean showsImportsMetadataPanel();
 
-    void showDependenciesPanel();
+    void showDependenciesPanel( final Collection<Dependency> transientDependencies );
 
     boolean showsDependenciesPanel();
 

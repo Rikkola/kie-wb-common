@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.kie.workbench.common.screens.projecteditor.client.forms;
+package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
+import java.util.Collection;
 import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -24,11 +25,11 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
+import org.kie.workbench.common.screens.projecteditor.client.forms.GAVSelectionHandler;
 
 @Dependent
 public class DependencyGrid
-        implements IsWidget,
-                   DependencyGridView.Presenter {
+        implements IsWidget {
 
     private DependencyGridView view;
     private List<Dependency> dependencies;
@@ -38,8 +39,8 @@ public class DependencyGrid
     }
 
     @Inject
-    public DependencyGrid( DependencySelectorPopup dependencySelectorPopup,
-                           DependencyGridView view ) {
+    public DependencyGrid( final DependencySelectorPopup dependencySelectorPopup,
+                           final DependencyGridView view ) {
         this.dependencySelectorPopup = dependencySelectorPopup;
         dependencySelectorPopup.addSelectionHandler( new GAVSelectionHandler() {
             @Override
@@ -62,20 +63,16 @@ public class DependencyGrid
         return view.asWidget();
     }
 
-    @Override
     public void onAddDependencyButton() {
-        Dependency dependency = new Dependency();
-        dependencies.add( dependency );
+        dependencies.add( new Dependency() );
         fillList( dependencies );
     }
 
-    @Override
     public void onAddDependencyFromRepositoryButton() {
         dependencySelectorPopup.show();
     }
 
-    @Override
-    public void onRemoveDependency( Dependency dependency ) {
+    public void onRemoveDependency( final Dependency dependency ) {
         dependencies.remove( dependency );
         fillList( dependencies );
     }
@@ -84,7 +81,9 @@ public class DependencyGrid
         view.setReadOnly();
     }
 
-    public void redraw() {
+    public void show( Collection<Dependency> transientDependencies ) {
+
+
         view.redraw();
     }
 }

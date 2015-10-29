@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -12,14 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+package org.kie.workbench.common.screens.projecteditor.client.handlers;
 
-package org.kie.workbench.common.screens.projecteditor.client.forms;
+import org.kie.workbench.common.screens.projecteditor.client.resources.ProjectEditorResources;
+import org.uberfire.ext.widgets.common.client.common.popups.errors.ErrorPopup;
 
-import org.uberfire.client.mvp.UberView;
+public class NewProjectHandlerViewImpl
+        implements NewProjectHandlerView {
 
-public interface DependencySelectorPopupView extends UberView<DependencySelectorPresenter> {
-
-    void show();
-
-    void hide();
+    @Override
+    public void showNoRepositorySelectedPleaseSelectARepository() {
+    }
 }

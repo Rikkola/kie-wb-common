@@ -13,7 +13,7 @@
  * limitations under the License.
 */
 
-package org.kie.workbench.common.screens.projecteditor.client.forms;
+package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;

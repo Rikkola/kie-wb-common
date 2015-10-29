@@ -13,18 +13,9 @@
  * limitations under the License.
 */
 
-package org.kie.workbench.common.screens.projecteditor.client.forms;
+package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
-import org.gwtbootstrap3.client.ui.constants.ButtonSize;
-import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.constants.IconType;
-import org.gwtbootstrap3.client.ui.gwt.ButtonCell;
+public interface DependencySelectorPresenter {
 
-public class TrashCanImageCell
-        extends
-        ButtonCell {
-
-    public TrashCanImageCell() {
-        super( IconType.TRASH, ButtonType.DANGER, ButtonSize.SMALL );
-    }
+    void onPathSelection( String pathToDependency );
 }

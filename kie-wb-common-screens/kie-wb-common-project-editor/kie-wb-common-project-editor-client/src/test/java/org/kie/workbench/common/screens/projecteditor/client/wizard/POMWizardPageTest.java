@@ -22,8 +22,6 @@ import org.guvnor.common.services.project.client.ArtifactIdChangeHandler;
 import org.guvnor.common.services.project.client.GAVEditor;
 import org.guvnor.common.services.project.client.GAVEditorView;
 import org.guvnor.common.services.project.client.POMEditorPanel;
-import org.guvnor.common.services.project.client.POMEditorPanelView;
-import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.common.services.project.model.POM;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +35,7 @@ import org.uberfire.mocks.CallerMock;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class GAVWizardPageTest {
+public class POMWizardPageTest {
 
     private POMEditorPanelView pomEditorView;
     private POMEditorPanel pomEditor;
@@ -111,8 +109,9 @@ public class GAVWizardPageTest {
         when( projectScreenService.validateArtifactId( any( String.class ) ) ).thenReturn( false );
         when( projectScreenService.validateVersion( any( String.class ) ) ).thenReturn( false );
         when( validationService.isProjectNameValid( any( String.class ) ) ).thenReturn( false );
-        page.setPom( new POM(),
-                     true );
+        POM pom = new POM();
+        pom.setParent( new GAV(  ) );
+        page.setPom( pom );
 
         verify( page,
                 times( 1 ) ).validateName( any( String.class ) );
@@ -134,13 +133,20 @@ public class GAVWizardPageTest {
     }
 
     @Test
+    public void testPomsWithParentDataDisableFieldsParentNotSet() throws Exception {
+        page.setPom( new POM() );
+
+        verify( pomEditor, never() ).disableGroupID( anyString() );
+        verify( pomEditor, never() ).disableVersion( anyString() );
+    }
+
+    @Test
     public void testInvalidPOMWithoutParent() throws Exception {
         when( projectScreenService.validateGroupId( any( String.class ) ) ).thenReturn( false );
         when( projectScreenService.validateArtifactId( any( String.class ) ) ).thenReturn( false );
         when( projectScreenService.validateVersion( any( String.class ) ) ).thenReturn( false );
         when( validationService.isProjectNameValid( any( String.class ) ) ).thenReturn( false );
-        page.setPom( new POM(),
-                     false );
+        page.setPom( new POM() );
 
         verify( page,
                 times( 1 ) ).validateName( any( String.class ) );
@@ -162,13 +168,27 @@ public class GAVWizardPageTest {
     }
 
     @Test
+    public void testPomsWithParentDataDisableFieldsParentSet() throws Exception {
+        when( view.InheritedFromAParentPOM() ).thenReturn( "InheritedFromAParentPOM" );
+        POM pom = new POM();
+        pom.setParent( new GAV(  ) );
+        pom.getGav().setGroupId( "supergroup" );
+        page.setPom( pom );
+
+        verify( pomEditor ).disableGroupID( "InheritedFromAParentPOM" );
+        verify( pomEditor ).disableVersion( "InheritedFromAParentPOM" );
+    }
+
+    @Test
     public void testValidPOMWithParent() throws Exception {
         when( projectScreenService.validateGroupId( any( String.class ) ) ).thenReturn( true );
         when( projectScreenService.validateArtifactId( any( String.class ) ) ).thenReturn( true );
         when( projectScreenService.validateVersion( any( String.class ) ) ).thenReturn( true );
         when( validationService.isProjectNameValid( any( String.class ) ) ).thenReturn( true );
-        page.setPom( new POM(),
-                     true );
+
+        POM pom = new POM();
+        pom.setParent( new GAV() );
+        page.setPom( pom );
 
         verify( page,
                 times( 1 ) ).validateName( any( String.class ) );
@@ -195,8 +215,7 @@ public class GAVWizardPageTest {
         when( projectScreenService.validateArtifactId( any( String.class ) ) ).thenReturn( true );
         when( projectScreenService.validateVersion( any( String.class ) ) ).thenReturn( true );
         when( validationService.isProjectNameValid( any( String.class ) ) ).thenReturn( true );
-        page.setPom( new POM(),
-                     false );
+        page.setPom( new POM() );
 
         verify( page,
                 times( 1 ) ).validateName( any( String.class ) );
@@ -395,5 +414,4 @@ public class GAVWizardPageTest {
                       pom.getGav().getArtifactId() );
 
     }
-
 }

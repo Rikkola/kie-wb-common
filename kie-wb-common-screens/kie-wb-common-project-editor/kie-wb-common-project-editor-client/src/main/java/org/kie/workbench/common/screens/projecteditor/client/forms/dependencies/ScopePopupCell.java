@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 JBoss Inc
+ * Copyright 2015 JBoss Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
-package org.kie.workbench.common.screens.projecteditor.client.forms;
-
-import java.util.List;
-
-import com.google.gwt.user.client.ui.IsWidget;
 import org.guvnor.common.services.project.model.Dependency;
+import org.kie.workbench.common.widgets.decoratedgrid.client.widget.cells.PopupValueListDropDownEditCell;
 
-public interface DependencyGridView
-        extends IsWidget {
+public class ScopePopupCell
+        extends PopupValueListDropDownEditCell<Dependency> {
 
-    interface Presenter {
-
-        void onAddDependencyButton();
-
-        void onAddDependencyFromRepositoryButton();
-
-        void onRemoveDependency( Dependency dependency );
-
+    public ScopePopupCell() {
+        super( new String[]{"compile", "provided", "runtime", "test", "system", "import"},
+               false );
     }
 
-    void setPresenter( Presenter presenter );
-
-    void setReadOnly();
-
-    void setList( List<Dependency> dependencies );
-
-    void redraw();
 }

@@ -16,6 +16,7 @@
 package org.kie.workbench.common.services.datamodel.backend.server.cache;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +34,7 @@ import org.drools.workbench.models.datamodel.oracle.TypeSource;
 import org.guvnor.common.services.backend.cache.LRUCache;
 import org.guvnor.common.services.project.builder.events.InvalidateDMOProjectCacheEvent;
 import org.guvnor.common.services.project.model.ProjectImports;
-import org.guvnor.common.services.project.service.POMService;
+import org.kie.scanner.DependencyDescriptor;
 import org.kie.scanner.KieModuleMetaData;
 import org.kie.workbench.common.services.backend.builder.Builder;
 import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
@@ -48,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import org.uberfire.backend.server.util.Paths;
 import org.uberfire.backend.vfs.Path;
 import org.uberfire.commons.validation.PortablePreconditions;
-import org.uberfire.io.IOService;
 import org.uberfire.java.nio.file.Files;
 
 /**
@@ -59,10 +59,6 @@ import org.uberfire.java.nio.file.Files;
 public class LRUProjectDataModelOracleCache extends LRUCache<KieProject, ProjectDataModelOracle> {
 
     private static final Logger log = LoggerFactory.getLogger( LRUProjectDataModelOracleCache.class );
-
-    @Inject
-    @Named("ioStrategy")
-    private IOService ioService;
 
     @Inject
     private KieProjectService projectService;
@@ -107,6 +103,8 @@ public class LRUProjectDataModelOracleCache extends LRUCache<KieProject, Project
         final KieModuleMetaData kieModuleMetaData = KieModuleMetaData.Factory.newKieModuleMetaData( builder.getKieModuleIgnoringErrors(),
                                                                                                     DependencyFilter.COMPILE_FILTER );
         final ProjectDataModelOracleBuilder pdBuilder = ProjectDataModelOracleBuilder.newProjectOracleBuilder();
+
+        Collection<DependencyDescriptor> dependencies = kieModuleMetaData.getDependencies();
 
         //Get a "white list" of package names that are available for authoring
         final Set<String> packageNamesWhiteList = packageNameWhiteList.filterPackageNames( project,

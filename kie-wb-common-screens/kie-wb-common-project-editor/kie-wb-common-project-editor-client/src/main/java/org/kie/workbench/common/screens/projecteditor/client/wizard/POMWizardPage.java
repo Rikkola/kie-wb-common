@@ -34,19 +34,22 @@ import org.uberfire.client.callbacks.Callback;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 
-public class GAVWizardPage
+public class POMWizardPage
         implements WizardPage {
 
     private POMEditorPanel pomEditor;
-    private GAVWizardPageView view;
+    private POMWizardPageView view;
     private Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
     private Caller<ProjectScreenService> projectScreenService;
     private Caller<ValidationService> validationService;
     private boolean userModifiedArtifactId = false;
 
+    public POMWizardPage() {
+    }
+
     @Inject
-    public GAVWizardPage( final POMEditorPanel pomEditor,
-                          final GAVWizardPageView view,
+    public POMWizardPage( final POMEditorPanel pomEditor,
+                          final POMWizardPageView view,
                           final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent,
                           final Caller<ProjectScreenService> projectScreenService,
                           final Caller<ValidationService> validationService ) {
@@ -64,11 +67,8 @@ public class GAVWizardPage
         this.pomEditor.addNameChangeHandler( new NameChangeHandler() {
             @Override
             public void onChange( String newName ) {
-                final String projectName = pomEditor.getPom().getName();
-                final String artifactId = pomEditor.getPom().getGav().getArtifactId();
-                validateName( projectName );
-
-                if ( artifactId == null || artifactId.isEmpty() ) {
+                validateName( pomEditor.getPom().getName() );
+                if ( pomEditor.getPom().getGav().getArtifactId() == null || pomEditor.getPom().getGav().getArtifactId().isEmpty() ) {
                     userModifiedArtifactId = false;
                 }
 
@@ -77,7 +77,7 @@ public class GAVWizardPage
                     pomEditor.setArtifactID( sanitizedProjectName );
                     validateArtifactId( sanitizedProjectName );
                 }
-
+                
                 final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( GAVWizardPage.this );
                 GAVWizardPage.this.wizardPageStatusChangeEvent.fire( event );
             }
@@ -95,8 +95,8 @@ public class GAVWizardPage
             @Override
             public void onChange( String newGroupId ) {
                 validateGroupId( pomEditor.getPom().getGav().getGroupId() );
-                final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( GAVWizardPage.this );
-                GAVWizardPage.this.wizardPageStatusChangeEvent.fire( event );
+                final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( POMWizardPage.this );
+                POMWizardPage.this.wizardPageStatusChangeEvent.fire( event );
             }
         } );
         this.pomEditor.addArtifactIdChangeHandler( new ArtifactIdChangeHandler() {
@@ -104,35 +104,38 @@ public class GAVWizardPage
             public void onChange( String newArtifactId ) {
                 userModifiedArtifactId = true;
                 validateArtifactId( pomEditor.getPom().getGav().getArtifactId() );
-                final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( GAVWizardPage.this );
-                GAVWizardPage.this.wizardPageStatusChangeEvent.fire( event );
+                final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( POMWizardPage.this );
+                POMWizardPage.this.wizardPageStatusChangeEvent.fire( event );
             }
         } );
         this.pomEditor.addVersionChangeHandler( new VersionChangeHandler() {
             @Override
             public void onChange( String newVersion ) {
                 validateVersion( pomEditor.getPom().getGav().getVersion() );
-                final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( GAVWizardPage.this );
-                GAVWizardPage.this.wizardPageStatusChangeEvent.fire( event );
+                final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( POMWizardPage.this );
+                POMWizardPage.this.wizardPageStatusChangeEvent.fire( event );
             }
         } );
     }
 
-    public void setPom( final POM pom,
-                        final boolean hasParent ) {
+    public void setPom( final POM pom ) {
         this.pomEditor.setPOM( pom,
                                false );
 
         validateName( pom.getName() );
         validateArtifactId( pom.getGav().getArtifactId() );
 
-        if ( hasParent ) {
+        if ( pom.hasParent() ) {
             pomEditor.disableGroupID( view.InheritedFromAParentPOM() );
             pomEditor.disableVersion( view.InheritedFromAParentPOM() );
         } else {
             validateGroupId( pom.getGav().getGroupId() );
             validateVersion( pom.getGav().getVersion() );
         }
+    }
+
+    public POM getPom() {
+        return pomEditor.getPom();
     }
 
     void validateName( final String projectName ) {

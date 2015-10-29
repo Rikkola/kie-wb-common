@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kie.workbench.common.screens.projecteditor.client.forms;
+package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +22,9 @@ import java.util.List;
 import org.guvnor.common.services.project.model.Dependency;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.workbench.common.screens.projecteditor.client.forms.dependencies.DependencyGrid;
+import org.kie.workbench.common.screens.projecteditor.client.forms.dependencies.DependencyGridView;
+import org.kie.workbench.common.screens.projecteditor.client.forms.dependencies.DependencySelectorPopup;
 
 import static org.mockito.Mockito.*;
 
@@ -29,7 +32,6 @@ public class DependencyGridTest {
 
     private DependencyGrid grid;
     private DependencyGridView view;
-    private DependencyGridView.Presenter presenter;
     private DependencySelectorPopup dependencySelectorPopup;
 
 
@@ -38,12 +40,11 @@ public class DependencyGridTest {
         view = mock(DependencyGridView.class);
         dependencySelectorPopup = mock(DependencySelectorPopup.class);
         grid = new DependencyGrid(dependencySelectorPopup, view);
-        presenter = grid;
     }
 
     @Test
     public void testSetPresenter() throws Exception {
-        verify(view).setPresenter(presenter);
+        verify( view ).setPresenter( grid );
     }
 
     @Test
@@ -63,7 +64,8 @@ public class DependencyGridTest {
     @Test
     public void testAddFromRepository() throws Exception {
 
-        presenter.onAddDependencyFromRepositoryButton();
+        grid.onAddDependencyFromRepositoryButton();
 
+        verify( dependencySelectorPopup ).show();
     }
 }

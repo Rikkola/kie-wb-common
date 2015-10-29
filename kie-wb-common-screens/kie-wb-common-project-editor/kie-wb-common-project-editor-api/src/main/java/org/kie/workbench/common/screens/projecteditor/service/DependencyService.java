@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -12,13 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+package org.kie.workbench.common.screens.projecteditor.service;
 
-package org.kie.workbench.common.screens.projecteditor.client.wizard;
+import java.util.Collection;
 
-import com.google.gwt.user.client.ui.IsWidget;
+import org.guvnor.common.services.project.model.Dependency;
+import org.jboss.errai.bus.server.annotations.Remote;
+import org.uberfire.backend.vfs.Path;
 
-public interface GAVWizardPageView {
+@Remote
+public interface DependencyService {
 
-    String InheritedFromAParentPOM();
+    Collection<Dependency> loadTransitiveDependencies( final Path pathToPOM );
 
 }

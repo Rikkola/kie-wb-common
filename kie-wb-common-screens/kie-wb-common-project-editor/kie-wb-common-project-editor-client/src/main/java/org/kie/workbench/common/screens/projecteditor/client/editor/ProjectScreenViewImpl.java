@@ -16,6 +16,7 @@
 
 package org.kie.workbench.common.screens.projecteditor.client.editor;
 
+import java.util.Collection;
 import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -51,8 +52,8 @@ import org.gwtbootstrap3.client.ui.constants.ButtonSize;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
-import org.kie.workbench.common.screens.projecteditor.client.forms.DependencyGrid;
 import org.kie.workbench.common.screens.projecteditor.client.forms.KModuleEditorPanel;
+import org.kie.workbench.common.screens.projecteditor.client.forms.dependencies.DependencyGrid;
 import org.kie.workbench.common.screens.projecteditor.client.resources.ProjectEditorResources;
 import org.kie.workbench.common.services.shared.kmodule.KModuleModel;
 import org.kie.workbench.common.widgets.client.resources.i18n.CommonConstants;
@@ -260,10 +261,10 @@ public class ProjectScreenViewImpl
     }
 
     @Override
-    public void showDependenciesPanel() {
+    public void showDependenciesPanel( final Collection<Dependency> transientDependencies ) {
         dropDownButton.setText( ProjectEditorResources.CONSTANTS.Dependencies() + ": " + ProjectEditorResources.CONSTANTS.DependenciesList() );
         deckPanel.showWidget( DEPENDENCY_PANEL_INDEX );
-        dependencyGrid.redraw();
+        dependencyGrid.show( transientDependencies );
     }
 
     @Override

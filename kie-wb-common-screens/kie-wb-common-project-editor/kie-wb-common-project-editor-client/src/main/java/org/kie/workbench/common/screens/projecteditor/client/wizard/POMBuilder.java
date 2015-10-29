@@ -15,11 +15,10 @@
 
 package org.kie.workbench.common.screens.projecteditor.client.wizard;
 
-import java.io.IOException;
-import java.util.Properties;
-
-import org.apache.maven.model.Plugin;
+import org.guvnor.common.services.project.model.Build;
+import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.common.services.project.model.POM;
+import org.guvnor.common.services.project.model.Plugin;
 
 /**
  * The Project Name is used to generate the folder name and hence is only checked to be a valid file name.
@@ -29,23 +28,34 @@ import org.guvnor.common.services.project.model.POM;
  */
 public class POMBuilder {
 
-    private static final String KIE_PLUGIN_VERSION_FILENAME = "/kie-plugin-version.properties";
-    private static final String KIE_PLUGIN_VERSION_PROPERTY_NAME = "kie_plugin_version";
-
     private static final String KIE_MAVEN_PLUGIN_GROUP_ID = "org.kie";
     private static final String KIE_MAVEN_PLUGIN_ARTIFACT_ID = "kie-maven-plugin";
-    private static final String KIE_MAVEN_PLUGIN_VERSION = getKiePluginVersion();
 
-    private static final Plugin KIE_MAVEN_PLUGIN = getKieMavenPlugin();
-
-    private POM pom;
+    private final POM pom;
 
     public POMBuilder() {
-        this.pom = new POM();
-        pom.getGav().setVersion( "1.0" );
+        this( new POM() );
     }
 
-    public POMBuilder setProjectName( String projectName ) {
+    public POMBuilder( final POM pom ) {
+        this.pom = pom;
+        setDefaultPackaging( pom );
+        setDefaultVersion( pom );
+    }
+
+    private void setDefaultVersion( POM pom ) {
+        if ( pom.getGav().getVersion() == null ) {
+            this.pom.getGav().setVersion( "1.0" );
+        }
+    }
+
+    private void setDefaultPackaging( POM pom ) {
+        if ( pom.getPackaging() == null ) {
+            this.pom.setPackaging( "kjar" );
+        }
+    }
+
+    public POMBuilder setProjectName( final String projectName ) {
         pom.setName( projectName );
         if ( projectName != null ) {
             pom.getGav().setArtifactId( sanitizeProjectName( projectName ) );
@@ -53,50 +63,72 @@ public class POMBuilder {
         return this;
     }
 
-    public POMBuilder setGroupId( String groupId ) {
+    public POMBuilder setParentGroupId( final String groupId ) {
+        addParentIfNone();
+
+        pom.getParent().setGroupId( groupId );
+
+        return this;
+    }
+
+    public POMBuilder setParentVersion( final String version ) {
+        addParentIfNone();
+
+        pom.getParent().setVersion( version );
+
+        return this;
+    }
+
+    public POMBuilder setGroupId( final String groupId ) {
         pom.getGav().setGroupId( groupId );
         return this;
     }
 
-    public POMBuilder setVersion( String version ) {
+    public POMBuilder setVersion( final String version ) {
         pom.getGav().setVersion( version );
         return this;
     }
 
-    public POMBuilder setMultiModule( boolean isMultiModule ) {
-        pom.setMultiModule( isMultiModule );
+    public POMBuilder setPackaging( final String packaging ) {
+        pom.setPackaging( packaging );
         return this;
     }
 
-    POM build() {
+    public POMBuilder addKieBuildPlugin( final String kieVersion ) {
+        if ( pom.getBuild() == null ) {
+            pom.setBuild( new Build() );
+        }
+
+        pom.getBuild().getPlugins().add( getKieMavenPlugin( kieVersion ) );
+        return this;
+    }
+
+    public POM build() {
         return pom;
     }
 
-    //The projectName has been validated as a FileSystem folder name, which may not be consistent with Maven ArtifactID
-    //naming restrictions (see org.apache.maven.model.validation.DefaultModelValidator.java::ID_REGEX). Therefore we'd
-    //best sanitize the projectName
+    /**
+     * The projectName has been validated as a FileSystem folder name, which may not be consistent with Maven ArtifactID
+     * naming restrictions (see org.apache.maven.model.validation.DefaultModelValidator.java::ID_REGEX). Therefore we'd
+     * best sanitize the projectName
+     */
     private String sanitizeProjectName( final String projectName ) {
         //Only [A-Za-z0-9_\-.] are valid so strip everything else out
         return projectName != null ? projectName.replaceAll( "[^A-Za-z0-9_\\-.]", "" ) : projectName;
     }
 
-    private static Plugin getKieMavenPlugin() {
+    private Plugin getKieMavenPlugin( final String kieVersion ) {
         final Plugin plugin = new Plugin();
         plugin.setGroupId( KIE_MAVEN_PLUGIN_GROUP_ID );
         plugin.setArtifactId( KIE_MAVEN_PLUGIN_ARTIFACT_ID );
-        plugin.setVersion( KIE_MAVEN_PLUGIN_VERSION );
-        plugin.setExtensions(true);
+        plugin.setVersion( kieVersion );
+        plugin.setExtensions( true );
         return plugin;
     }
 
-    //Used by tests; hence public accessor
-    public static String getKiePluginVersion() {
-        Properties p = new Properties();
-        try {
-            p.load(POMContentHandler.class.getResourceAsStream(KIE_PLUGIN_VERSION_FILENAME));
-        } catch (IOException e) {
-
+    private void addParentIfNone() {
+        if ( !pom.hasParent() ) {
+            pom.setParent( new GAV() );
         }
-        return p.getProperty(KIE_PLUGIN_VERSION_PROPERTY_NAME);
     }
 }

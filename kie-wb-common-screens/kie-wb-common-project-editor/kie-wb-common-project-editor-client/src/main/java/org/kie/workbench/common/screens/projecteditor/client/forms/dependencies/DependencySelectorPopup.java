@@ -13,7 +13,7 @@
  * limitations under the License.
 */
 
-package org.kie.workbench.common.screens.projecteditor.client.forms;
+package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
 import java.util.ArrayList;
 import javax.enterprise.context.Dependent;
@@ -24,6 +24,7 @@ import org.guvnor.m2repo.service.M2RepoService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.jboss.errai.ioc.client.api.AfterInitialization;
+import org.kie.workbench.common.screens.projecteditor.client.forms.GAVSelectionHandler;
 
 @Dependent
 public class DependencySelectorPopup
