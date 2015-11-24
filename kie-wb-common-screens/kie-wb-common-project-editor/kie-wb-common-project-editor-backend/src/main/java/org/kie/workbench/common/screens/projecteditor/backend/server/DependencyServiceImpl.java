@@ -39,17 +39,26 @@ import org.kie.workbench.common.services.shared.project.KieProjectService;
 public class DependencyServiceImpl
         implements DependencyService {
 
-    @Inject
     private LRUBuilderCache builderCache;
 
-    @Inject
     private KieProjectService projectService;
 
-    @Inject
     private POMContentHandler pomContentHandler;
 
+    public DependencyServiceImpl() {
+    }
+
+    @Inject
+    public DependencyServiceImpl( final LRUBuilderCache builderCache,
+                                  final KieProjectService projectService,
+                                  final POMContentHandler pomContentHandler ) {
+        this.builderCache = builderCache;
+        this.projectService = projectService;
+        this.pomContentHandler = pomContentHandler;
+    }
+
     @Override
-    public Collection<Dependency> loadDependencies( POM pom ) {
+    public Collection<Dependency> loadDependencies( final POM pom ) {
 
         try {
             File tempPomXML = File.createTempFile( "pom", ".xml" );
@@ -57,19 +66,9 @@ public class DependencyServiceImpl
 
             try {
                 bufferedWriter.write( pomContentHandler.toString( pom ) );
+                bufferedWriter.close();
 
-//        final KieProject project = projectService.resolveProject( pathToPOM );
-//            if ( project == null ) {
-//                logger.error( "A Project could not be resolved for path '" + resource.toURI() + "'. No enums will be returned." );
-//                return null;
-//            }
-//        final KieModule module = builderCache.assertBuilder( project ).getKieModuleIgnoringErrors();
-//            if ( module == null ) {
-//                logger.error( "A KieModule could not be resolved for path '" + resource.toURI() + "'. No enums will be returned." );
-//                return null;
-//            }
-                Collection<Dependency> dependencies = toDependencies( KieModuleMetaData.Factory.newKieModuleMetaData( tempPomXML ).getDependencies() );
-                return dependencies;
+                return toDependencies( KieModuleMetaData.Factory.newKieModuleMetaData( tempPomXML ).getDependencies() );
             } finally {
                 bufferedWriter.close();
                 tempPomXML.delete();
@@ -79,7 +78,7 @@ public class DependencyServiceImpl
         }
     }
 
-    private Collection<Dependency> toDependencies( Collection<DependencyDescriptor> dependencies ) {
+    private Collection<Dependency> toDependencies( final Collection<DependencyDescriptor> dependencies ) {
         ArrayList<Dependency> result = new ArrayList<Dependency>();
 
         for (DependencyDescriptor dependencyDescriptor : dependencies) {
@@ -89,7 +88,7 @@ public class DependencyServiceImpl
         return result;
     }
 
-    private Dependency toDependency( DependencyDescriptor dependencyDescriptor ) {
+    private Dependency toDependency( final DependencyDescriptor dependencyDescriptor ) {
         return new Dependency( new GAV( dependencyDescriptor.getGroupId(),
                                         dependencyDescriptor.getArtifactId(),
                                         dependencyDescriptor.getVersion() ) );
