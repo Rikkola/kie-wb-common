@@ -18,10 +18,8 @@ package org.kie.workbench.common.screens.projecteditor.client.editor;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -37,7 +35,6 @@ import org.guvnor.common.services.project.builder.service.BuildService;
 import org.guvnor.common.services.project.context.ProjectContext;
 import org.guvnor.common.services.project.context.ProjectContextChangeHandle;
 import org.guvnor.common.services.project.context.ProjectContextChangeHandler;
-import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.Project;
 import org.guvnor.common.services.shared.metadata.model.Metadata;
 import org.guvnor.common.services.shared.security.KieWorkbenchACL;
@@ -58,7 +55,6 @@ import org.kie.workbench.common.screens.projecteditor.client.editor.extension.Bu
 import org.kie.workbench.common.screens.projecteditor.client.resources.ProjectEditorResources;
 import org.kie.workbench.common.screens.projecteditor.client.validation.ProjectNameValidator;
 import org.kie.workbench.common.screens.projecteditor.model.ProjectScreenModel;
-import org.kie.workbench.common.screens.projecteditor.service.DependencyService;
 import org.kie.workbench.common.screens.projecteditor.service.ProjectScreenService;
 import org.kie.workbench.common.services.shared.preferences.ApplicationPreferences;
 import org.kie.workbench.common.widgets.client.callbacks.CommandBuilder;
@@ -109,7 +105,6 @@ public class ProjectScreenPresenter
         implements ProjectScreenView.Presenter {
 
     private ProjectScreenView view;
-    private Caller<DependencyService> dependencyService;
 
     private Caller<ProjectScreenService> projectScreenService;
     private Caller<BuildService> buildServiceCaller;
@@ -172,11 +167,9 @@ public class ProjectScreenPresenter
                                    final BusyIndicatorView busyIndicatorView,
                                    final KieWorkbenchACL kieACL,
                                    final Caller<AssetManagementService> assetManagementServices,
-                                   final Caller<DependencyService> dependencyService,
                                    final Instance<LockManager> lockManagerInstanceProvider,
                                    final Event<ForceUnlockEvent> forceLockReleaseEvent ) {
         this.view = view;
-        this.dependencyService = dependencyService;
         view.setPresenter( this );
         view.setDeployToRuntimeSetting( ApplicationPreferences.getBooleanPref( "support.runtime.deploy" ) );
 
@@ -391,7 +384,7 @@ public class ProjectScreenPresenter
                         validateArtifactID( model.getPOM().getGav().getArtifactId() );
                         validateVersion( model.getPOM().getGav().getVersion() );
 
-                        view.setDependencies( model.getPOM().getDependencies() );
+                        view.setDependencies( model.getPOM() );
                         view.setPomMetadata( model.getPOMMetaData() );
                         view.setPomMetadataUnlockHandler( getUnlockHandler( model.getPOMMetaData().getPath() ) );
 
@@ -960,20 +953,7 @@ public class ProjectScreenPresenter
     @Override
     public void onDependenciesSelected() {
 
-        dependencyService.call(
-                new RemoteCallback<Collection<Dependency>>() {
-                    @Override
-                    public void callback( Collection<Dependency> transientDependencies ) {
-                        view.showDependenciesPanel( transientDependencies );
-                    }
-                }, new ErrorCallback() {
-                    @Override
-                    public boolean error( Object o, Throwable throwable ) {
-                        view.showDependenciesPanel( Collections.EMPTY_LIST );
-                        return false;
-                    }
-                } ).loadTransitiveDependencies( pathToPomXML );
-
+        view.showDependenciesPanel();
         acquireLockOnDemand( model.getPathToPOM(), view.getDependenciesPart() );
     }
 

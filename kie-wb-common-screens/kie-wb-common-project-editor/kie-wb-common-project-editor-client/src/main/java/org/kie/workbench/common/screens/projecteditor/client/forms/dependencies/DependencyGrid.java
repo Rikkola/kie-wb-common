@@ -16,46 +16,59 @@
 
 package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import org.guvnor.common.services.project.model.Dependencies;
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
+import org.guvnor.common.services.project.model.POM;
+import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.common.client.api.ErrorCallback;
+import org.jboss.errai.common.client.api.RemoteCallback;
 import org.kie.workbench.common.screens.projecteditor.client.forms.GAVSelectionHandler;
+import org.kie.workbench.common.screens.projecteditor.service.DependencyService;
 
 @Dependent
 public class DependencyGrid
         implements IsWidget {
 
     private DependencyGridView view;
-    private List<Dependency> dependencies;
     private DependencySelectorPopup dependencySelectorPopup;
+
+    private Caller<DependencyService> dependencyService;
+
+    private Dependencies allDependencies = new Dependencies();
+    private POM pom;
 
     public DependencyGrid() {
     }
 
     @Inject
     public DependencyGrid( final DependencySelectorPopup dependencySelectorPopup,
-                           final DependencyGridView view ) {
+                           final DependencyGridView view,
+                           final Caller<DependencyService> dependencyService ) {
         this.dependencySelectorPopup = dependencySelectorPopup;
+        this.dependencyService = dependencyService;
+
         dependencySelectorPopup.addSelectionHandler( new GAVSelectionHandler() {
             @Override
             public void onSelection( GAV gav ) {
-                dependencies.add( new Dependency( gav ) );
-                fillList( dependencies );
+                pom.getDependencies().add( new Dependency( gav ) );
+                show();
             }
         } );
+
         this.view = view;
         view.setPresenter( this );
     }
 
-    public void fillList( List<Dependency> dependencies ) {
-        this.dependencies = dependencies;
-        view.setList( dependencies );
+    public void setDependencies( POM pom ) {
+        this.pom = pom;
     }
 
     @Override
@@ -64,8 +77,8 @@ public class DependencyGrid
     }
 
     public void onAddDependencyButton() {
-        dependencies.add( new Dependency() );
-        fillList( dependencies );
+        pom.getDependencies().add( new Dependency() );
+        show();
     }
 
     public void onAddDependencyFromRepositoryButton() {
@@ -73,17 +86,46 @@ public class DependencyGrid
     }
 
     public void onRemoveDependency( final Dependency dependency ) {
-        dependencies.remove( dependency );
-        fillList( dependencies );
+        pom.getDependencies().remove( dependency );
+        show();
     }
 
     public void setReadOnly() {
         view.setReadOnly();
     }
 
-    public void show( Collection<Dependency> transientDependencies ) {
+    public void show() {
+        dependencyService.call(
+                new RemoteCallback<Collection<Dependency>>() {
+                    @Override
+                    public void callback( Collection<Dependency> allDependencies ) {
 
+                        DependencyGrid.this.allDependencies.clear();
+                        DependencyGrid.this.allDependencies.addAll( allDependencies );
 
-        view.redraw();
+                        ArrayList<Dependency> result = new ArrayList<Dependency>( allDependencies );
+
+                        for (Dependency dependency : allDependencies) {
+                            if ( !pom.getDependencies().containsDependency( dependency ) ) {
+                                dependency.setScope( "transient" );
+                            }
+                        }
+
+                        Dependencies allDeps = new Dependencies( new ArrayList<Dependency>( allDependencies ) );
+                        for (Dependency dependency : pom.getDependencies()) {
+                            if ( !allDeps.containsDependency( dependency ) ) {
+                                result.add( dependency );
+                            }
+                        }
+
+                        view.show( result );
+                    }
+                }, new ErrorCallback() {
+                    @Override
+                    public boolean error( Object o, Throwable throwable ) {
+//                        view.showDependenciesPanel( Collections.EMPTY_LIST );
+                        return false;
+                    }
+                } ).loadDependencies( pom );
     }
 }

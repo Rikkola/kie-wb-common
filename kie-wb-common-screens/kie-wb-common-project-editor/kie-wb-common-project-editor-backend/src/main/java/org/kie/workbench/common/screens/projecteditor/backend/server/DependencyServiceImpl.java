@@ -14,22 +14,25 @@
 */
 package org.kie.workbench.common.screens.projecteditor.backend.server;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.guvnor.common.services.backend.exceptions.ExceptionUtilities;
+import org.guvnor.common.services.project.backend.server.POMContentHandler;
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
+import org.guvnor.common.services.project.model.POM;
 import org.jboss.errai.bus.server.annotations.Service;
-import org.kie.api.builder.KieModule;
 import org.kie.scanner.DependencyDescriptor;
 import org.kie.scanner.KieModuleMetaData;
 import org.kie.workbench.common.screens.projecteditor.service.DependencyService;
 import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
-import org.kie.workbench.common.services.shared.project.KieProject;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
-import org.uberfire.backend.vfs.Path;
 
 @Service
 @ApplicationScoped
@@ -42,20 +45,38 @@ public class DependencyServiceImpl
     @Inject
     private KieProjectService projectService;
 
-    @Override
-    public Collection<Dependency> loadTransitiveDependencies( Path pathToPOM ) {
+    @Inject
+    private POMContentHandler pomContentHandler;
 
-        final KieProject project = projectService.resolveProject( pathToPOM );
+    @Override
+    public Collection<Dependency> loadDependencies( POM pom ) {
+
+        try {
+            File tempPomXML = File.createTempFile( "pom", ".xml" );
+            BufferedWriter bufferedWriter = new BufferedWriter( new FileWriter( tempPomXML ) );
+
+            try {
+                bufferedWriter.write( pomContentHandler.toString( pom ) );
+
+//        final KieProject project = projectService.resolveProject( pathToPOM );
 //            if ( project == null ) {
 //                logger.error( "A Project could not be resolved for path '" + resource.toURI() + "'. No enums will be returned." );
 //                return null;
 //            }
-        final KieModule module = builderCache.assertBuilder( project ).getKieModuleIgnoringErrors();
+//        final KieModule module = builderCache.assertBuilder( project ).getKieModuleIgnoringErrors();
 //            if ( module == null ) {
 //                logger.error( "A KieModule could not be resolved for path '" + resource.toURI() + "'. No enums will be returned." );
 //                return null;
 //            }
-        return toDependencies( KieModuleMetaData.Factory.newKieModuleMetaData( module ).getDependencies() );
+                Collection<Dependency> dependencies = toDependencies( KieModuleMetaData.Factory.newKieModuleMetaData( tempPomXML ).getDependencies() );
+                return dependencies;
+            } finally {
+                bufferedWriter.close();
+                tempPomXML.delete();
+            }
+        } catch (Exception e) {
+            throw ExceptionUtilities.handleException( e );
+        }
     }
 
     private Collection<Dependency> toDependencies( Collection<DependencyDescriptor> dependencies ) {

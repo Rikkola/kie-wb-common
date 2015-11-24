@@ -28,7 +28,6 @@ public interface DependencyGridView
 
     void setReadOnly();
 
-    void setList( List<Dependency> dependencies );
+    void show( final List<Dependency> dependencies );
 
-    void redraw();
 }

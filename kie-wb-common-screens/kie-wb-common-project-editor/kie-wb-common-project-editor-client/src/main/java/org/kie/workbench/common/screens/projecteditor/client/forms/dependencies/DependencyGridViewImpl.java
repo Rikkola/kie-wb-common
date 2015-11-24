@@ -114,11 +114,6 @@ public class DependencyGridViewImpl
         addFromRepositoryDependencyButton.setEnabled( false );
     }
 
-    @Override
-    public void setList( List<Dependency> dependencies ) {
-        dataGrid.setRowData( dependencies );
-    }
-
     @UiHandler("addDependencyButton")
     void onAddDependency( ClickEvent event ) {
         presenter.onAddDependencyButton();
@@ -130,7 +125,8 @@ public class DependencyGridViewImpl
     }
 
     @Override
-    public void redraw() {
+    public void show( final List<Dependency> dependencies ) {
+        dataGrid.setRowData( dependencies );
         dataGrid.redraw();
     }
 
@@ -138,7 +134,7 @@ public class DependencyGridViewImpl
             implements Command {
 
         @Override public void execute() {
-            redraw();
+            dataGrid.redraw();
         }
     }
 }

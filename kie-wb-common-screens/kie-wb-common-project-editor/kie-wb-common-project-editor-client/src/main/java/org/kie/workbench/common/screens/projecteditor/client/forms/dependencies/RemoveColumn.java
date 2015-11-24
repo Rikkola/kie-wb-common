@@ -15,7 +15,6 @@
  */
 package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
-import com.google.gwt.cell.client.Cell;
 import org.guvnor.common.services.project.model.Dependency;
 import org.kie.workbench.common.widgets.client.resources.i18n.CommonConstants;
 
@@ -28,6 +27,11 @@ public class RemoveColumn
 
     @Override
     public String getValue( Dependency dependency ) {
+
+        if ( "transient".equals( dependency.getScope() ) ) {
+            ((TrashCanImageCell) getCell()).setEnabled( false );
+        }
+
         return CommonConstants.INSTANCE.Delete();
     }
 }

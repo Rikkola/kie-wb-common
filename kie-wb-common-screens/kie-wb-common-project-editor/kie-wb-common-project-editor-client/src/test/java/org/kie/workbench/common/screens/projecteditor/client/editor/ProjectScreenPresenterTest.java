@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import javax.enterprise.event.Event;
 
@@ -32,7 +31,6 @@ import org.guvnor.common.services.project.builder.model.BuildResults;
 import org.guvnor.common.services.project.builder.service.BuildService;
 import org.guvnor.common.services.project.context.ProjectContext;
 import org.guvnor.common.services.project.context.ProjectContextChangeEvent;
-import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.common.services.project.model.POM;
 import org.guvnor.common.services.project.model.Project;
@@ -54,12 +52,10 @@ import org.kie.workbench.common.screens.projecteditor.client.editor.extension.Bu
 import org.kie.workbench.common.screens.projecteditor.client.resources.ProjectEditorResources;
 import org.kie.workbench.common.screens.projecteditor.client.validation.ProjectNameValidator;
 import org.kie.workbench.common.screens.projecteditor.model.ProjectScreenModel;
-import org.kie.workbench.common.screens.projecteditor.service.DependencyService;
 import org.kie.workbench.common.screens.projecteditor.service.ProjectScreenService;
 import org.kie.workbench.common.services.shared.preferences.ApplicationPreferences;
 import org.kie.workbench.common.widgets.client.resources.i18n.CommonConstants;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -103,9 +99,6 @@ public class ProjectScreenPresenterTest {
     @GwtMock
     @SuppressWarnings("unused")
     private com.google.gwt.user.client.ui.Widget dependenciesPart;
-
-    @Mock
-    private DependencyService dependencyService;
 
     @Spy
     private MockLockManagerInstances lockManagerInstanceProvider = new MockLockManagerInstances();
@@ -391,10 +384,7 @@ public class ProjectScreenPresenterTest {
 
         presenter.onDependenciesSelected();
 
-        ArrayList<Dependency> dependencies = new ArrayList<Dependency>();
-        when( dependencyService.loadTransitiveDependencies( pathToPOM ) ).thenReturn( dependencies );
-
-        verify( view ).showDependenciesPanel( dependencies );
+        verify( view ).showDependenciesPanel();
     }
 
     private void verifyBusyShowHideAnyString(int show, int hide) {
@@ -435,8 +425,8 @@ public class ProjectScreenPresenterTest {
                                                  Caller<AssetManagementService> assetManagementServiceCaller) {
 
         presenter = new ProjectScreenPresenter( view,
-                context,
-                new CallerMock<ProjectScreenService>( projectScreenService ),
+                                                context,
+                                                new CallerMock<ProjectScreenService>( projectScreenService ),
                                                 buildServiceCaller,
                                                 mock( EventSourceMock.class ),
                                                 notificationEvent,
@@ -446,7 +436,6 @@ public class ProjectScreenPresenterTest {
                                                 mock( BusyIndicatorView.class ),
                                                 mock( KieWorkbenchACL.class ),
                                                 assetManagementServiceCaller,
-                                                new CallerMock<DependencyService>( dependencyService ),
                                                 lockManagerInstanceProvider,
                                                 mock( EventSourceMock.class ) ) {
 

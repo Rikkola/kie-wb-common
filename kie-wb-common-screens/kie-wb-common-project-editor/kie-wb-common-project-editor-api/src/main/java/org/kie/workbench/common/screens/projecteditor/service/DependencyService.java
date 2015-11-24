@@ -17,12 +17,12 @@ package org.kie.workbench.common.screens.projecteditor.service;
 import java.util.Collection;
 
 import org.guvnor.common.services.project.model.Dependency;
+import org.guvnor.common.services.project.model.POM;
 import org.jboss.errai.bus.server.annotations.Remote;
-import org.uberfire.backend.vfs.Path;
 
 @Remote
 public interface DependencyService {
 
-    Collection<Dependency> loadTransitiveDependencies( final Path pathToPOM );
+    Collection<Dependency> loadDependencies( final POM pom );
 
 }
