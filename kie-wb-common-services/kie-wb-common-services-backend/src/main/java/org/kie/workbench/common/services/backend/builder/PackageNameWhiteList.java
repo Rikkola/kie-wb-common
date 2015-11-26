@@ -51,7 +51,7 @@ public class PackageNameWhiteList {
     @Inject
     public PackageNameWhiteList( final @Named("ioStrategy") IOService ioService ) {
         this.ioService = ioService;
-    }
+        }
 
     /**
      * Filter the provided Package names by the Project's white list
@@ -61,57 +61,70 @@ public class PackageNameWhiteList {
      */
     public Set<String> filterPackageNames( final Project project,
                                            final Collection<String> packageNames ) {
-        final Set<String> packageNamesWhiteList = new HashSet<String>();
         if ( packageNames == null ) {
-            return packageNamesWhiteList;
-        }
-        packageNamesWhiteList.addAll( packageNames );
-        if ( !( project instanceof KieProject ) ) {
-            return packageNamesWhiteList;
+            return Collections.EMPTY_SET;
         }
 
         final String content = readPackageNameWhiteList( (KieProject) project );
-        if ( !( content == null || content.trim().isEmpty() ) ) {
 
-            //If a White List is defined build set of acceptable Package Names from it
-            packageNamesWhiteList.clear();
-            final List<String> patterns = parsePackageNamePatterns( content );
+        if ( project instanceof KieProject && isNotEmpty( content ) ) {
+            return getPackageNamesWhiteList( packageNames,
+                                             content );
+        } else {
+            return new HashSet<String>( packageNames );
+        }
+    }
 
-            //Convert to Paths as we're delegating to an Ant-style pattern matcher.
-            //Convert once outside of the nested loops for performance reasons.
-            for ( int i = 0; i < patterns.size(); i++ ) {
-                patterns.set( i,
-                              patterns.get( i ).replaceAll( "\\.",
-                                                            AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
-            }
-            final HashMap<String, String> packageNamePaths = new HashMap<String, String>();
-            for ( String packageName : packageNames ) {
-                packageNamePaths.put( packageName,
-                                      packageName.replaceAll( "\\.",
-                                                              AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
-            }
+    private Set<String> getPackageNamesWhiteList( final Collection<String> packageNames,
+                                                  final String content ) {
+        final Set<String> result = new HashSet<String>();
 
-            //Add Package Names matching the White List to the available packages
-            for ( String pattern : patterns ) {
-                for ( Map.Entry<String, String> pnp : packageNamePaths.entrySet() ) {
+        // Fetching the paths to a map to avoid loops inside loops
+        final HashMap<String, String> packageNamePaths = getPackageNamePaths( packageNames );
+
+        //Add Package Names matching the White List to the available packages
+        for (String pattern : getPatterns( content )) {
+            for (Map.Entry<String, String> packageNamePath : packageNamePaths.entrySet()) {
                     if ( ANT_PATH_MATCHER.match( pattern,
-                                                 pnp.getValue() ) ) {
-                        packageNamesWhiteList.add( pnp.getKey() );
+                                                 packageNamePath.getValue() ) ) {
+                        result.add( packageNamePath.getKey() );
                     }
                 }
             }
-        }
 
-        return packageNamesWhiteList;
+        return result;
+    }
+
+    private List<String> getPatterns( final String content ) {
+        final List<String> patterns = parsePackageNamePatterns( content );
+
+        //Convert to Paths as we're delegating to an Ant-style pattern matcher.
+        //Convert once outside of the nested loops for performance reasons.
+        for (int i = 0; i < patterns.size(); i++) {
+            patterns.set( i,
+                          patterns.get( i ).replaceAll( "\\.",
+                                                        AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
+        }
+        return patterns;
+    }
+
+    private HashMap<String, String> getPackageNamePaths( final Collection<String> packageNames ) {
+        final HashMap<String, String> packageNamePaths = new HashMap<String, String>();
+        for (String packageName : packageNames) {
+            packageNamePaths.put( packageName,
+                                  packageName.replaceAll( "\\.",
+                                                          AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
+        }
+        return packageNamePaths;
     }
 
     protected String readPackageNameWhiteList( final KieProject project ) {
         final org.uberfire.java.nio.file.Path packageNamesWhiteListPath = Paths.convert( project.getPackageNamesWhiteList() );
         if ( Files.exists( packageNamesWhiteListPath ) ) {
-            final String content = ioService.readAllString( packageNamesWhiteListPath );
-            return content;
+            return ioService.readAllString( packageNamesWhiteListPath );
+        } else {
+            return "";
         }
-        return "";
     }
 
     //See https://bugzilla.redhat.com/show_bug.cgi?id=1205180. Use OS-independent line splitting.
@@ -119,10 +132,14 @@ public class PackageNameWhiteList {
         try {
             return IOUtils.readLines( new StringReader( content ) );
 
-        } catch ( IOException ioe ) {
+        } catch (IOException ioe) {
             logger.warn( "Unable to parse package names from '" + content + "'. Falling back to empty list." );
             return Collections.emptyList();
         }
     }
 
+    private boolean isNotEmpty( final String content ) {
+        return !(content == null || content.trim().isEmpty());
+    }
 }
+
