@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.backend.validation.DefaultGenericKieValidator;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.kie.workbench.common.services.shared.project.ProjectImportsService;
@@ -36,6 +37,7 @@ import org.uberfire.io.IOService;
 import org.uberfire.java.nio.fs.file.SimpleFileSystemProvider;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class BuilderTest
         extends BuilderTestBase {
@@ -65,9 +67,10 @@ public class BuilderTest
                                              projectService,
                                              importsService,
                                              new ArrayList<BuildValidationHelper>(),
-                                             new PackageNameWhiteList( ioService ),
                                              dependenciesClassLoaderCache,
-                                             pomModelCache );
+                                             pomModelCache,
+                                             new PackageNameWhiteList( ioService,
+                                                                       mock( DependencyService.class)  ) );
 
         assertNotNull( builder.getKieContainer() );
     }
@@ -91,9 +94,10 @@ public class BuilderTest
                                              projectService,
                                              importsService,
                                              new ArrayList<BuildValidationHelper>(),
-                                             new PackageNameWhiteList( ioService ),
                                              dependenciesClassLoaderCache,
-                                             pomModelCache );
+                                             pomModelCache,
+                                             new PackageNameWhiteList( ioService ,
+                                                                       mock( DependencyService.class)) );
 
         assertNull( builder.getKieContainer() );
 
@@ -127,9 +131,10 @@ public class BuilderTest
                                              projectService,
                                              importsService,
                                              new ArrayList<BuildValidationHelper>(),
-                                             new PackageNameWhiteList( ioService ),
                                              dependenciesClassLoaderCache,
-                                             pomModelCache );
+                                             pomModelCache,
+                                             new PackageNameWhiteList( ioService,
+                                                                       mock( DependencyService.class) ) );
 
         assertNotNull( builder.getKieContainer() );
 

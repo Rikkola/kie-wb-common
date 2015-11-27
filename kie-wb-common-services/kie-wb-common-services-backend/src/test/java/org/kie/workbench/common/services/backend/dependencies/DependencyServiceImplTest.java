@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package org.kie.workbench.common.screens.projecteditor.backend.server;
+package org.kie.workbench.common.services.backend.dependencies;
 
 import java.util.Collection;
 
@@ -24,28 +24,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
+import org.kie.workbench.common.services.backend.dependencies.DependencyServiceImpl;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DependencyServiceImplTest {
-
-    @Mock
-    private LRUBuilderCache lruBuilderCache;
-
-    @Mock
-    private KieProjectService kieProjectService;
 
     private DependencyServiceImpl service;
 
     @Before
     public void setUp() throws Exception {
-        service = new DependencyServiceImpl( lruBuilderCache,
-                                             kieProjectService,
-                                             new POMContentHandler() );
+        service = new DependencyServiceImpl( new POMContentHandler() );
 
     }
 

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package org.kie.workbench.common.screens.projecteditor.backend.server;
+package org.kie.workbench.common.services.backend.dependencies;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,18 +30,12 @@ import org.guvnor.common.services.project.model.POM;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.kie.scanner.DependencyDescriptor;
 import org.kie.scanner.KieModuleMetaData;
-import org.kie.workbench.common.screens.projecteditor.service.DependencyService;
-import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
-import org.kie.workbench.common.services.shared.project.KieProjectService;
+import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 
 @Service
 @ApplicationScoped
 public class DependencyServiceImpl
         implements DependencyService {
-
-    private LRUBuilderCache builderCache;
-
-    private KieProjectService projectService;
 
     private POMContentHandler pomContentHandler;
 
@@ -49,11 +43,7 @@ public class DependencyServiceImpl
     }
 
     @Inject
-    public DependencyServiceImpl( final LRUBuilderCache builderCache,
-                                  final KieProjectService projectService,
-                                  final POMContentHandler pomContentHandler ) {
-        this.builderCache = builderCache;
-        this.projectService = projectService;
+    public DependencyServiceImpl( final POMContentHandler pomContentHandler ) {
         this.pomContentHandler = pomContentHandler;
     }
 

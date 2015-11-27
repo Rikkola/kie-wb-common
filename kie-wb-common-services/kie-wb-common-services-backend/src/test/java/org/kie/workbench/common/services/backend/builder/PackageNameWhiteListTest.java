@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.junit.Test;
+import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.shared.project.KieProject;
 import org.uberfire.io.IOService;
 
@@ -90,7 +91,8 @@ public class PackageNameWhiteListTest {
         private String content;
 
         public MockPackageNameWhiteList( final String content ) {
-            super( mock( IOService.class ) );
+            super( mock( IOService.class ),
+                   mock( DependencyService.class));
             this.content = content;
         }
 

@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.projecteditor.client.forms.GAVSelectionHandler;
-import org.kie.workbench.common.screens.projecteditor.service.DependencyService;
+import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;

@@ -56,6 +56,7 @@ public class ProjectDataModelConcurrencyTest {
                                   "builder.jar" )
                 .addPackage( "org.kie.commons.java.nio.fs.jgit" )
                 .addPackage( "org.kie.workbench.common.services.datamodel.backend.server" )
+                .addPackage( "org.kie.workbench.common.services.backend.dependencies" )
                 .addPackage( "org.kie.workbench.common.services.datamodel.backend.server.cache" )
                 .addPackage( "org.guvnor.m2repo.backend.server" )
                 .addPackage( "org.guvnor.m2repo.backend.server.helpers" )

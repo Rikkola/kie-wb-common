@@ -35,9 +35,9 @@ import org.drools.compiler.kproject.xml.DependencyFilter;
 import org.drools.compiler.kproject.xml.PomModel;
 import org.drools.workbench.models.datamodel.imports.Import;
 import org.drools.workbench.models.datamodel.imports.Imports;
-import org.drools.workbench.models.datamodel.oracle.TypeSource;
 import org.guvnor.common.services.backend.file.DotFileFilter;
 import org.guvnor.common.services.backend.file.JavaFileFilter;
+import org.guvnor.common.services.project.builder.model.BuildMessage;
 import org.guvnor.common.services.project.builder.model.BuildResults;
 import org.guvnor.common.services.project.builder.model.IncrementalBuildResults;
 import org.guvnor.common.services.project.builder.service.BuildValidationHelper;
@@ -79,10 +79,6 @@ public class Builder {
 
     private static final Logger logger = LoggerFactory.getLogger( Builder.class );
 
-    //TODO internationalize error messages?.
-    private final static String ERROR_EXTERNAL_CLASS_VERIFICATON = "Verification of class {0} failed and will not be available for authoring.\n" +
-            "Please check the necessary external dependencies for this project are configured correctly.";
-
     private final static String ERROR_CLASS_NOT_FOUND = "Definition of class \"{0}\" was not found.\n" +
             "Please check the necessary external dependencies for this project are configured correctly.";
 
@@ -101,7 +97,6 @@ public class Builder {
     private final KieProjectService projectService;
     private final ProjectImportsService importsService;
     private final List<BuildValidationHelper> buildValidationHelpers;
-    private final PackageNameWhiteList packageNameWhiteList;
 
     private final Map<Path, BuildValidationHelper> nonKieResourceValidationHelpers = new HashMap<Path, BuildValidationHelper>();
     private final Map<Path, List<ValidationMessage>> nonKieResourceValidationHelperMessages = new HashMap<Path, List<ValidationMessage>>();
@@ -109,20 +104,21 @@ public class Builder {
     private final DirectoryStream.Filter<Path> javaResourceFilter = new JavaFileFilter();
     private final DirectoryStream.Filter<Path> dotFileFilter = new DotFileFilter();
 
-    private Set<String> javaResources = new HashSet<String>();
+    private final Set<String> javaResources = new HashSet<String>();
 
     private LRUProjectDependenciesClassLoaderCache dependenciesClassLoaderCache;
 
     private LRUPomModelCache pomModelCache;
+    private PackageNameWhiteList packageNameWhiteList;
 
     public Builder( final Project project,
                     final IOService ioService,
                     final KieProjectService projectService,
                     final ProjectImportsService importsService,
                     final List<BuildValidationHelper> buildValidationHelpers,
-                    final PackageNameWhiteList packageNameWhiteList,
                     final LRUProjectDependenciesClassLoaderCache dependenciesClassLoaderCache,
-                    final LRUPomModelCache pomModelCache ) {
+                    final LRUPomModelCache pomModelCache,
+                    final PackageNameWhiteList packageNameWhiteList ) {
         this.project = project;
         this.ioService = ioService;
         this.projectService = projectService;
@@ -204,44 +200,26 @@ public class Builder {
             //At the end we are interested to ensure that external .jar files referenced as dependencies don't have
             // referential inconsistencies. We will at least provide a basic algorithm to ensure that if an external class
             // X references another external class Y, Y is also accessible by the class loader.
-            final KieModuleMetaData kieModuleMetaData = KieModuleMetaData.Factory.newKieModuleMetaData( ( (InternalKieBuilder) kieBuilder ).getKieModuleIgnoringErrors(),
-                                                                                                        DependencyFilter.COMPILE_FILTER );
-            final Set<String> packageNamesWhiteList = packageNameWhiteList.filterPackageNames( project,
-                                                                                               kieModuleMetaData.getPackages() );
+            final KieModuleMetaData kieModuleMetaData = getKieModuleMetaDataIgnoringErrors();
+
             //store the project dependencies ClassLoader for optimization purposes.
-            updateDependenciesClassLoader( project, kieModuleMetaData );
+            updateDependenciesClassLoader( project,
+                                           kieModuleMetaData );
 
-            for ( final String packageName : kieModuleMetaData.getPackages() ) {
-                if ( packageNamesWhiteList.contains( packageName ) ) {
-                    for ( final String className : kieModuleMetaData.getClasses( packageName ) ) {
-                        final String fullyQualifiedClassName = packageName + "." + className;
-                        try {
-                            final Class clazz = kieModuleMetaData.getClass( packageName,
-                                                                            className );
-                            if ( clazz != null ) {
-                                final TypeSource typeSource = getClassSource( kieModuleMetaData,
-                                                                              clazz );
-                                if ( TypeSource.JAVA_DEPENDENCY == typeSource ) {
-                                    verifyExternalClass( clazz );
-                                }
-                            } else {
-                                final String msg = MessageFormat.format( ERROR_EXTERNAL_CLASS_VERIFICATON,
-                                                                         fullyQualifiedClassName );
-                                logger.warn( msg );
-                            }
-
-                        } catch ( Throwable e ) {
-                            final String msg = MessageFormat.format( ERROR_EXTERNAL_CLASS_VERIFICATON,
-                                                                     fullyQualifiedClassName );
-                            logger.warn( msg );
-                            results.addBuildMessage( makeWarningMessage( msg ) );
-                        }
-                    }
-                }
-            }
+            results.addAllBuildMessages( verifyClasses( kieModuleMetaData ) );
 
             return results;
         }
+    }
+
+    private List<BuildMessage> verifyClasses( KieModuleMetaData kieModuleMetaData ) {
+        return new ClassVerifier( kieModuleMetaData,
+                                  getTypeSourceResolver( kieModuleMetaData ) ).verify( getWhiteList( kieModuleMetaData ) );
+    }
+
+    private Set<String> getWhiteList( final KieModuleMetaData kieModuleMetaData ) {
+        return packageNameWhiteList.filterPackageNames( project,
+                                                        kieModuleMetaData.getPackages() );
     }
 
     private KieBuilder createKieBuilder( final KieFileSystem kieFileSystem ) {
@@ -261,15 +239,6 @@ public class Builder {
                                                                      LRUProjectDependenciesClassLoaderCache.buildClassLoader( kieProject,
                                                                                                                               kieModuleMetaData ) );
         }
-    }
-
-    private void verifyExternalClass( final Class clazz ) {
-        //don't recommended to instantiate the class doing clazz.newInstance().
-        clazz.getDeclaredConstructors();
-        clazz.getDeclaredFields();
-        clazz.getDeclaredMethods();
-        clazz.getDeclaredClasses();
-        clazz.getDeclaredAnnotations();
     }
 
     public IncrementalBuildResults addResource( final Path resource ) {
@@ -522,6 +491,17 @@ public class Builder {
         }
     }
 
+    public KieModuleMetaData getKieModuleMetaDataIgnoringErrors() {
+        return KieModuleMetaData.Factory.newKieModuleMetaData( getKieModuleIgnoringErrors(),
+                                                               DependencyFilter.COMPILE_FILTER );
+
+    }
+
+    public TypeSourceResolver getTypeSourceResolver( KieModuleMetaData kieModuleMetaData ) {
+        return new TypeSourceResolver( kieModuleMetaData,
+                                       javaResources );
+    }
+
     public KieContainer getKieContainer() {
         BuildResults results = null;
 
@@ -598,6 +578,7 @@ public class Builder {
         }
     }
 
+
     private void removeJavaClass( final Path path ) {
         if ( !javaResourceFilter.accept( path ) ) {
             return;
@@ -616,27 +597,7 @@ public class Builder {
         }
         final String className = path.getFileName().toString().replace( ".java",
                                                                         "" );
-        return ( packageName.equals( "" ) ? className : packageName + "." + className );
-    }
-
-    public TypeSource getClassSource( final KieModuleMetaData metaData,
-                                      final Class<?> clazz ) {
-        //Was the Type declared in DRL
-        if ( metaData.getTypeMetaInfo( clazz ).isDeclaredType() ) {
-            return TypeSource.DECLARED;
-        }
-
-        //Was the Type defined inside the project or within a dependency
-        String fullyQualifiedClassName = clazz.getName();
-        int innerClassIdentifierIndex = fullyQualifiedClassName.indexOf( "$" );
-        if ( innerClassIdentifierIndex > 0 ) {
-            fullyQualifiedClassName = fullyQualifiedClassName.substring( 0,
-                                                                         innerClassIdentifierIndex );
-        }
-        if ( javaResources.contains( fullyQualifiedClassName ) ) {
-            return TypeSource.JAVA_PROJECT;
-        }
-        return TypeSource.JAVA_DEPENDENCY;
+        return (packageName.equals( "" ) ? className : packageName + "." + className);
     }
 
     private BuildValidationHelper getBuildValidationHelper( final Path nioResource ) {
@@ -648,5 +609,4 @@ public class Builder {
         }
         return null;
     }
-
 }

@@ -31,7 +31,7 @@ import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.ErrorCallback;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.kie.workbench.common.screens.projecteditor.client.forms.GAVSelectionHandler;
-import org.kie.workbench.common.screens.projecteditor.service.DependencyService;
+import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 
 @Dependent
 public class DependencyGrid

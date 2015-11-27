@@ -29,6 +29,7 @@ import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
 import org.guvnor.common.services.project.model.Project;
+import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.backend.file.AntPathMatcher;
 import org.kie.workbench.common.services.shared.project.KieProject;
 import org.slf4j.Logger;
@@ -49,9 +50,10 @@ public class PackageNameWhiteList {
     private IOService ioService;
 
     @Inject
-    public PackageNameWhiteList( final @Named("ioStrategy") IOService ioService ) {
+    public PackageNameWhiteList( final @Named("ioStrategy") IOService ioService,
+                                 final DependencyService dependendencyService) {
         this.ioService = ioService;
-        }
+    }
 
     /**
      * Filter the provided Package names by the Project's white list
@@ -63,13 +65,9 @@ public class PackageNameWhiteList {
                                            final Collection<String> packageNames ) {
         if ( packageNames == null ) {
             return Collections.EMPTY_SET;
-        }
-
-        final String content = readPackageNameWhiteList( (KieProject) project );
-
-        if ( project instanceof KieProject && isNotEmpty( content ) ) {
+        } else if ( project instanceof KieProject ) {
             return getPackageNamesWhiteList( packageNames,
-                                             content );
+                                             readPackageNameWhiteList( (KieProject) project ) );
         } else {
             return new HashSet<String>( packageNames );
         }
@@ -77,22 +75,27 @@ public class PackageNameWhiteList {
 
     private Set<String> getPackageNamesWhiteList( final Collection<String> packageNames,
                                                   final String content ) {
-        final Set<String> result = new HashSet<String>();
+        if ( isEmpty( content ) ) {
+            return new HashSet<String>( packageNames );
+        } else {
 
-        // Fetching the paths to a map to avoid loops inside loops
-        final HashMap<String, String> packageNamePaths = getPackageNamePaths( packageNames );
+            final Set<String> result = new HashSet<String>();
 
-        //Add Package Names matching the White List to the available packages
-        for (String pattern : getPatterns( content )) {
-            for (Map.Entry<String, String> packageNamePath : packageNamePaths.entrySet()) {
+            // Fetching the paths to a map to avoid loops inside loops
+            final HashMap<String, String> packageNamePaths = getPackageNamePaths( packageNames );
+
+            //Add Package Names matching the White List to the available packages
+            for (String pattern : getPatterns( content )) {
+                for (Map.Entry<String, String> packageNamePath : packageNamePaths.entrySet()) {
                     if ( ANT_PATH_MATCHER.match( pattern,
                                                  packageNamePath.getValue() ) ) {
                         result.add( packageNamePath.getKey() );
                     }
                 }
-            }
+                }
 
-        return result;
+            return result;
+        }
     }
 
     private List<String> getPatterns( final String content ) {
@@ -138,8 +141,8 @@ public class PackageNameWhiteList {
         }
     }
 
-    private boolean isNotEmpty( final String content ) {
-        return !(content == null || content.trim().isEmpty());
+    private boolean isEmpty( final String content ) {
+        return (content == null || content.trim().isEmpty());
     }
 }
 
