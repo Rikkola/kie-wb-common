@@ -36,12 +36,12 @@ import static org.mockito.Mockito.*;
  * <p/>
  * See See https://en.wikipedia.org/wiki/Newline#Representations
  **/
-public class PackageNameWhiteListTest {
+public class PackageNameWhiteListServiceTest {
 
     @Test
     public void testWindowsEncoding() {
-        final PackageNameWhiteList packageNameWhiteList = new MockPackageNameWhiteList( "a.**\r\nb\r\n" );
-        final Set<String> results = packageNameWhiteList.filterPackageNames( mock( KieProject.class ),
+        final PackageNameWhiteListService packageNameWhiteListService = new MockPackageNameWhiteListService( "a.**\r\nb\r\n" );
+        final Set<String> results = packageNameWhiteListService.filterPackageNames( mock( KieProject.class ),
                                                                              new ArrayList<String>() {{
                                                                                  add( "a" );
                                                                                  add( "b" );
@@ -59,8 +59,8 @@ public class PackageNameWhiteListTest {
 
     @Test
     public void testUnixEncoding() {
-        final PackageNameWhiteList packageNameWhiteList = new MockPackageNameWhiteList( "a.**\nb\n" );
-        final Set<String> results = packageNameWhiteList.filterPackageNames( mock( KieProject.class ),
+        final PackageNameWhiteListService packageNameWhiteListService = new MockPackageNameWhiteListService( "a.**\nb\n" );
+        final Set<String> results = packageNameWhiteListService.filterPackageNames( mock( KieProject.class ),
                                                                              new ArrayList<String>() {{
                                                                                  add( "a" );
                                                                                  add( "b" );
@@ -86,11 +86,12 @@ public class PackageNameWhiteListTest {
         fail( "Expected pattern '" + expected + "' was not found in actual." );
     }
 
-    private static class MockPackageNameWhiteList extends PackageNameWhiteList {
+    private static class MockPackageNameWhiteListService
+            extends PackageNameWhiteListService {
 
         private String content;
 
-        public MockPackageNameWhiteList( final String content ) {
+        public MockPackageNameWhiteListService( final String content ) {
             super( mock( IOService.class ),
                    mock( DependencyService.class));
             this.content = content;

@@ -12,19 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package org.kie.workbench.common.services.shared.dependencies;
-
-import java.util.Collection;
+package org.kie.workbench.common.services.backend.dependencies;
 
 import org.guvnor.common.services.project.model.Dependency;
-import org.guvnor.common.services.project.model.POM;
-import org.jboss.errai.bus.server.annotations.Remote;
+import org.guvnor.common.services.project.model.GAV;
 
-@Remote
-public interface DependencyService {
-
-    Collection<Dependency> loadDependencies( final POM pom );
-
-    Collection<Dependency> loadTopLevelDependencies( final POM pom );
+public class DependencyTestUtils {
 
 }

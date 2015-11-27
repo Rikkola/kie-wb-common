@@ -17,20 +17,19 @@ package org.kie.workbench.common.services.backend.builder;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
 import org.guvnor.common.services.project.model.Project;
-import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.backend.file.AntPathMatcher;
+import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.shared.project.KieProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +40,18 @@ import org.uberfire.java.nio.file.Files;
 /**
  * Represents a "white list" of permitted package names for use with authoring
  */
-public class PackageNameWhiteList {
+public class PackageNameWhiteListService {
 
-    private static final Logger logger = LoggerFactory.getLogger( PackageNameWhiteList.class );
-
-    private static final AntPathMatcher ANT_PATH_MATCHER = new AntPathMatcher();
+    private static final Logger logger = LoggerFactory.getLogger( PackageNameWhiteListService.class );
 
     private IOService ioService;
+    private DependencyService dependencyService;
 
     @Inject
-    public PackageNameWhiteList( final @Named("ioStrategy") IOService ioService,
-                                 final DependencyService dependendencyService) {
+    public PackageNameWhiteListService( final @Named("ioStrategy") IOService ioService,
+                                        final DependencyService dependencyService ) {
         this.ioService = ioService;
+        this.dependencyService = dependencyService;
     }
 
     /**
@@ -66,59 +65,33 @@ public class PackageNameWhiteList {
         if ( packageNames == null ) {
             return Collections.EMPTY_SET;
         } else if ( project instanceof KieProject ) {
-            return getPackageNamesWhiteList( packageNames,
-                                             readPackageNameWhiteList( (KieProject) project ) );
+
+            dependencyService.loadTopLevelDependencies( project.getPom() );
+
+            return new PackageNameWhiteListProvider( packageNames,
+                                                     getPatterns( project ) ).getFilteredPackageNames();
         } else {
             return new HashSet<String>( packageNames );
         }
     }
 
-    private Set<String> getPackageNamesWhiteList( final Collection<String> packageNames,
-                                                  final String content ) {
+    private List<String> getPatterns( final Project project ) {
+        final String content = readPackageNameWhiteList( (KieProject) project );
+
         if ( isEmpty( content ) ) {
-            return new HashSet<String>( packageNames );
+            return new ArrayList<String>();
         } else {
+            final List<String> patterns = parsePackageNamePatterns( content );
 
-            final Set<String> result = new HashSet<String>();
-
-            // Fetching the paths to a map to avoid loops inside loops
-            final HashMap<String, String> packageNamePaths = getPackageNamePaths( packageNames );
-
-            //Add Package Names matching the White List to the available packages
-            for (String pattern : getPatterns( content )) {
-                for (Map.Entry<String, String> packageNamePath : packageNamePaths.entrySet()) {
-                    if ( ANT_PATH_MATCHER.match( pattern,
-                                                 packageNamePath.getValue() ) ) {
-                        result.add( packageNamePath.getKey() );
-                    }
-                }
-                }
-
-            return result;
+            //Convert to Paths as we're delegating to an Ant-style pattern matcher.
+            //Convert once outside of the nested loops for performance reasons.
+            for (int i = 0; i < patterns.size(); i++) {
+                patterns.set( i,
+                              patterns.get( i ).replaceAll( "\\.",
+                                                            AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
+            }
+            return patterns;
         }
-    }
-
-    private List<String> getPatterns( final String content ) {
-        final List<String> patterns = parsePackageNamePatterns( content );
-
-        //Convert to Paths as we're delegating to an Ant-style pattern matcher.
-        //Convert once outside of the nested loops for performance reasons.
-        for (int i = 0; i < patterns.size(); i++) {
-            patterns.set( i,
-                          patterns.get( i ).replaceAll( "\\.",
-                                                        AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
-        }
-        return patterns;
-    }
-
-    private HashMap<String, String> getPackageNamePaths( final Collection<String> packageNames ) {
-        final HashMap<String, String> packageNamePaths = new HashMap<String, String>();
-        for (String packageName : packageNames) {
-            packageNamePaths.put( packageName,
-                                  packageName.replaceAll( "\\.",
-                                                          AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
-        }
-        return packageNamePaths;
     }
 
     protected String readPackageNameWhiteList( final KieProject project ) {

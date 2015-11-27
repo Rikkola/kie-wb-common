@@ -70,7 +70,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteList( ioService,
+                                             new PackageNameWhiteListService( ioService,
                                                                        mock( DependencyService.class)  ) );
 
         final BuildResults results = builder.build();
@@ -99,7 +99,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteList( ioService,
+                                             new PackageNameWhiteListService( ioService,
                                                                        mock( DependencyService.class)  ) );
 
         final BuildResults results = builder.build();
@@ -135,7 +135,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteList( ioService,
+                                             new PackageNameWhiteListService( ioService,
                                                                        mock( DependencyService.class)  ) );
 
         final BuildResults results = builder.build();
@@ -171,7 +171,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteList( ioService,
+                                             new PackageNameWhiteListService( ioService,
                                                                        mock( DependencyService.class)  ) );
 
         final BuildResults results = builder.build();
@@ -235,7 +235,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteList( ioService,
+                                             new PackageNameWhiteListService( ioService,
                                                                        mock( DependencyService.class)  ) );
 
         final BuildResults results = builder.build();

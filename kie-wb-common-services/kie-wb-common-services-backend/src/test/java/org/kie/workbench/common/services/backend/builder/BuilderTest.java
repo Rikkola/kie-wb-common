@@ -69,7 +69,7 @@ public class BuilderTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteList( ioService,
+                                             new PackageNameWhiteListService( ioService,
                                                                        mock( DependencyService.class)  ) );
 
         assertNotNull( builder.getKieContainer() );
@@ -96,7 +96,7 @@ public class BuilderTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteList( ioService ,
+                                             new PackageNameWhiteListService( ioService ,
                                                                        mock( DependencyService.class)) );
 
         assertNull( builder.getKieContainer() );
@@ -133,7 +133,7 @@ public class BuilderTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteList( ioService,
+                                             new PackageNameWhiteListService( ioService,
                                                                        mock( DependencyService.class) ) );
 
         assertNotNull( builder.getKieContainer() );

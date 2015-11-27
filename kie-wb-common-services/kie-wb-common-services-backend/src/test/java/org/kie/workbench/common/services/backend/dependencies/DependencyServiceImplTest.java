@@ -14,6 +14,7 @@
 */
 package org.kie.workbench.common.services.backend.dependencies;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.guvnor.common.services.project.backend.server.POMContentHandler;
@@ -23,29 +24,45 @@ import org.guvnor.common.services.project.model.POM;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kie.scanner.DependencyDescriptor;
+import org.kie.scanner.KieModuleMetaData;
+import org.kie.workbench.common.services.backend.builder.Builder;
 import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
-import org.kie.workbench.common.services.backend.dependencies.DependencyServiceImpl;
-import org.kie.workbench.common.services.shared.project.KieProjectService;
+import org.kie.workbench.common.services.backend.builder.NoBuilderFoundException;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class DependencyServiceImplTest {
+
+    @Mock
+    private LRUBuilderCache builderCache;
+
+    @Mock
+    private DependencySearchProvider dependencySearchProvider;
 
     private DependencyServiceImpl service;
 
     @Before
     public void setUp() throws Exception {
-        service = new DependencyServiceImpl( new POMContentHandler() );
-
+        service = new DependencyServiceImpl( new POMContentHandler(),
+                                             builderCache,
+                                             dependencySearchProvider );
     }
 
     @Test
     public void testNoDependencies() throws Exception {
-        Collection<Dependency> dependencies = service.loadDependencies( new POM( new GAV( "artifactID",
-                                                                                          "groupID",
-                                                                                          "version" ) ) );
+
+        POM pom = new POM( new GAV( "artifactID",
+                                    "groupID",
+                                    "version" ) );
+
+        mockMetaData( pom, new ArrayList<DependencyDescriptor>() );
+
+        Collection<Dependency> dependencies = service.loadDependencies( pom );
 
         assertTrue( dependencies.isEmpty() );
     }
@@ -56,8 +73,33 @@ public class DependencyServiceImplTest {
                                     "groupID",
                                     "version" ) );
         pom.getDependencies().add( new Dependency() );
+
+        mockMetaData( pom, new ArrayList<DependencyDescriptor>() );
+
         Collection<Dependency> dependencies = service.loadDependencies( pom );
 
         assertTrue( dependencies.isEmpty() );
     }
+
+    @Test
+    public void testName() throws Exception {
+        POM pom = new POM();
+
+        DependencySearchProvider.TopLevelDependencySearch search = mock( DependencySearchProvider.TopLevelDependencySearch.class );
+        when( dependencySearchProvider.newTopLevelDependencySearch( pom ) ).thenReturn( search );
+
+        service.loadTopLevelDependencies( pom );
+
+        verify( search ).search();
+    }
+
+    private void mockMetaData( final POM pom,
+                               final ArrayList<DependencyDescriptor> allDependencies ) throws NoBuilderFoundException {
+        Builder builder = mock( Builder.class );
+        when( builderCache.assertBuilder( pom ) ).thenReturn( builder );
+        KieModuleMetaData kieModuleMetaData = mock( KieModuleMetaData.class );
+        when( builder.getKieModuleMetaDataIgnoringErrors() ).thenReturn( kieModuleMetaData );
+        when( kieModuleMetaData.getDependencies() ).thenReturn( allDependencies );
+    }
+
 }

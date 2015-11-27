@@ -14,9 +14,6 @@
 */
 package org.kie.workbench.common.services.backend.dependencies;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.enterprise.context.ApplicationScoped;
@@ -30,6 +27,8 @@ import org.guvnor.common.services.project.model.POM;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.kie.scanner.DependencyDescriptor;
 import org.kie.scanner.KieModuleMetaData;
+import org.kie.workbench.common.services.backend.builder.Builder;
+import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 
 @Service
@@ -39,33 +38,35 @@ public class DependencyServiceImpl
 
     private POMContentHandler pomContentHandler;
 
+    private LRUBuilderCache builderCache;
+    private DependencySearchProvider dependencySearchProvider;
+
     public DependencyServiceImpl() {
     }
 
     @Inject
-    public DependencyServiceImpl( final POMContentHandler pomContentHandler ) {
+    public DependencyServiceImpl( final POMContentHandler pomContentHandler,
+                                  final LRUBuilderCache builderCache,
+                                  final DependencySearchProvider dependencySearchProvider ) {
         this.pomContentHandler = pomContentHandler;
+        this.builderCache = builderCache;
+        this.dependencySearchProvider = dependencySearchProvider;
     }
 
     @Override
     public Collection<Dependency> loadDependencies( final POM pom ) {
-
         try {
-            File tempPomXML = File.createTempFile( "pom", ".xml" );
-            BufferedWriter bufferedWriter = new BufferedWriter( new FileWriter( tempPomXML ) );
-
-            try {
-                bufferedWriter.write( pomContentHandler.toString( pom ) );
-                bufferedWriter.close();
-
-                return toDependencies( KieModuleMetaData.Factory.newKieModuleMetaData( tempPomXML ).getDependencies() );
-            } finally {
-                bufferedWriter.close();
-                tempPomXML.delete();
-            }
+            Builder builder = builderCache.assertBuilder( pom );
+            KieModuleMetaData kieModuleMetaDataIgnoringErrors = builder.getKieModuleMetaDataIgnoringErrors();
+            return toDependencies( kieModuleMetaDataIgnoringErrors.getDependencies() );
         } catch (Exception e) {
             throw ExceptionUtilities.handleException( e );
         }
+    }
+
+    @Override
+    public Collection<Dependency> loadTopLevelDependencies( POM pom ) {
+        return dependencySearchProvider.newTopLevelDependencySearch( pom ).search();
     }
 
     private Collection<Dependency> toDependencies( final Collection<DependencyDescriptor> dependencies ) {

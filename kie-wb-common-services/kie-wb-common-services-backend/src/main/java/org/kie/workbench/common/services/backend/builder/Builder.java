@@ -109,7 +109,7 @@ public class Builder {
     private LRUProjectDependenciesClassLoaderCache dependenciesClassLoaderCache;
 
     private LRUPomModelCache pomModelCache;
-    private PackageNameWhiteList packageNameWhiteList;
+    private PackageNameWhiteListService packageNameWhiteListService;
 
     public Builder( final Project project,
                     final IOService ioService,
@@ -118,13 +118,13 @@ public class Builder {
                     final List<BuildValidationHelper> buildValidationHelpers,
                     final LRUProjectDependenciesClassLoaderCache dependenciesClassLoaderCache,
                     final LRUPomModelCache pomModelCache,
-                    final PackageNameWhiteList packageNameWhiteList ) {
+                    final PackageNameWhiteListService packageNameWhiteListService ) {
         this.project = project;
         this.ioService = ioService;
         this.projectService = projectService;
         this.importsService = importsService;
         this.buildValidationHelpers = buildValidationHelpers;
-        this.packageNameWhiteList = packageNameWhiteList;
+        this.packageNameWhiteListService = packageNameWhiteListService;
         this.projectGAV = project.getPom().getGav();
         this.projectRoot = Paths.convert( project.getRootPath() );
         this.projectPrefix = projectRoot.toUri().toString();
@@ -218,7 +218,7 @@ public class Builder {
     }
 
     private Set<String> getWhiteList( final KieModuleMetaData kieModuleMetaData ) {
-        return packageNameWhiteList.filterPackageNames( project,
+        return packageNameWhiteListService.filterPackageNames( project,
                                                         kieModuleMetaData.getPackages() );
     }
 
