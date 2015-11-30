@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package org.kie.workbench.common.services.backend.dependencies;
+package org.kie.workbench.common.services.backend.builder.whitelist;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,16 +31,16 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DependencySearchProviderTest {
+public class PackageNameSearchProviderTest {
 
     @Mock
     private DependencyService dependencyService;
 
-    private DependencySearchProvider dependencySearchProvider;
+    private PackageNameSearchProvider packageNameSearchProvider;
 
     @Before
     public void setUp() throws Exception {
-        dependencySearchProvider = new DependencySearchProvider( dependencyService );
+        packageNameSearchProvider = new PackageNameSearchProvider( dependencyService );
     }
 
     @Test
@@ -58,7 +58,7 @@ public class DependencySearchProviderTest {
 
         when( dependencyService.loadDependencies( pom ) ).thenReturn( allDependencies );
 
-        Collection<Dependency> dependencies = dependencySearchProvider.newTopLevelDependencySearch( pom ).search();
+        Collection<Dependency> dependencies = packageNameSearchProvider.newTopLevelPackageNamesSearch( pom ).search();
 
         assertEquals( 2, dependencies.size() );
         Dependency droolsCore = find( "drools-core", dependencies );
@@ -83,7 +83,7 @@ public class DependencySearchProviderTest {
 
         when( dependencyService.loadDependencies( pom ) ).thenReturn( allDependencies );
 
-        Collection<Dependency> dependencies = dependencySearchProvider.newTopLevelDependencySearch( pom ).search();
+        Collection<Dependency> dependencies = packageNameSearchProvider.newTopLevelPackageNamesSearch( pom ).search();
 
         assertEquals( 1, dependencies.size() );
         Dependency droolsCore = find( "drools-core", dependencies );

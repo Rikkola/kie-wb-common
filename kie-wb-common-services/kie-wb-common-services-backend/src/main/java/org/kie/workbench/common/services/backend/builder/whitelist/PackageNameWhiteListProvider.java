@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.workbench.common.services.backend.builder;
+package org.kie.workbench.common.services.backend.builder.whitelist;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,18 +29,18 @@ public class PackageNameWhiteListProvider {
     private static final AntPathMatcher ANT_PATH_MATCHER = new AntPathMatcher();
 
     private final Collection<String> packageNames;
-    private final List<String> patterns;
+    private final Set<String> patterns;
 
     public PackageNameWhiteListProvider( final Collection<String> packageNames,
-                                         final List<String> patterns ) {
+                                         final Set<String> patterns ) {
 
         this.packageNames = checkNotNull( "packageNames", packageNames );
         this.patterns = checkNotNull( "patterns", patterns );
     }
 
-    public Set<String> getFilteredPackageNames() {
+    public WhiteList getFilteredPackageNames() {
         if ( patterns.isEmpty() ) {
-            return new HashSet<String>( packageNames );
+            return new WhiteList( packageNames );
         } else {
             return filter( getPackageNamePaths() );
         }
@@ -52,18 +50,18 @@ public class PackageNameWhiteListProvider {
      * @param packageNamePaths
      * @return Package Names matching the White List to the available packages
      */
-    private Set<String> filter( HashMap<String, String> packageNamePaths ) {
-        final Set<String> result = new HashSet<String>();
+    private WhiteList filter( final HashMap<String, String> packageNamePaths ) {
+        final WhiteList whiteList = new WhiteList();
         for (String pattern : patterns) {
             for (Map.Entry<String, String> packageNamePath : packageNamePaths.entrySet()) {
                 if ( ANT_PATH_MATCHER.match( pattern,
                                              packageNamePath.getValue() ) ) {
-                    result.add( packageNamePath.getKey() );
+                    whiteList.add( packageNamePath.getKey() );
                 }
             }
         }
 
-        return result;
+        return whiteList;
     }
 
     /**

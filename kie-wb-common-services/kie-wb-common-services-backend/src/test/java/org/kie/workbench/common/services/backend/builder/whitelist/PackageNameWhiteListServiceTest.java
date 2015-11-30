@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.kie.workbench.common.services.backend.builder;
+package org.kie.workbench.common.services.backend.builder.whitelist;
 
 import java.util.ArrayList;
 import java.util.Set;
 
 import org.junit.Test;
-import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.shared.project.KieProject;
 import org.uberfire.io.IOService;
 
@@ -93,7 +92,7 @@ public class PackageNameWhiteListServiceTest {
 
         public MockPackageNameWhiteListService( final String content ) {
             super( mock( IOService.class ),
-                   mock( DependencyService.class));
+                   mock( PackageNameSearchProvider.class ) );
             this.content = content;
         }
 

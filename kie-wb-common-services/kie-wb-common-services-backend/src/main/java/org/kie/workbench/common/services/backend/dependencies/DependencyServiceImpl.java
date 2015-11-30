@@ -20,7 +20,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.guvnor.common.services.backend.exceptions.ExceptionUtilities;
-import org.guvnor.common.services.project.backend.server.POMContentHandler;
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.common.services.project.model.POM;
@@ -36,21 +35,14 @@ import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 public class DependencyServiceImpl
         implements DependencyService {
 
-    private POMContentHandler pomContentHandler;
-
     private LRUBuilderCache builderCache;
-    private DependencySearchProvider dependencySearchProvider;
 
     public DependencyServiceImpl() {
     }
 
     @Inject
-    public DependencyServiceImpl( final POMContentHandler pomContentHandler,
-                                  final LRUBuilderCache builderCache,
-                                  final DependencySearchProvider dependencySearchProvider ) {
-        this.pomContentHandler = pomContentHandler;
+    public DependencyServiceImpl( final LRUBuilderCache builderCache ) {
         this.builderCache = builderCache;
-        this.dependencySearchProvider = dependencySearchProvider;
     }
 
     @Override
@@ -62,11 +54,6 @@ public class DependencyServiceImpl
         } catch (Exception e) {
             throw ExceptionUtilities.handleException( e );
         }
-    }
-
-    @Override
-    public Collection<Dependency> loadTopLevelDependencies( POM pom ) {
-        return dependencySearchProvider.newTopLevelDependencySearch( pom ).search();
     }
 
     private Collection<Dependency> toDependencies( final Collection<DependencyDescriptor> dependencies ) {

@@ -31,6 +31,7 @@ import org.guvnor.common.services.project.builder.events.InvalidateDMOProjectCac
 import org.guvnor.common.services.project.builder.service.BuildValidationHelper;
 import org.guvnor.common.services.project.model.POM;
 import org.guvnor.common.services.project.model.Project;
+import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameWhiteListService;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.kie.workbench.common.services.shared.project.ProjectImportsService;
 import org.uberfire.commons.validation.PortablePreconditions;

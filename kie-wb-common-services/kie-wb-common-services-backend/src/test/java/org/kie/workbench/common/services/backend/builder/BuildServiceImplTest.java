@@ -30,6 +30,7 @@ import org.guvnor.common.services.project.model.Project;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.scanner.KieModuleMetaData;
+import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameWhiteListService;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.kie.workbench.common.services.shared.project.ProjectImportsService;

@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameWhiteListService;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.backend.validation.DefaultGenericKieValidator;
 import org.kie.workbench.common.services.shared.project.KieProjectService;

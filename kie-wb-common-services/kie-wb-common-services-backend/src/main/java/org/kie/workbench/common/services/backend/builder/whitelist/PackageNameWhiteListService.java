@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.workbench.common.services.backend.builder;
+package org.kie.workbench.common.services.backend.builder.whitelist;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,7 +26,6 @@ import javax.inject.Named;
 import org.apache.commons.io.IOUtils;
 import org.guvnor.common.services.project.model.Project;
 import org.kie.workbench.common.services.backend.file.AntPathMatcher;
-import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.shared.project.KieProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +41,14 @@ public class PackageNameWhiteListService {
     private static final Logger logger = LoggerFactory.getLogger( PackageNameWhiteListService.class );
 
     private IOService ioService;
-    private DependencyService dependencyService;
+
+    private PackageNameSearchProvider packageNameSearchProvider;
 
     @Inject
     public PackageNameWhiteListService( final @Named("ioStrategy") IOService ioService,
-                                        final DependencyService dependencyService ) {
+                                        final PackageNameSearchProvider packageNameSearchProvider ) {
         this.ioService = ioService;
-        this.dependencyService = dependencyService;
+        this.packageNameSearchProvider = packageNameSearchProvider;
     }
 
     /**
@@ -60,38 +57,44 @@ public class PackageNameWhiteListService {
      * @param packageNames All Package names in the Project
      * @return A filtered collection of Package names
      */
-    public Set<String> filterPackageNames( final Project project,
-                                           final Collection<String> packageNames ) {
+    public WhiteList filterPackageNames( final Project project,
+                                         final Collection<String> packageNames ) {
         if ( packageNames == null ) {
-            return Collections.EMPTY_SET;
+            return new WhiteList();
         } else if ( project instanceof KieProject ) {
 
-            dependencyService.loadTopLevelDependencies( project.getPom() );
+            Set<String> packageNamesFromDirectDependencies = packageNameSearchProvider.newTopLevelPackageNamesSearch( project.getPom() ).search();
+
+            Set<String> patterns = getDeclaredWhiteListPatterns( project );
+            patterns.addAll( makePatterns( packageNamesFromDirectDependencies ) );
 
             return new PackageNameWhiteListProvider( packageNames,
-                                                     getPatterns( project ) ).getFilteredPackageNames();
+                                                     patterns ).getFilteredPackageNames();
         } else {
-            return new HashSet<String>( packageNames );
+            return new WhiteList( packageNames );
         }
     }
 
-    private List<String> getPatterns( final Project project ) {
+    private Set<String> getDeclaredWhiteListPatterns( final Project project ) {
+
         final String content = readPackageNameWhiteList( (KieProject) project );
-
         if ( isEmpty( content ) ) {
-            return new ArrayList<String>();
+            return new HashSet<String>();
         } else {
-            final List<String> patterns = parsePackageNamePatterns( content );
-
-            //Convert to Paths as we're delegating to an Ant-style pattern matcher.
-            //Convert once outside of the nested loops for performance reasons.
-            for (int i = 0; i < patterns.size(); i++) {
-                patterns.set( i,
-                              patterns.get( i ).replaceAll( "\\.",
-                                                            AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
-            }
-            return patterns;
+            return makePatterns( parsePackageNamePatterns( content ) );
         }
+    }
+
+    private Set<String> makePatterns( final Collection<String> packageNames ) {
+        HashSet<String> patterns = new HashSet<String>();
+
+        //Convert to Paths as we're delegating to an Ant-style pattern matcher.
+        //Convert once outside of the nested loops for performance reasons.
+        for (String packageName : packageNames) {
+            patterns.add( packageName.replaceAll( "\\.",
+                                                  AntPathMatcher.DEFAULT_PATH_SEPARATOR ) );
+        }
+        return patterns;
     }
 
     protected String readPackageNameWhiteList( final KieProject project ) {
@@ -104,13 +107,13 @@ public class PackageNameWhiteListService {
     }
 
     //See https://bugzilla.redhat.com/show_bug.cgi?id=1205180. Use OS-independent line splitting.
-    private List<String> parsePackageNamePatterns( final String content ) {
+    private Set<String> parsePackageNamePatterns( final String content ) {
         try {
-            return IOUtils.readLines( new StringReader( content ) );
+            return new HashSet<String>( IOUtils.readLines( new StringReader( content ) ) );
 
         } catch (IOException ioe) {
             logger.warn( "Unable to parse package names from '" + content + "'. Falling back to empty list." );
-            return Collections.emptyList();
+            return new HashSet<String>();
         }
     }
 

@@ -17,7 +17,6 @@ package org.kie.workbench.common.services.backend.dependencies;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.guvnor.common.services.project.backend.server.POMContentHandler;
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.common.services.project.model.POM;
@@ -41,16 +40,11 @@ public class DependencyServiceImplTest {
     @Mock
     private LRUBuilderCache builderCache;
 
-    @Mock
-    private DependencySearchProvider dependencySearchProvider;
-
     private DependencyServiceImpl service;
 
     @Before
     public void setUp() throws Exception {
-        service = new DependencyServiceImpl( new POMContentHandler(),
-                                             builderCache,
-                                             dependencySearchProvider );
+        service = new DependencyServiceImpl( builderCache );
     }
 
     @Test
@@ -79,18 +73,6 @@ public class DependencyServiceImplTest {
         Collection<Dependency> dependencies = service.loadDependencies( pom );
 
         assertTrue( dependencies.isEmpty() );
-    }
-
-    @Test
-    public void testName() throws Exception {
-        POM pom = new POM();
-
-        DependencySearchProvider.TopLevelDependencySearch search = mock( DependencySearchProvider.TopLevelDependencySearch.class );
-        when( dependencySearchProvider.newTopLevelDependencySearch( pom ) ).thenReturn( search );
-
-        service.loadTopLevelDependencies( pom );
-
-        verify( search ).search();
     }
 
     private void mockMetaData( final POM pom,

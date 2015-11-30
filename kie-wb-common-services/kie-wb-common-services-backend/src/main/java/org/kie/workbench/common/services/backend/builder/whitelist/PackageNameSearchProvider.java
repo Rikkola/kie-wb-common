@@ -12,44 +12,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package org.kie.workbench.common.services.backend.dependencies;
+package org.kie.workbench.common.services.backend.builder.whitelist;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import javax.inject.Inject;
 
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.POM;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 
-public class DependencySearchProvider {
+public class PackageNameSearchProvider {
 
     private DependencyService dependencyService;
 
-    public DependencySearchProvider() {
+    public PackageNameSearchProvider() {
 
     }
 
     @Inject
-    public DependencySearchProvider( final DependencyService dependencyService ) {
+    public PackageNameSearchProvider( final DependencyService dependencyService ) {
         this.dependencyService = dependencyService;
     }
 
-    public TopLevelDependencySearch newTopLevelDependencySearch( final POM pom ) {
-        return new TopLevelDependencySearch( pom );
+    /**
+     * @param pom POM for the project
+     * @return All the packages that are in the direct dependencies of the pom.
+     */
+    public PackageNameSearch newTopLevelPackageNamesSearch( final POM pom ) {
+        return new PackageNameSearch( pom );
     }
 
-    class TopLevelDependencySearch {
+    public class PackageNameSearch {
 
         private final POM pom;
         private Collection<Dependency> dependencies = null;
         private final ArrayList<Dependency> result = new ArrayList<Dependency>();
 
-        private TopLevelDependencySearch( final POM pom ) {
+        private PackageNameSearch( final POM pom ) {
             this.pom = pom;
         }
 
-        public ArrayList<Dependency> search() {
+        public Set<String> search() {
             for (Dependency dependency : pom.getDependencies()) {
                 if ( isGAVDefined( dependency ) ) {
                     result.add( dependency );
@@ -60,7 +66,8 @@ public class DependencySearchProvider {
                     }
                 }
             }
-            return result;
+//            return result;
+            return new HashSet<String>();
         }
 
         private void loadDependencies() {
