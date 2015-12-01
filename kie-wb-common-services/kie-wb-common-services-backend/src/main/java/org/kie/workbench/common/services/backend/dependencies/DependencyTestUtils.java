@@ -14,9 +14,28 @@
 */
 package org.kie.workbench.common.services.backend.dependencies;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
+import org.kie.scanner.DependencyDescriptor;
 
 public class DependencyTestUtils {
 
+    public static Collection<Dependency> toDependencies( final Collection<DependencyDescriptor> dependencies ) {
+        ArrayList<Dependency> result = new ArrayList<Dependency>();
+
+        for (DependencyDescriptor dependencyDescriptor : dependencies) {
+            result.add( toDependency( dependencyDescriptor ) );
+        }
+
+        return result;
+    }
+
+    public static Dependency toDependency( final DependencyDescriptor dependencyDescriptor ) {
+        return new Dependency( new GAV( dependencyDescriptor.getGroupId(),
+                                        dependencyDescriptor.getArtifactId(),
+                                        dependencyDescriptor.getVersion() ) );
+    }
 }

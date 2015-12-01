@@ -63,6 +63,7 @@ public class DependencyGridViewImpl
         addVersionColumn();
         addScopeColumn();
         addRemoveRowColumn();
+        addTransientDependenciesColumn();
 
         initWidget( uiBinder.createAndBindUi( this ) );
     }
@@ -85,6 +86,17 @@ public class DependencyGridViewImpl
     private void addScopeColumn() {
         dataGrid.addColumn( new ScopeColumn(),
                             ProjectEditorResources.CONSTANTS.Scope() );
+    }
+
+    private void addTransientDependenciesColumn() {
+        TransientDependenciesColumn column = new TransientDependenciesColumn();
+        column.setFieldUpdater( new FieldUpdater<Dependency, String>() {
+            @Override public void update( int index, Dependency object, String value ) {
+                presenter.onShowTransientDependencies( object );
+            }
+        } );
+        dataGrid.addColumn( column,
+                            ProjectEditorResources.CONSTANTS.TransientDependencies() );
     }
 
     private void addRemoveRowColumn() {

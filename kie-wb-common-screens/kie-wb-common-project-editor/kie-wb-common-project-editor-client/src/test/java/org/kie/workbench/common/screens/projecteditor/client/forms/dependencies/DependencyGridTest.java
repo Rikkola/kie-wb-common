@@ -16,7 +16,6 @@
 
 package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.guvnor.common.services.project.model.Dependency;
@@ -26,11 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.projecteditor.client.forms.GAVSelectionHandler;
-import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.uberfire.mocks.CallerMock;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -45,7 +42,7 @@ public class DependencyGridTest {
     private DependencySelectorPopup dependencySelectorPopup;
 
     @Mock
-    private DependencyService dependencyService;
+    private WhiteListPresenter whiteListPresenter;
 
     private GAVSelectionHandler gavSelectionHandler;
 
@@ -55,7 +52,7 @@ public class DependencyGridTest {
     public void setUp() throws Exception {
         grid = new DependencyGrid( dependencySelectorPopup,
                                    view,
-                                   new CallerMock<DependencyService>( dependencyService ) );
+                                   whiteListPresenter );
         ArgumentCaptor<GAVSelectionHandler> gavSelectionHandlerArgumentCaptor = ArgumentCaptor.forClass( GAVSelectionHandler.class );
         verify( dependencySelectorPopup ).addSelectionHandler( gavSelectionHandlerArgumentCaptor.capture() );
         gavSelectionHandler = gavSelectionHandlerArgumentCaptor.getValue();
@@ -85,10 +82,10 @@ public class DependencyGridTest {
     @Test
     public void testAddFromRepository() throws Exception {
 
-        POM pom = new POM();
+        GAV gav = new GAV();
+        POM pom = new POM( gav );
 
         grid.setDependencies( pom );
-        when( dependencyService.loadDependencies( pom ) ).thenReturn( new ArrayList<Dependency>() );
 
         grid.onAddDependencyFromRepositoryButton();
 
@@ -106,20 +103,19 @@ public class DependencyGridTest {
     }
 
     @Test
-    public void testTransientDependencies() throws Exception {
-        POM pom = new POM();
-        pom.getDependencies().add( makeDependency( "artifactID", "groupID", "version" ) );
-        ArrayList<Dependency> allDependencies = new ArrayList<Dependency>();
-        allDependencies.add( makeDependency( "artifactID", "groupID", "version" ) );
-        allDependencies.add( makeDependency( "artifactID1", "groupID2", "version3" ) );
+    public void testShowTransientDependencies() throws Exception {
+        Dependency dependency = makeDependency( "artifactID", "groupID", "version" );
 
-        grid.setDependencies( pom );
-        when( dependencyService.loadDependencies( pom ) ).thenReturn( allDependencies );
-        grid.show();
+        grid.onShowTransientDependencies( dependency );
 
-        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass( List.class );
-        verify( view ).show( listArgumentCaptor.capture() );
-        assertEquals( "transient", ((Dependency) listArgumentCaptor.getValue().get( 1 )).getScope() );
+        ArgumentCaptor<GAV> gavArgumentCaptor = ArgumentCaptor.forClass( GAV.class );
+        verify( whiteListPresenter ).show( gavArgumentCaptor.capture() );
+
+        GAV gav = gavArgumentCaptor.getValue();
+
+        assertEquals( "artifactID", gav.getArtifactId() );
+        assertEquals( "groupID", gav.getGroupId() );
+        assertEquals( "version", gav.getVersion() );
     }
 
     private Dependency makeDependency( String artifactID,

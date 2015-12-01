@@ -14,27 +14,31 @@
 */
 package org.kie.workbench.common.services.backend.builder.whitelist;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import javax.inject.Inject;
 
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.POM;
-import org.kie.workbench.common.services.shared.dependencies.DependencyService;
+import org.kie.scanner.DependencyDescriptor;
+import org.kie.scanner.KieModuleMetaData;
+import org.kie.workbench.common.services.backend.builder.Builder;
+import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
+import org.kie.workbench.common.services.backend.builder.NoBuilderFoundException;
+
+import static org.kie.workbench.common.services.backend.dependencies.DependencyTestUtils.*;
 
 public class PackageNameSearchProvider {
 
-    private DependencyService dependencyService;
+    private LRUBuilderCache builderCache;
 
     public PackageNameSearchProvider() {
 
     }
 
     @Inject
-    public PackageNameSearchProvider( final DependencyService dependencyService ) {
-        this.dependencyService = dependencyService;
+    public PackageNameSearchProvider( final LRUBuilderCache builderCache ) {
+        this.builderCache = builderCache;
     }
 
     /**
@@ -48,45 +52,42 @@ public class PackageNameSearchProvider {
     public class PackageNameSearch {
 
         private final POM pom;
-        private Collection<Dependency> dependencies = null;
-        private final ArrayList<Dependency> result = new ArrayList<Dependency>();
+        private final Set<String> result = new HashSet<String>();
 
         private PackageNameSearch( final POM pom ) {
             this.pom = pom;
         }
 
-        public Set<String> search() {
+        public Set<String> search()
+                throws NoBuilderFoundException {
+            loaPackageNames();
+            return result;
+        }
+
+        private void loaPackageNames()
+                throws NoBuilderFoundException {
+
+            Builder builder = builderCache.assertBuilder( pom );
+
+            KieModuleMetaData kieModuleMetaData = builder.getKieModuleMetaDataIgnoringErrors();
+
+            kieModuleMetaData.getDependencies();
+
+            for (DependencyDescriptor dependency : kieModuleMetaData.getDependencies()) {
+                if ( containsDependency( toDependency( dependency ) ) ) {
+                    result.addAll( kieModuleMetaData.getPackages( dependency ) );
+                }
+            }
+        }
+
+        private boolean containsDependency( final Dependency other ) {
             for (Dependency dependency : pom.getDependencies()) {
-                if ( isGAVDefined( dependency ) ) {
-                    result.add( dependency );
-                } else {
-                    Dependency foundDependency = search( dependency );
-                    if ( foundDependency != null ) {
-                        result.add( foundDependency );
-                    }
+                if ( areEqual( dependency.getArtifactId(), other.getArtifactId() )
+                        && areEqual( dependency.getGroupId(), other.getGroupId() ) ) {
+                    return true;
                 }
             }
-//            return result;
-            return new HashSet<String>();
-        }
-
-        private void loadDependencies() {
-            if ( dependencies == null ) {
-                dependencies = dependencyService.loadDependencies( pom );
-            }
-        }
-
-        private Dependency search( final Dependency dependency ) {
-            loadDependencies();
-            for (Dependency other : dependencies) {
-                if ( areEqual( dependency.getGroupId(),
-                               other.getGroupId() )
-                        && areEqual( dependency.getArtifactId(),
-                                     other.getArtifactId() ) ) {
-                    return other;
-                }
-            }
-            return null;
+            return false;
         }
 
         private boolean areEqual( final String value,
@@ -96,16 +97,6 @@ public class PackageNameSearchProvider {
             } else {
                 return value.equals( other );
             }
-        }
-
-        private boolean isGAVDefined( final Dependency dependency ) {
-            return !isEmpty( dependency.getGroupId() )
-                    && !isEmpty( dependency.getArtifactId() )
-                    && !isEmpty( dependency.getVersion() );
-        }
-
-        private boolean isEmpty( final String value ) {
-            return value == null || value.trim().isEmpty();
         }
     }
 }

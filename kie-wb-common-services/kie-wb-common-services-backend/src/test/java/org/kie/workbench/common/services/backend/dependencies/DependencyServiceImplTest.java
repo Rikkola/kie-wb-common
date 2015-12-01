@@ -50,27 +50,29 @@ public class DependencyServiceImplTest {
     @Test
     public void testNoDependencies() throws Exception {
 
-        POM pom = new POM( new GAV( "artifactID",
-                                    "groupID",
-                                    "version" ) );
+        GAV gav = new GAV( "artifactID",
+                           "groupID",
+                           "version" );
+        POM pom = new POM( gav );
 
         mockMetaData( pom, new ArrayList<DependencyDescriptor>() );
 
-        Collection<Dependency> dependencies = service.loadDependencies( pom );
+        Collection<Dependency> dependencies = service.loadDependencies( gav );
 
         assertTrue( dependencies.isEmpty() );
     }
 
     @Test
     public void testDependencies() throws Exception {
-        POM pom = new POM( new GAV( "artifactID",
-                                    "groupID",
-                                    "version" ) );
+        GAV gav = new GAV( "artifactID",
+                           "groupID",
+                           "version" );
+        POM pom = new POM( gav );
         pom.getDependencies().add( new Dependency() );
 
         mockMetaData( pom, new ArrayList<DependencyDescriptor>() );
 
-        Collection<Dependency> dependencies = service.loadDependencies( pom );
+        Collection<Dependency> dependencies = service.loadDependencies( gav );
 
         assertTrue( dependencies.isEmpty() );
     }

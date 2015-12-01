@@ -14,21 +14,18 @@
 */
 package org.kie.workbench.common.services.backend.dependencies;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.guvnor.common.services.backend.exceptions.ExceptionUtilities;
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
-import org.guvnor.common.services.project.model.POM;
 import org.jboss.errai.bus.server.annotations.Service;
-import org.kie.scanner.DependencyDescriptor;
-import org.kie.scanner.KieModuleMetaData;
-import org.kie.workbench.common.services.backend.builder.Builder;
+import org.kie.scanner.MavenRepository;
 import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
+
+import static org.kie.workbench.common.services.backend.dependencies.DependencyTestUtils.*;
 
 @Service
 @ApplicationScoped
@@ -46,30 +43,19 @@ public class DependencyServiceImpl
     }
 
     @Override
-    public Collection<Dependency> loadDependencies( final POM pom ) {
-        try {
-            Builder builder = builderCache.assertBuilder( pom );
-            KieModuleMetaData kieModuleMetaDataIgnoringErrors = builder.getKieModuleMetaDataIgnoringErrors();
-            return toDependencies( kieModuleMetaDataIgnoringErrors.getDependencies() );
-        } catch (Exception e) {
-            throw ExceptionUtilities.handleException( e );
-        }
-    }
+    public Collection<Dependency> loadDependencies( final GAV gav ) {
 
-    private Collection<Dependency> toDependencies( final Collection<DependencyDescriptor> dependencies ) {
-        ArrayList<Dependency> result = new ArrayList<Dependency>();
+        MavenRepository mavenRepository = MavenRepository.getMavenRepository();
 
-        for (DependencyDescriptor dependencyDescriptor : dependencies) {
-            result.add( toDependency( dependencyDescriptor ) );
-        }
+        return toDependencies( mavenRepository.getArtifactDependecies( gav.toString() ) );
 
-        return result;
-    }
-
-    private Dependency toDependency( final DependencyDescriptor dependencyDescriptor ) {
-        return new Dependency( new GAV( dependencyDescriptor.getGroupId(),
-                                        dependencyDescriptor.getArtifactId(),
-                                        dependencyDescriptor.getVersion() ) );
+//        try {
+//            Builder builder = builderCache.assertBuilder( pom );
+//            KieModuleMetaData kieModuleMetaDataIgnoringErrors = builder.getKieModuleMetaDataIgnoringErrors();
+//            return toDependencies( kieModuleMetaDataIgnoringErrors.getDependencies() );
+//        } catch (Exception e) {
+//            throw ExceptionUtilities.handleException( e );
+//        }
     }
 
 }

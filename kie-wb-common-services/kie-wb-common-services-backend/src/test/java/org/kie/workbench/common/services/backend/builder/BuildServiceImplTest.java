@@ -26,26 +26,37 @@ import org.drools.core.rule.TypeMetaInfo;
 import org.guvnor.common.services.project.builder.model.BuildMessage;
 import org.guvnor.common.services.project.builder.model.BuildResults;
 import org.guvnor.common.services.project.builder.service.BuildValidationHelper;
+import org.guvnor.common.services.project.model.POM;
 import org.guvnor.common.services.project.model.Project;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.kie.scanner.KieModuleMetaData;
+import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameSearchProvider;
 import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameWhiteListService;
-import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.kie.workbench.common.services.shared.project.ProjectImportsService;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.uberfire.backend.server.util.Paths;
 import org.uberfire.io.IOService;
 import org.uberfire.java.nio.fs.file.SimpleFileSystemProvider;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class BuildServiceImplTest
         extends BuilderTestBase {
 
+    @Mock
+    private PackageNameSearchProvider packageNameSearchProvider;
+
     @Before
     public void setUp() throws Exception {
+        PackageNameSearchProvider.PackageNameSearch nameSearch = mock( PackageNameSearchProvider.PackageNameSearch.class );
+        when( nameSearch.search() ).thenReturn( new HashSet<String>() );
+        when( packageNameSearchProvider.newTopLevelPackageNamesSearch( any( POM.class ) ) ).thenReturn( nameSearch );
         startMain();
         setUpGuvnorM2Repo();
     }
@@ -72,7 +83,7 @@ public class BuildServiceImplTest
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
                                              new PackageNameWhiteListService( ioService,
-                                                                       mock( DependencyService.class)  ) );
+                                                                              packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
 
@@ -101,7 +112,7 @@ public class BuildServiceImplTest
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
                                              new PackageNameWhiteListService( ioService,
-                                                                       mock( DependencyService.class)  ) );
+                                                                              packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
 
@@ -137,7 +148,7 @@ public class BuildServiceImplTest
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
                                              new PackageNameWhiteListService( ioService,
-                                                                       mock( DependencyService.class)  ) );
+                                                                              packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
 
@@ -173,7 +184,7 @@ public class BuildServiceImplTest
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
                                              new PackageNameWhiteListService( ioService,
-                                                                       mock( DependencyService.class)  ) );
+                                                                              packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
 
@@ -237,7 +248,7 @@ public class BuildServiceImplTest
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
                                              new PackageNameWhiteListService( ioService,
-                                                                       mock( DependencyService.class)  ) );
+                                                                              packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
 

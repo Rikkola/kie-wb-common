@@ -288,4 +288,6 @@ public interface ProjectEditorConstants
 
     String SetScope();
 
+    String TransientDependencies();
+
 }

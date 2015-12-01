@@ -25,6 +25,7 @@ import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
 import org.guvnor.common.services.project.model.Project;
+import org.kie.workbench.common.services.backend.builder.NoBuilderFoundException;
 import org.kie.workbench.common.services.backend.file.AntPathMatcher;
 import org.kie.workbench.common.services.shared.project.KieProject;
 import org.slf4j.Logger;
@@ -44,6 +45,9 @@ public class PackageNameWhiteListService {
 
     private PackageNameSearchProvider packageNameSearchProvider;
 
+    public PackageNameWhiteListService() {
+    }
+
     @Inject
     public PackageNameWhiteListService( final @Named("ioStrategy") IOService ioService,
                                         final PackageNameSearchProvider packageNameSearchProvider ) {
@@ -59,20 +63,27 @@ public class PackageNameWhiteListService {
      */
     public WhiteList filterPackageNames( final Project project,
                                          final Collection<String> packageNames ) {
-        if ( packageNames == null ) {
-            return new WhiteList();
-        } else if ( project instanceof KieProject ) {
+        try {
+            if ( packageNames == null ) {
+                return new WhiteList();
+            } else if ( project instanceof KieProject ) {
 
-            Set<String> packageNamesFromDirectDependencies = packageNameSearchProvider.newTopLevelPackageNamesSearch( project.getPom() ).search();
+                Set<String> packageNamesFromDirectDependencies = null;
+                packageNamesFromDirectDependencies = packageNameSearchProvider.newTopLevelPackageNamesSearch( project.getPom() ).search();
 
-            Set<String> patterns = getDeclaredWhiteListPatterns( project );
-            patterns.addAll( makePatterns( packageNamesFromDirectDependencies ) );
+                Set<String> patterns = getDeclaredWhiteListPatterns( project );
+                patterns.addAll( makePatterns( packageNamesFromDirectDependencies ) );
 
-            return new PackageNameWhiteListProvider( packageNames,
-                                                     patterns ).getFilteredPackageNames();
-        } else {
-            return new WhiteList( packageNames );
+                return new PackageNameWhiteListProvider( packageNames,
+                                                         patterns ).getFilteredPackageNames();
+            } else {
+                return new WhiteList( packageNames );
+            }
+        } catch (NoBuilderFoundException e) {
+            logger.info( "Could not create white list for project: " + project.getProjectName() );
         }
+
+        return new WhiteList();
     }
 
     private Set<String> getDeclaredWhiteListPatterns( final Project project ) {

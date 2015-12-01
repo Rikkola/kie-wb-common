@@ -15,7 +15,10 @@
 package org.kie.workbench.common.services.backend.builder.whitelist;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
@@ -23,9 +26,17 @@ import org.guvnor.common.services.project.model.POM;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kie.api.builder.ReleaseId;
+import org.kie.scanner.DependencyDescriptor;
+import org.kie.scanner.KieModuleMetaData;
+import org.kie.workbench.common.services.backend.builder.Builder;
+import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
+import org.kie.workbench.common.services.backend.builder.NoBuilderFoundException;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -34,13 +45,30 @@ import static org.mockito.Mockito.*;
 public class PackageNameSearchProviderTest {
 
     @Mock
-    private DependencyService dependencyService;
+    private LRUBuilderCache lruBuilderCache;
 
     private PackageNameSearchProvider packageNameSearchProvider;
 
     @Before
     public void setUp() throws Exception {
-        packageNameSearchProvider = new PackageNameSearchProvider( dependencyService );
+        packageNameSearchProvider = new PackageNameSearchProvider( lruBuilderCache );
+    }
+
+    private HashMap<DependencyDescriptor, Set<String>> setUp( POM pom ) throws NoBuilderFoundException {
+        final HashMap<DependencyDescriptor, Set<String>> map = new HashMap<DependencyDescriptor, Set<String>>();
+
+        Builder builder = mock( Builder.class );
+        when( lruBuilderCache.assertBuilder( pom ) ).thenReturn( builder );
+        KieModuleMetaData kieModuleMetaData = mock( KieModuleMetaData.class );
+        when( builder.getKieModuleMetaDataIgnoringErrors() ).thenReturn( kieModuleMetaData );
+        when( kieModuleMetaData.getDependencies() ).thenReturn( map.keySet() );
+        when( kieModuleMetaData.getPackages( any( DependencyDescriptor.class ) ) ).thenAnswer( new Answer<Set>() {
+            @Override
+            public Set answer( InvocationOnMock invocationOnMock ) throws Throwable {
+                return map.get( invocationOnMock.getArguments()[0] );
+            }
+        } );
+        return map;
     }
 
     @Test
@@ -49,25 +77,24 @@ public class PackageNameSearchProviderTest {
                                     "groupID",
                                     "version" ) );
         pom.getDependencies().add( getDependency( "drools-core", "org.drools", "6.3.0" ) );
-        pom.getDependencies().add( getDependency( "junit", "org.junit", null ) );
+        pom.getDependencies().add( getDependency( "junit", "org.junit", "4.11" ) );
 
-        ArrayList<Dependency> allDependencies = new ArrayList<Dependency>();
-        allDependencies.add( getDependency( "drools-core", "org.drools", "6.3.0" ) );
-        allDependencies.add( getDependency( "junit", "org.junit", "4.11" ) );
-        allDependencies.add( getDependency( "hamcrest-core", "org.hamcrest", "1.3" ) );
+        HashMap<DependencyDescriptor, Set<String>> map = setUp( pom );
 
-        when( dependencyService.loadDependencies( pom ) ).thenReturn( allDependencies );
+        map.put( getDependencyDescriptor( "drools-core", "org.drools", "6.3.0" ), toSet( "org.drools.a",
+                                                                                         "org.drools.b",
+                                                                                         "org.drools.c" ) );
+        map.put( getDependencyDescriptor( "junit", "org.junit", "4.11" ), toSet( "junit.a",
+                                                                                 "junit.b" ) );
 
-        Collection<Dependency> dependencies = packageNameSearchProvider.newTopLevelPackageNamesSearch( pom ).search();
+        Set<String> packageNames = packageNameSearchProvider.newTopLevelPackageNamesSearch( pom ).search();
 
-        assertEquals( 2, dependencies.size() );
-        Dependency droolsCore = find( "drools-core", dependencies );
-        assertEquals( "org.drools", droolsCore.getGroupId() );
-        assertEquals( "6.3.0", droolsCore.getVersion() );
-
-        Dependency junit = find( "junit", dependencies );
-        assertEquals( "org.junit", junit.getGroupId() );
-        assertEquals( "4.11", junit.getVersion() );
+        assertEquals( 5, packageNames.size() );
+        assertTrue( packageNames.contains( "org.drools.a" ) );
+        assertTrue( packageNames.contains( "org.drools.b" ) );
+        assertTrue( packageNames.contains( "org.drools.c" ) );
+        assertTrue( packageNames.contains( "junit.a" ) );
+        assertTrue( packageNames.contains( "junit.b" ) );
     }
 
     @Test
@@ -78,29 +105,49 @@ public class PackageNameSearchProviderTest {
         pom.getDependencies().add( getDependency( "drools-core", "org.drools", null ) );
         pom.getDependencies().add( getDependency( null, null, null ) );
 
-        ArrayList<Dependency> allDependencies = new ArrayList<Dependency>();
-        allDependencies.add( getDependency( "drools-core", "org.drools", "6.3.0" ) );
+        HashMap<DependencyDescriptor, Set<String>> map = setUp( pom );
+        map.put( getDependencyDescriptor( "drools-core", "org.drools", "6.3.0" ), toSet( "org.drools.a",
+                                                                                         "org.drools.b",
+                                                                                         "org.drools.c" ) );
 
-        when( dependencyService.loadDependencies( pom ) ).thenReturn( allDependencies );
+        Set<String> packageNames = packageNameSearchProvider.newTopLevelPackageNamesSearch( pom ).search();
 
-        Collection<Dependency> dependencies = packageNameSearchProvider.newTopLevelPackageNamesSearch( pom ).search();
-
-        assertEquals( 1, dependencies.size() );
-        Dependency droolsCore = find( "drools-core", dependencies );
-        assertEquals( "org.drools", droolsCore.getGroupId() );
-        assertEquals( "6.3.0", droolsCore.getVersion() );
+        assertEquals( 3, packageNames.size() );
+        assertTrue( packageNames.contains( "org.drools.a" ) );
+        assertTrue( packageNames.contains( "org.drools.b" ) );
+        assertTrue( packageNames.contains( "org.drools.c" ) );
     }
 
-    private Dependency find( final String artifactID,
-                             final Collection<Dependency> dependencies ) {
-        for (Dependency dependency : dependencies) {
-            if ( artifactID.equals( dependency.getArtifactId() ) ) {
-                return dependency;
+    private HashSet<String> toSet( String... items ) {
+        return new HashSet<String>( Arrays.asList( items ) );
+    }
+
+    private DependencyDescriptor getDependencyDescriptor( final String artifactID,
+                                                          final String groupID,
+                                                          final String version ) {
+        return new DependencyDescriptor( new ReleaseId() {
+            @Override public String getGroupId() {
+                return groupID;
             }
-        }
-        fail( "Dependency with artifact ID: " + artifactID + " does not exist." );
-        return null;
+
+            @Override public String getArtifactId() {
+                return artifactID;
+            }
+
+            @Override public String getVersion() {
+                return version;
+            }
+
+            @Override public String toExternalForm() {
+                return null;
+            }
+
+            @Override public boolean isSnapshot() {
+                return false;
+            }
+        } );
     }
+
 
     private Dependency getDependency( final String artifactID, final String groupID, final String version ) {
         return new Dependency( new GAV( groupID, artifactID, version ) );

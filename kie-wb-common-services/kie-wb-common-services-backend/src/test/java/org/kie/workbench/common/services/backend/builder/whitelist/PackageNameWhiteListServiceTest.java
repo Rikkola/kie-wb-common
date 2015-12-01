@@ -19,8 +19,13 @@ package org.kie.workbench.common.services.backend.builder.whitelist;
 import java.util.ArrayList;
 import java.util.Set;
 
+import org.guvnor.common.services.project.model.POM;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.kie.workbench.common.services.shared.project.KieProject;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.uberfire.io.IOService;
 
 import static org.junit.Assert.*;
@@ -35,7 +40,16 @@ import static org.mockito.Mockito.*;
  * <p/>
  * See See https://en.wikipedia.org/wiki/Newline#Representations
  **/
+@RunWith(MockitoJUnitRunner.class)
 public class PackageNameWhiteListServiceTest {
+
+    @Mock
+    private PackageNameSearchProvider packageNameSearchProvider;
+
+    @Before
+    public void setUp() throws Exception {
+        when( packageNameSearchProvider.newTopLevelPackageNamesSearch( any( POM.class ) ) ).thenReturn( mock( PackageNameSearchProvider.PackageNameSearch.class ) );
+    }
 
     @Test
     public void testWindowsEncoding() {
@@ -85,14 +99,14 @@ public class PackageNameWhiteListServiceTest {
         fail( "Expected pattern '" + expected + "' was not found in actual." );
     }
 
-    private static class MockPackageNameWhiteListService
+    private class MockPackageNameWhiteListService
             extends PackageNameWhiteListService {
 
         private String content;
 
         public MockPackageNameWhiteListService( final String content ) {
             super( mock( IOService.class ),
-                   mock( PackageNameSearchProvider.class ) );
+                   packageNameSearchProvider );
             this.content = content;
         }
 
