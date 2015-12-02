@@ -196,7 +196,7 @@ public class NewProjectHandlerTest {
         assertEquals( "version", capturedPOM.getGav().getVersion() );
 
         verify( wizard,
-                times( 1 ) ).initialise( eq( pom ) );
+                times( 1 ) ).initialise( any( POM.class ) );
         verify( wizard,
                 times( 1 ) ).start();
     }

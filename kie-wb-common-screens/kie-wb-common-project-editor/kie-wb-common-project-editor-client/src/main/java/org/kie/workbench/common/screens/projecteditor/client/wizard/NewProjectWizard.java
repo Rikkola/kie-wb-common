@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
 import org.guvnor.common.services.project.context.ProjectContext;
-import org.guvnor.common.services.project.events.NewProjectEvent;
 import org.guvnor.common.services.project.model.POM;
 import org.guvnor.common.services.project.model.Project;
 import org.guvnor.common.services.project.model.ProjectWizard;
@@ -120,27 +119,26 @@ public class NewProjectWizard
         pomWizardPage.isComplete( callback );
     }
 
-
-    public void setContent( final String projectName ) {
-        pom = new POMBuilder()
-                .setProjectName( projectName )
-                .build();
-        gavWizardPage.setPom( pom,
-                              pom.isMultiModule() );
+    @Override
+    public void initialise() {
+        pomWizardPage.setPom( new POMBuilder()
+                                      .build() );
     }
 
-    public void setContent( final String projectName,
-                            final String groupId,
-                            final String version ) {
-        pom = new POMBuilder()
-                .setProjectName( projectName )
-                .setGroupId( groupId )
-                .setVersion( version )
-                .setMultiModule( projectName != null || groupId != null || version != null )
-                .build();
+    @Override
+    public void initialise( final POM pom ) {
+        appConfigService.call( new RemoteCallback<Map<String, String>>() {
+            @Override
+            public void callback( Map<String, String> properties ) {
+                final POMBuilder pomBuilder = new POMBuilder( pom );
 
-        gavWizardPage.setPom( pom,
-                              pom.isMultiModule() );
+                if ( !pom.hasParent() ) {
+                    pomBuilder.addKieBuildPlugin( properties.get( KIE_VERSION_PROPERTY_NAME ) );
+                }
+
+                pomWizardPage.setPom( pomBuilder.build() );
+            }
+        } ).loadPreferences();
     }
 
     @Override

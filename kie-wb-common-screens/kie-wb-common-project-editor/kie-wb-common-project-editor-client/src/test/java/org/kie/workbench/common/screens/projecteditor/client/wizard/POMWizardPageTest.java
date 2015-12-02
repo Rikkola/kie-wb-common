@@ -22,47 +22,58 @@ import org.guvnor.common.services.project.client.ArtifactIdChangeHandler;
 import org.guvnor.common.services.project.client.GAVEditor;
 import org.guvnor.common.services.project.client.GAVEditorView;
 import org.guvnor.common.services.project.client.POMEditorPanel;
+import org.guvnor.common.services.project.client.POMEditorPanelView;
+import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.common.services.project.model.POM;
+import org.jboss.errai.ioc.client.container.SyncBeanManager;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.projecteditor.service.ProjectScreenService;
 import org.kie.workbench.common.services.shared.validation.ValidationService;
+import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.mocks.CallerMock;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@RunWith( MockitoJUnitRunner.class )
 public class POMWizardPageTest {
 
+    @Mock
     private POMEditorPanelView pomEditorView;
-    private POMEditorPanel pomEditor;
 
     private GAVEditor gavEditor;
+
+    @Mock
     private GAVEditorView gavEditorView;
 
-    private PlaceManager placeManager;
-    private GAVWizardPage page;
-    private GAVWizardPageView view;
+    @Mock
+    private SyncBeanManager syncBeanManager;
 
+    @Mock
+    private POMWizardPageView view;
+
+    @Mock
     private ProjectScreenService projectScreenService;
+
+    @Mock
     private ValidationService validationService;
+
+    private POMWizardPage page;
+    private POMEditorPanel pomEditor;
 
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
-        projectScreenService = mock( ProjectScreenService.class );
-        validationService = mock( ValidationService.class );
 
-        gavEditorView = mock( GAVEditorView.class );
         gavEditor = new GAVEditor( gavEditorView );
 
-        placeManager = mock( PlaceManager.class );
-        pomEditorView = mock( POMEditorPanelView.class );
         pomEditor = spy( new POMEditorPanel( pomEditorView,
-                                             placeManager ) );
+                                             syncBeanManager ) );
 
         //POMEditorView implementation updates a nested GAVEditor presenter. Mock the implementation to avoid use of real widgets
         doAnswer( new Answer<Void>() {
@@ -94,8 +105,7 @@ public class POMWizardPageTest {
             }
         } ).when( pomEditorView ).addArtifactIdChangeHandler( any( ArtifactIdChangeHandler.class ) );
 
-        view = mock( GAVWizardPageView.class );
-        page = spy( new GAVWizardPage( pomEditor,
+        page = spy( new POMWizardPage( pomEditor,
                                        view,
                                        mock( Event.class ),
                                        new CallerMock<ProjectScreenService>( projectScreenService ),
@@ -237,25 +247,6 @@ public class POMWizardPageTest {
     }
 
     @Test
-    public void testPomsWithParentDataDisableFieldsParentNotSet() throws Exception {
-        page.setPom( new POM(), false );
-
-        verify( pomEditor, never() ).disableGroupID( anyString() );
-        verify( pomEditor, never() ).disableVersion( anyString() );
-    }
-
-    @Test
-    public void testPomsWithParentDataDisableFieldsParentSet() throws Exception {
-        when( view.InheritedFromAParentPOM() ).thenReturn( "InheritedFromAParentPOM" );
-        POM pom = new POM();
-        pom.getGav().setGroupId( "supergroup" );
-        page.setPom( pom, true );
-
-        verify( pomEditor ).disableGroupID( "InheritedFromAParentPOM" );
-        verify( pomEditor ).disableVersion( "InheritedFromAParentPOM" );
-    }
-
-    @Test
     public void testSetNameValidArtifactID() {
         when( projectScreenService.validateGroupId( any( String.class ) ) ).thenReturn( true );
         when( projectScreenService.validateArtifactId( any( String.class ) ) ).thenReturn( true );
@@ -283,8 +274,7 @@ public class POMWizardPageTest {
         } ).when( pomEditorView ).setGAV( any( GAV.class ) );
 
         final POM pom = new POM();
-        page.setPom( pom,
-                     false );
+        page.setPom( pom );
         verify( validationService,
                 times( 1 ) ).isProjectNameValid( null );
         verify( projectScreenService,
@@ -313,8 +303,7 @@ public class POMWizardPageTest {
         when( validationService.isProjectNameValid( any( String.class ) ) ).thenReturn( true );
 
         final POM pom = new POM();
-        page.setPom( pom,
-                     false );
+        page.setPom( pom );
         verify( validationService,
                 times( 1 ) ).isProjectNameValid( null );
         verify( projectScreenService,
@@ -343,8 +332,7 @@ public class POMWizardPageTest {
         when( validationService.isProjectNameValid( any( String.class ) ) ).thenReturn( true );
 
         final POM pom = new POM();
-        page.setPom( pom,
-                     false );
+        page.setPom( pom );
         verify( validationService,
                 times( 1 ) ).isProjectNameValid( null );
         verify( projectScreenService,
@@ -374,8 +362,7 @@ public class POMWizardPageTest {
         when( validationService.isProjectNameValid( any( String.class ) ) ).thenReturn( true );
 
         final POM pom = new POM();
-        page.setPom( pom,
-                     false );
+        page.setPom( pom );
         verify( validationService,
                 times( 1 ) ).isProjectNameValid( null );
         verify( projectScreenService,

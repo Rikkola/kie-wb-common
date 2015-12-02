@@ -63,22 +63,6 @@ public class POMBuilder {
         return this;
     }
 
-    public POMBuilder setParentGroupId( final String groupId ) {
-        addParentIfNone();
-
-        pom.getParent().setGroupId( groupId );
-
-        return this;
-    }
-
-    public POMBuilder setParentVersion( final String version ) {
-        addParentIfNone();
-
-        pom.getParent().setVersion( version );
-
-        return this;
-    }
-
     public POMBuilder setGroupId( final String groupId ) {
         pom.getGav().setGroupId( groupId );
         return this;

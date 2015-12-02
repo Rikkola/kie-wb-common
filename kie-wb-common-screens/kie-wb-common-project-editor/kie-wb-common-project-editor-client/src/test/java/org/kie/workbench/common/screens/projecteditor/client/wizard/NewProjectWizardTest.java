@@ -85,7 +85,7 @@ public class NewProjectWizardTest {
         pom.getGav().setArtifactId( "another.artifact" );
         pom.getGav().setGroupId( "another.group" );
         pom.getGav().setVersion( "1.2.3" );
-        wizard.setContent( pom );
+        wizard.initialise( pom );
 
         ArgumentCaptor<POM> pomArgumentCaptor = ArgumentCaptor.forClass( POM.class );
 
@@ -107,7 +107,7 @@ public class NewProjectWizardTest {
         POM childPom = new POM();
         childPom.setParent( new GAV() );
 
-        wizard.setContent( childPom );
+        wizard.initialise( childPom );
 
         ArgumentCaptor<POM> pomArgumentCaptor = ArgumentCaptor.forClass( POM.class );
 

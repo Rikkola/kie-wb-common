@@ -149,9 +149,10 @@ public class NewProjectHandler
                                         .setVersion( repositoryStructureModel.getPOM().getGav().getVersion() )
                                         .setPackaging( "pom" );
                             } else {
-                                wizard.initialise();
+                                builder.setProjectName( "" )
+                                        .setGroupId( context.getActiveOrganizationalUnit().getDefaultGroupId() );
                             }
-                            wizard.setContent( builder.build() );
+                            wizard.initialise( builder.build() );
                             wizard.start();
                         }
                     } ).load( context.getActiveRepository() );

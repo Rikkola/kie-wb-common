@@ -72,14 +72,15 @@ public class POMWizardPage
                     userModifiedArtifactId = false;
                 }
 
-                final String sanitizedProjectName = sanitizeProjectName( projectName );
+                // TODO Move to PomBuilder
+                final String sanitizedProjectName = sanitizeProjectName( pomEditor.getPom().getName() );
                 if ( !userModifiedArtifactId ) {
                     pomEditor.setArtifactID( sanitizedProjectName );
                     validateArtifactId( sanitizedProjectName );
                 }
                 
-                final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( GAVWizardPage.this );
-                GAVWizardPage.this.wizardPageStatusChangeEvent.fire( event );
+                final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( POMWizardPage.this );
+                POMWizardPage.this.wizardPageStatusChangeEvent.fire( event );
             }
 
             //The projectName has been validated as a FileSystem folder name, which may not be consistent with Maven ArtifactID
