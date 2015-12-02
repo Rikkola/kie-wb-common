@@ -21,21 +21,29 @@
 
   <ui:with field="i18n" type="org.kie.workbench.common.screens.projecteditor.client.resources.i18n.ProjectEditorConstants"/>
 
+  <ui:with field="css" type="org.kie.workbench.common.screens.projecteditor.client.resources.css.ProjectEditorCss"/>
+
+  <ui:style>
+    .arrow {
+    . padding-top : 200 px;
+    }
+  </ui:style>
+
   <gwt:HorizontalPanel>
 
     <gwt:VerticalPanel>
       <bootstrap:Heading size="H3" text='{i18n.Packages}'/>
       <gwt:ScrollPanel>
-        <gwt:ListBox ui:field="availablePackages" visibleItemCount="30" width="150px"/>
+        <gwt:ListBox ui:field="availablePackages" visibleItemCount="30" addStyleNames='{css.whiteListEditorListbox}'/>
       </gwt:ScrollPanel>
     </gwt:VerticalPanel>
 
-    <bootstrap:Button ui:field="addButton" icon="ARROW_RIGHT"/>
+    <bootstrap:Button ui:field="addButton" icon="ARROW_RIGHT" addStyleNames='{style.arrow}'/>
 
     <gwt:VerticalPanel>
       <bootstrap:Heading size="H3" text='{i18n.WhiteList}'/>
       <gwt:ScrollPanel>
-        <gwt:ListBox ui:field="whiteList" visibleItemCount="30" width="150px"/>
+        <gwt:ListBox ui:field="whiteList" visibleItemCount="30" addStyleNames='{css.whiteListEditorListbox}'/>
       </gwt:ScrollPanel>
     </gwt:VerticalPanel>
   </gwt:HorizontalPanel>

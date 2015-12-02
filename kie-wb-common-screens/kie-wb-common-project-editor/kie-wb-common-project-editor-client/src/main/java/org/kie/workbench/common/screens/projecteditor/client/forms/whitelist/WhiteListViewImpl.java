@@ -16,6 +16,7 @@
 package org.kie.workbench.common.screens.projecteditor.client.forms.whitelist;
 
 import java.util.Collection;
+import javax.inject.Inject;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -41,10 +42,16 @@ public class WhiteListViewImpl
     @UiField
     ListBox availableDependencies;
 
-    @UiField
+    @UiField(provided = true)
     PackageNameWhiteListEditor packageNameWhiteListEditor;
 
     public WhiteListViewImpl() {
+
+    }
+
+    @Inject
+    public WhiteListViewImpl( final PackageNameWhiteListEditor packageNameWhiteListEditor ) {
+        this.packageNameWhiteListEditor = packageNameWhiteListEditor;
         setTitle( ProjectEditorResources.CONSTANTS.WhiteListEditor() );
         setBody( uiBinder.createAndBindUi( this ) );
     }

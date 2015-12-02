@@ -26,17 +26,14 @@ public class PackageNameWhiteListEditor
         implements IsWidget {
 
     private PackageNameWhiteListEditorView view;
-    private PackageNameWhiteListService whiteListService;
 
     public PackageNameWhiteListEditor() {
 
     }
 
     @Inject
-    public PackageNameWhiteListEditor( final PackageNameWhiteListEditorView view,
-                                       final PackageNameWhiteListService whiteListService ) {
+    public PackageNameWhiteListEditor( final PackageNameWhiteListEditorView view) {
         this.view = view;
-        this.whiteListService = whiteListService;
     }
 
     @Override

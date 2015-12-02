@@ -18,14 +18,14 @@ package org.kie.workbench.common.screens.projecteditor.client.forms.whitelist;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import org.gwtbootstrap3.client.ui.Button;
-import org.kie.workbench.common.screens.projecteditor.client.resources.ProjectEditorResources;
-import org.uberfire.ext.widgets.common.client.common.popups.BaseModal;
 
 public class PackageNameWhiteListViewImpl
-        extends BaseModal
+        extends Composite
         implements PackageNameWhiteListEditorView {
 
     interface Binder
@@ -46,8 +46,7 @@ public class PackageNameWhiteListViewImpl
     ListBox availablePackages;
 
     public PackageNameWhiteListViewImpl() {
-        setTitle( ProjectEditorResources.CONSTANTS.WhiteListEditor() );
-        setBody( uiBinder.createAndBindUi( this ) );
+        initWidget( uiBinder.createAndBindUi( this ) );
     }
 
     @Override

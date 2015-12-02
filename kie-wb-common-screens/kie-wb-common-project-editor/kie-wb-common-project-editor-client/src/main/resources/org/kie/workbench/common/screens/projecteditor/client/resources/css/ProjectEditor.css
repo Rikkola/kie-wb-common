@@ -28,3 +28,9 @@
     .panelEnabled {
         border: #000000 solid 1px;
     }
+
+    .whiteListEditorListbox {
+        width: 200px;
+        padding-left: 5px;
+        padding-right: 5px;
+    }

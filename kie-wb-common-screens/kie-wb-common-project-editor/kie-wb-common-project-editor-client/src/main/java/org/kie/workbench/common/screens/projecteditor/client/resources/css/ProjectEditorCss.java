@@ -28,4 +28,6 @@ public interface ProjectEditorCss
 
     public String panelEnabled();
 
+    public String whiteListEditorListbox();
+
 }
