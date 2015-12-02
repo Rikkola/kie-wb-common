@@ -17,6 +17,8 @@ package org.kie.workbench.common.screens.projecteditor.client.forms.whitelist;
 
 import java.util.Collection;
 
+import org.guvnor.common.services.project.model.GAV;
+
 public interface WhiteListView {
 
     void show();
@@ -25,6 +27,8 @@ public interface WhiteListView {
 
     void showNoDependencies();
 
-    void setAvailablePackageNamesDisabled();
+    void setDependenciesListDisabled();
+
+    void showPackageNamesFor( GAV gav );
 
 }

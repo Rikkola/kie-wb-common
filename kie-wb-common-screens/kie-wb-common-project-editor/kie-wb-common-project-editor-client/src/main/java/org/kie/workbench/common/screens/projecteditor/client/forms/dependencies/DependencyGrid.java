@@ -25,6 +25,7 @@ import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.common.services.project.model.POM;
 import org.kie.workbench.common.screens.projecteditor.client.forms.GAVSelectionHandler;
+import org.kie.workbench.common.screens.projecteditor.client.forms.whitelist.WhiteListPresenter;
 
 @Dependent
 public class DependencyGrid
@@ -92,10 +93,6 @@ public class DependencyGrid
     }
 
     public void onShowTransientDependencies( final Dependency dependency ) {
-
-        whiteListPresenter.show( new GAV( dependency.getGroupId(),
-                                          dependency.getArtifactId(),
-                                          dependency.getVersion() ) );
-
+        whiteListPresenter.show( dependency );
     }
 }

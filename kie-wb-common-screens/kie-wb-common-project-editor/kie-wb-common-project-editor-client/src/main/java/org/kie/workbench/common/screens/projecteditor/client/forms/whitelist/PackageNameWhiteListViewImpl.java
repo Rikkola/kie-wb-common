@@ -15,8 +15,6 @@
  */
 package org.kie.workbench.common.screens.projecteditor.client.forms.whitelist;
 
-import java.util.Collection;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -28,7 +26,7 @@ import org.uberfire.ext.widgets.common.client.common.popups.BaseModal;
 
 public class PackageNameWhiteListViewImpl
         extends BaseModal
-        implements WhiteListView {
+        implements PackageNameWhiteListEditorView {
 
     interface Binder
             extends
@@ -37,9 +35,6 @@ public class PackageNameWhiteListViewImpl
     }
 
     private static Binder uiBinder = GWT.create( Binder.class );
-
-    @UiField
-    ListBox availableDependencies;
 
     @UiField
     Button addButton;
@@ -56,25 +51,9 @@ public class PackageNameWhiteListViewImpl
     }
 
     @Override
-    public void setAvailableDependencies( final Collection<String> data ) {
-        for (String packageName : data) {
-            availableDependencies.addItem( packageName );
-        }
-    }
-
-    @Override
-    public void setDependenciesListDisabled() {
-        availableDependencies.setEnabled( false );
-    }
-
-    @Override
     public void setAvailablePackageNamesDisabled() {
         addButton.setEnabled( false );
         availablePackages.setEnabled( false );
     }
 
-    @Override
-    public void showNoDependencies() {
-        availableDependencies.addItem( ProjectEditorResources.CONSTANTS.NoDependencies() );
-    }
 }

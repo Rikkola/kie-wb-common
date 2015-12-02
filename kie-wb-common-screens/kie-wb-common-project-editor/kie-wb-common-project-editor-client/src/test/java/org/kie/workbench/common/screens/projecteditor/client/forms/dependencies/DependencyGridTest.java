@@ -25,11 +25,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.projecteditor.client.forms.GAVSelectionHandler;
+import org.kie.workbench.common.screens.projecteditor.client.forms.whitelist.WhiteListPresenter;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
+import static org.kie.workbench.common.screens.projecteditor.client.forms.DependencyTestUtils.makeDependency;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -118,11 +120,4 @@ public class DependencyGridTest {
         assertEquals( "version", gav.getVersion() );
     }
 
-    private Dependency makeDependency( String artifactID,
-                                       String groupID,
-                                       String version ) {
-        return new Dependency( new GAV( groupID,
-                                        artifactID,
-                                        version ) );
-    }
 }

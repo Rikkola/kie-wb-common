@@ -24,13 +24,11 @@ import org.guvnor.common.services.project.model.GAV;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
-import org.kie.workbench.common.services.shared.whitelist.PackageNameWhiteListService;
 import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 
 public class WhiteListPresenter {
 
     private WhiteListView view;
-    private PackageNameWhiteListService whiteListService;
     private Caller<DependencyService> dependencyService;
 
     public WhiteListPresenter() {
@@ -39,10 +37,8 @@ public class WhiteListPresenter {
 
     @Inject
     public WhiteListPresenter( final WhiteListView view,
-                               final PackageNameWhiteListService whiteListService,
                                final Caller<DependencyService> dependencyService ) {
         this.view = view;
-        this.whiteListService = whiteListService;
         this.dependencyService = dependencyService;
     }
 
@@ -50,10 +46,10 @@ public class WhiteListPresenter {
         dependencyService.call(
                 new RemoteCallback<Collection<Dependency>>() {
                     @Override
-                    public void callback( Collection<Dependency> dependencies ) {
+                    public void callback( final Collection<Dependency> dependencies ) {
 
                         if ( dependencies.isEmpty() ) {
-                            view.setAvailablePackageNamesDisabled();
+                            view.setDependenciesListDisabled();
                             view.showNoDependencies();
                         } else {
                             view.setAvailableDependencies( toList( dependencies ) );
@@ -64,9 +60,16 @@ public class WhiteListPresenter {
     }
 
     private Collection<String> toList( Collection<Dependency> dependencies ) {
+        final ArrayList<String> result = new ArrayList<String>();
 
-        ArrayList<String> strings = new ArrayList<String>();
-        strings.add( "artifactID:groupID:version" );
-        return strings;
+        for (Dependency dependency : dependencies) {
+            result.add( dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() );
+        }
+
+        return result;
+    }
+
+    public void onDependencySelected( final String dependencyAsString ) {
+        view.showPackageNamesFor( new GAV( dependencyAsString ) );
     }
 }

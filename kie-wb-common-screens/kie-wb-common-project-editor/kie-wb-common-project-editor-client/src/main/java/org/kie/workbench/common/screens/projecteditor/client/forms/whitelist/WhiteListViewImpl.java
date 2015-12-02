@@ -22,7 +22,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
-import org.gwtbootstrap3.client.ui.Button;
+import org.guvnor.common.services.project.model.GAV;
 import org.kie.workbench.common.screens.projecteditor.client.resources.ProjectEditorResources;
 import org.uberfire.ext.widgets.common.client.common.popups.BaseModal;
 
@@ -42,10 +42,7 @@ public class WhiteListViewImpl
     ListBox availableDependencies;
 
     @UiField
-    Button addButton;
-
-    @UiField
-    ListBox whiteList;
+    PackageNameWhiteListEditor packageNameWhiteListEditor;
 
     public WhiteListViewImpl() {
         setTitle( ProjectEditorResources.CONSTANTS.WhiteListEditor() );
@@ -60,13 +57,17 @@ public class WhiteListViewImpl
     }
 
     @Override
-    public void setAvailablePackageNamesDisabled() {
-        addButton.setEnabled( false );
+    public void setDependenciesListDisabled() {
         availableDependencies.setEnabled( false );
     }
 
     @Override
     public void showNoDependencies() {
         availableDependencies.addItem( ProjectEditorResources.CONSTANTS.NoDependencies() );
+    }
+
+    @Override
+    public void showPackageNamesFor( GAV gav ) {
+        packageNameWhiteListEditor.setGav( gav );
     }
 }

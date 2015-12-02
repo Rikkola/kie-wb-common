@@ -290,4 +290,10 @@ public interface ProjectEditorConstants
 
     String TransientDependencies();
 
+    String SearchDependencies();
+
+    String WhiteListEditor();
+
+    String WhiteList();
+
 }
