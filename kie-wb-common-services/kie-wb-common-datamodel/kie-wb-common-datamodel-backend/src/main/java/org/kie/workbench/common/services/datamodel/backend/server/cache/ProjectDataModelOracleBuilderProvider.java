@@ -26,7 +26,7 @@ import org.drools.workbench.models.datamodel.oracle.ProjectDataModelOracle;
 import org.drools.workbench.models.datamodel.oracle.TypeSource;
 import org.kie.scanner.KieModuleMetaData;
 import org.kie.workbench.common.services.backend.builder.Builder;
-import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameWhiteListService;
+import org.kie.workbench.common.services.backend.whitelist.PackageNameWhiteListServiceImpl;
 import org.kie.workbench.common.services.backend.builder.TypeSourceResolver;
 import org.kie.workbench.common.services.datamodel.backend.server.builder.projects.ProjectDataModelOracleBuilder;
 import org.kie.workbench.common.services.shared.project.KieProject;
@@ -41,13 +41,13 @@ class ProjectDataModelOracleBuilderProvider {
     private static final Logger log = LoggerFactory.getLogger( ProjectDataModelOracleBuilderProvider.class );
 
     private ProjectImportsService importsService;
-    private PackageNameWhiteListService packageNameWhiteListService;
+    private PackageNameWhiteListServiceImpl packageNameWhiteListService;
 
     public ProjectDataModelOracleBuilderProvider() {
     }
 
     @Inject
-    public ProjectDataModelOracleBuilderProvider( final PackageNameWhiteListService packageNameWhiteListService,
+    public ProjectDataModelOracleBuilderProvider( final PackageNameWhiteListServiceImpl packageNameWhiteListService,
                                                   final ProjectImportsService importsService ) {
         this.packageNameWhiteListService = packageNameWhiteListService;
         this.importsService = importsService;
