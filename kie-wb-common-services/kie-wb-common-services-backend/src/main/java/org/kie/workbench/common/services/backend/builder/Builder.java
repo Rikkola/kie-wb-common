@@ -57,7 +57,7 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.internal.builder.IncrementalResults;
 import org.kie.internal.builder.InternalKieBuilder;
 import org.kie.scanner.KieModuleMetaData;
-import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameWhiteListService;
+import org.kie.workbench.common.services.backend.whitelist.PackageNameWhiteListServiceImpl;
 import org.kie.workbench.common.services.shared.project.KieProject;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.kie.workbench.common.services.shared.project.ProjectImportsService;
@@ -110,7 +110,7 @@ public class Builder {
     private LRUProjectDependenciesClassLoaderCache dependenciesClassLoaderCache;
 
     private LRUPomModelCache pomModelCache;
-    private PackageNameWhiteListService packageNameWhiteListService;
+    private PackageNameWhiteListServiceImpl packageNameWhiteListService;
 
     public Builder( final Project project,
                     final IOService ioService,
@@ -119,7 +119,7 @@ public class Builder {
                     final List<BuildValidationHelper> buildValidationHelpers,
                     final LRUProjectDependenciesClassLoaderCache dependenciesClassLoaderCache,
                     final LRUPomModelCache pomModelCache,
-                    final PackageNameWhiteListService packageNameWhiteListService ) {
+                    final PackageNameWhiteListServiceImpl packageNameWhiteListService ) {
         this.project = project;
         this.ioService = ioService;
         this.projectService = projectService;

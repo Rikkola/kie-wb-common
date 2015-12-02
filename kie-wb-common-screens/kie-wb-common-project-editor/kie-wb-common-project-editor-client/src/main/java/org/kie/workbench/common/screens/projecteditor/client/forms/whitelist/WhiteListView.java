@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
+package org.kie.workbench.common.screens.projecteditor.client.forms.whitelist;
 
-import com.google.gwt.user.client.ui.Label;
-import org.uberfire.ext.widgets.common.client.common.popups.BaseModal;
+import java.util.Collection;
 
-public class WhiteListViewImpl
-        extends BaseModal
-        implements WhiteListView {
+public interface WhiteListView {
 
-    public WhiteListViewImpl() {
-        setTitle( "White List Editor" );
-    }
+    void show();
 
-    @Override
-    public void setData( String data ) {
-        setBody( new Label( data ) );
-    }
+    void setAvailableDependencies( Collection<String> data );
+
+    void showNoDependencies();
+
+    void setAvailablePackageNamesDisabled();
+
 }

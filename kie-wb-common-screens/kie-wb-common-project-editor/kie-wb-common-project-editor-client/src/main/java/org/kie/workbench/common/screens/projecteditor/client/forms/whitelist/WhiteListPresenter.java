@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
+package org.kie.workbench.common.screens.projecteditor.client.forms.whitelist;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import javax.inject.Inject;
 
@@ -23,11 +24,13 @@ import org.guvnor.common.services.project.model.GAV;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
+import org.kie.workbench.common.services.shared.whitelist.PackageNameWhiteListService;
 import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 
 public class WhiteListPresenter {
 
     private WhiteListView view;
+    private PackageNameWhiteListService whiteListService;
     private Caller<DependencyService> dependencyService;
 
     public WhiteListPresenter() {
@@ -36,9 +39,10 @@ public class WhiteListPresenter {
 
     @Inject
     public WhiteListPresenter( final WhiteListView view,
+                               final PackageNameWhiteListService whiteListService,
                                final Caller<DependencyService> dependencyService ) {
-        this();
         this.view = view;
+        this.whiteListService = whiteListService;
         this.dependencyService = dependencyService;
     }
 
@@ -46,10 +50,23 @@ public class WhiteListPresenter {
         dependencyService.call(
                 new RemoteCallback<Collection<Dependency>>() {
                     @Override
-                    public void callback( Collection<Dependency> allDependencies ) {
-                        view.setData( allDependencies.toString() );
+                    public void callback( Collection<Dependency> dependencies ) {
+
+                        if ( dependencies.isEmpty() ) {
+                            view.setAvailablePackageNamesDisabled();
+                            view.showNoDependencies();
+                        } else {
+                            view.setAvailableDependencies( toList( dependencies ) );
+                        }
                         view.show();
                     }
                 }, new DefaultErrorCallback() ).loadDependencies( gav );
+    }
+
+    private Collection<String> toList( Collection<Dependency> dependencies ) {
+
+        ArrayList<String> strings = new ArrayList<String>();
+        strings.add( "artifactID:groupID:version" );
+        return strings;
     }
 }

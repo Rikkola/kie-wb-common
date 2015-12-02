@@ -25,10 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.scanner.DependencyDescriptor;
 import org.kie.scanner.KieModuleMetaData;
-import org.kie.workbench.common.services.backend.builder.Builder;
-import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
 import org.kie.workbench.common.services.backend.builder.NoBuilderFoundException;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
@@ -37,14 +34,12 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DependencyServiceImplTest {
 
-    @Mock
-    private LRUBuilderCache builderCache;
 
     private DependencyServiceImpl service;
 
     @Before
     public void setUp() throws Exception {
-        service = new DependencyServiceImpl( builderCache );
+        service = new DependencyServiceImpl();
     }
 
     @Test
@@ -53,9 +48,8 @@ public class DependencyServiceImplTest {
         GAV gav = new GAV( "artifactID",
                            "groupID",
                            "version" );
-        POM pom = new POM( gav );
 
-        mockMetaData( pom, new ArrayList<DependencyDescriptor>() );
+        mockMetaData( new ArrayList<DependencyDescriptor>() );
 
         Collection<Dependency> dependencies = service.loadDependencies( gav );
 
@@ -70,19 +64,15 @@ public class DependencyServiceImplTest {
         POM pom = new POM( gav );
         pom.getDependencies().add( new Dependency() );
 
-        mockMetaData( pom, new ArrayList<DependencyDescriptor>() );
+        mockMetaData( new ArrayList<DependencyDescriptor>() );
 
         Collection<Dependency> dependencies = service.loadDependencies( gav );
 
         assertTrue( dependencies.isEmpty() );
     }
 
-    private void mockMetaData( final POM pom,
-                               final ArrayList<DependencyDescriptor> allDependencies ) throws NoBuilderFoundException {
-        Builder builder = mock( Builder.class );
-        when( builderCache.assertBuilder( pom ) ).thenReturn( builder );
+    private void mockMetaData( final ArrayList<DependencyDescriptor> allDependencies ) throws NoBuilderFoundException {
         KieModuleMetaData kieModuleMetaData = mock( KieModuleMetaData.class );
-        when( builder.getKieModuleMetaDataIgnoringErrors() ).thenReturn( kieModuleMetaData );
         when( kieModuleMetaData.getDependencies() ).thenReturn( allDependencies );
     }
 

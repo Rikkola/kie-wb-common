@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.workbench.common.services.backend.builder.whitelist;
+package org.kie.workbench.common.services.backend.whitelist;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.io.IOUtils;
 import org.guvnor.common.services.project.model.Project;
+import org.jboss.errai.bus.server.annotations.Service;
 import org.kie.workbench.common.services.backend.builder.NoBuilderFoundException;
 import org.kie.workbench.common.services.backend.file.AntPathMatcher;
 import org.kie.workbench.common.services.shared.project.KieProject;
+import org.kie.workbench.common.services.shared.whitelist.PackageNameWhiteListService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.backend.server.util.Paths;
@@ -37,20 +40,23 @@ import org.uberfire.java.nio.file.Files;
 /**
  * Represents a "white list" of permitted package names for use with authoring
  */
-public class PackageNameWhiteListService {
+@Service
+@ApplicationScoped
+public class PackageNameWhiteListServiceImpl
+        implements PackageNameWhiteListService {
 
-    private static final Logger logger = LoggerFactory.getLogger( PackageNameWhiteListService.class );
+    private static final Logger logger = LoggerFactory.getLogger( PackageNameWhiteListServiceImpl.class );
 
     private IOService ioService;
 
     private PackageNameSearchProvider packageNameSearchProvider;
 
-    public PackageNameWhiteListService() {
+    public PackageNameWhiteListServiceImpl() {
     }
 
     @Inject
-    public PackageNameWhiteListService( final @Named("ioStrategy") IOService ioService,
-                                        final PackageNameSearchProvider packageNameSearchProvider ) {
+    public PackageNameWhiteListServiceImpl( final @Named("ioStrategy") IOService ioService,
+                                            final PackageNameSearchProvider packageNameSearchProvider ) {
         this.ioService = ioService;
         this.packageNameSearchProvider = packageNameSearchProvider;
     }

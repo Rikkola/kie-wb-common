@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.workbench.common.screens.projecteditor.client.forms.dependencies;
+package org.kie.workbench.common.services.shared.whitelist;
 
-public interface WhiteListView {
+import org.jboss.errai.bus.server.annotations.Remote;
 
-    void show();
-
-    void setData( String data );
+@Remote
+public interface PackageNameWhiteListService {
 
 }

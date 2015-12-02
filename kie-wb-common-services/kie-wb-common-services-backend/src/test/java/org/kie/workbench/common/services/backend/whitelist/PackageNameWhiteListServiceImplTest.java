@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kie.workbench.common.services.backend.builder.whitelist;
+package org.kie.workbench.common.services.backend.whitelist;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.*;
  * See See https://en.wikipedia.org/wiki/Newline#Representations
  **/
 @RunWith(MockitoJUnitRunner.class)
-public class PackageNameWhiteListServiceTest {
+public class PackageNameWhiteListServiceImplTest {
 
     @Mock
     private PackageNameSearchProvider packageNameSearchProvider;
@@ -53,7 +53,7 @@ public class PackageNameWhiteListServiceTest {
 
     @Test
     public void testWindowsEncoding() {
-        final PackageNameWhiteListService packageNameWhiteListService = new MockPackageNameWhiteListService( "a.**\r\nb\r\n" );
+        final PackageNameWhiteListServiceImpl packageNameWhiteListService = new MockPackageNameWhiteListService( "a.**\r\nb\r\n" );
         final Set<String> results = packageNameWhiteListService.filterPackageNames( mock( KieProject.class ),
                                                                              new ArrayList<String>() {{
                                                                                  add( "a" );
@@ -72,7 +72,7 @@ public class PackageNameWhiteListServiceTest {
 
     @Test
     public void testUnixEncoding() {
-        final PackageNameWhiteListService packageNameWhiteListService = new MockPackageNameWhiteListService( "a.**\nb\n" );
+        final PackageNameWhiteListServiceImpl packageNameWhiteListService = new MockPackageNameWhiteListService( "a.**\nb\n" );
         final Set<String> results = packageNameWhiteListService.filterPackageNames( mock( KieProject.class ),
                                                                              new ArrayList<String>() {{
                                                                                  add( "a" );
@@ -100,7 +100,7 @@ public class PackageNameWhiteListServiceTest {
     }
 
     private class MockPackageNameWhiteListService
-            extends PackageNameWhiteListService {
+            extends PackageNameWhiteListServiceImpl {
 
         private String content;
 

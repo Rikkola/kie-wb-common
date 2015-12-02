@@ -32,8 +32,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.scanner.KieModuleMetaData;
-import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameSearchProvider;
-import org.kie.workbench.common.services.backend.builder.whitelist.PackageNameWhiteListService;
+import org.kie.workbench.common.services.backend.whitelist.PackageNameSearchProvider;
+import org.kie.workbench.common.services.backend.whitelist.PackageNameWhiteListServiceImpl;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.kie.workbench.common.services.shared.project.ProjectImportsService;
 import org.mockito.Mock;
@@ -82,7 +82,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteListService( ioService,
+                                             new PackageNameWhiteListServiceImpl( ioService,
                                                                               packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
@@ -111,7 +111,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteListService( ioService,
+                                             new PackageNameWhiteListServiceImpl( ioService,
                                                                               packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
@@ -147,7 +147,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteListService( ioService,
+                                             new PackageNameWhiteListServiceImpl( ioService,
                                                                               packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
@@ -183,7 +183,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteListService( ioService,
+                                             new PackageNameWhiteListServiceImpl( ioService,
                                                                               packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();
@@ -247,7 +247,7 @@ public class BuildServiceImplTest
                                              new ArrayList<BuildValidationHelper>(),
                                              dependenciesClassLoaderCache,
                                              pomModelCache,
-                                             new PackageNameWhiteListService( ioService,
+                                             new PackageNameWhiteListServiceImpl( ioService,
                                                                               packageNameSearchProvider ) );
 
         final BuildResults results = builder.build();

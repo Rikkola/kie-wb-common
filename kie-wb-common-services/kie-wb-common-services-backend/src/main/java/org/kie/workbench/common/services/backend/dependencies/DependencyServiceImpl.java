@@ -15,14 +15,14 @@
 package org.kie.workbench.common.services.backend.dependencies;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.kie.scanner.MavenRepository;
-import org.kie.workbench.common.services.backend.builder.LRUBuilderCache;
 import org.kie.workbench.common.services.shared.dependencies.DependencyService;
 
 import static org.kie.workbench.common.services.backend.dependencies.DependencyTestUtils.*;
@@ -32,15 +32,15 @@ import static org.kie.workbench.common.services.backend.dependencies.DependencyT
 public class DependencyServiceImpl
         implements DependencyService {
 
-    private LRUBuilderCache builderCache;
+//    private LRUBuilderCache builderCache;
 
     public DependencyServiceImpl() {
     }
 
-    @Inject
-    public DependencyServiceImpl( final LRUBuilderCache builderCache ) {
-        this.builderCache = builderCache;
-    }
+//    @Inject
+//    public DependencyServiceImpl( final LRUBuilderCache builderCache ) {
+//        this.builderCache = builderCache;
+//    }
 
     @Override
     public Collection<Dependency> loadDependencies( final GAV gav ) {
@@ -56,6 +56,10 @@ public class DependencyServiceImpl
 //        } catch (Exception e) {
 //            throw ExceptionUtilities.handleException( e );
 //        }
+    }
+
+    @Override public Set<String> loadPackageNamesForDependency( GAV gav ) {
+        return new HashSet<String>();
     }
 
 }
