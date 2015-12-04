@@ -15,6 +15,7 @@
 package org.kie.workbench.common.services.backend.dependencies;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -42,9 +43,18 @@ public class DependencyServiceImpl
 
     @Override
     public Collection<Dependency> loadDependencies( final GAV gav ) {
-
         return toDependencies( MavenRepository.getMavenRepository().getArtifactDependecies( gav.toString() ) );
+    }
 
+    @Override
+    public Collection<Dependency> loadDependencies( final Collection<GAV> gavs ) {
+        final Collection<Dependency> dependencies = new ArrayList<Dependency>();
+
+        for (final GAV gav : gavs) {
+            dependencies.addAll( loadDependencies( gav ) );
+        }
+
+        return dependencies;
     }
 
     @Override

@@ -14,12 +14,12 @@
 */
 package org.kie.workbench.common.services.backend.dependencies;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
 import org.guvnor.common.services.project.model.Dependency;
 import org.guvnor.common.services.project.model.GAV;
-import org.guvnor.common.services.project.model.POM;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,16 +55,33 @@ public class DependencyServiceImplTest {
         GAV gav = new GAV( "junit",
                            "junit",
                            "4.11" );
-        POM pom = new POM( gav );
-        pom.getDependencies().add( new Dependency() );
 
         Collection<Dependency> dependencies = service.loadDependencies( gav );
 
         assertEquals( 1, dependencies.size() );
-        Dependency dependency = dependencies.iterator().next();
-        assertEquals( "org.hamcrest", dependency.getGroupId() );
-        assertEquals( "hamcrest-core", dependency.getArtifactId() );
-        assertEquals( "1.3", dependency.getVersion() );
+        assertContainsDependency( dependencies, "org.hamcrest", "hamcrest-core", "1.3" );
+    }
+
+    @Test
+    public void testDependenciesList() throws Exception {
+        ArrayList<GAV> gavs = new ArrayList<GAV>();
+        gavs.add( new GAV( "junit",
+                           "junit",
+                           "4.11" ) );
+        // Twice to make sure we do not return duplicate items
+        gavs.add( new GAV( "junit",
+                           "junit",
+                           "4.11" ) );
+        gavs.add( new GAV( "org.mockito",
+                           "mockito-core",
+                           "1.9.5" ) );
+
+        Collection<Dependency> dependencies = service.loadDependencies( gavs );
+
+        assertEquals( 3, dependencies.size() );
+        assertContainsDependency( dependencies, "org.hamcrest", "hamcrest-core", "1.3" );
+        assertContainsDependency( dependencies, "org.hamcrest", "hamcrest-core", "1.1" );
+        assertContainsDependency( dependencies, "org.objenesis", "objenesis", "1.0" );
     }
 
     @Test
@@ -89,5 +106,21 @@ public class DependencyServiceImplTest {
         assertFalse( hamcrestPackages.contains( "org.junit.rules" ) );
         assertFalse( hamcrestPackages.contains( "org.junit.matchers" ) );
 
+    }
+
+    private void assertContainsDependency( final Collection<Dependency> dependencies,
+                                           final String groupID,
+                                           final String artifactID,
+                                           final String version ) {
+        boolean foundIt = false;
+        for (Dependency dependency : dependencies) {
+            if ( groupID.equals( dependency.getGroupId() )
+                    && artifactID.equals( dependency.getArtifactId() )
+                    && version.equals( dependency.getVersion() ) ) {
+                foundIt = true;
+                break;
+            }
+        }
+        assertTrue( foundIt );
     }
 }

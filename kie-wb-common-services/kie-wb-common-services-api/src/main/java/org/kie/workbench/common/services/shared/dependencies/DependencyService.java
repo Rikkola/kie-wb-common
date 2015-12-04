@@ -24,8 +24,10 @@ import org.jboss.errai.bus.server.annotations.Remote;
 @Remote
 public interface DependencyService {
 
+    Collection<Dependency> loadDependencies( final Collection<GAV> gavs );
+
     Collection<Dependency> loadDependencies( final GAV gav);
 
-    Set<String> loadPackageNamesForDependency( GAV gav );
+    Set<String> loadPackageNamesForDependency( final GAV gav );
 
 }
