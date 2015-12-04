@@ -84,7 +84,6 @@ public class DependencyGrid
 
     public void show() {
         view.show( pom.getDependencies() );
-
     }
 
 }
