@@ -23,7 +23,7 @@ import org.guvnor.common.services.project.model.Package;
 import org.guvnor.common.services.project.model.Project;
 import org.kie.workbench.common.screens.explorer.model.FolderItem;
 import org.kie.workbench.common.screens.explorer.model.FolderListing;
-import org.kie.workbench.common.screens.explorer.service.ActiveOptions;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.Option;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 
@@ -49,7 +49,7 @@ public class FolderListingResolver {
                                   final Project selectedProject,
                                   final Package selectedPackage,
                                   final ExplorerServiceHelper helper,
-                                  final ActiveOptions options ) {
+                                  final ProjectExplorerOptions options ) {
         init( selectedItem, selectedProject, selectedPackage, helper );
         return getFolderListing( options );
     }
@@ -64,7 +64,7 @@ public class FolderListingResolver {
         this.helper = helper;
     }
 
-    private FolderListing getFolderListing( final ActiveOptions options ) {
+    private FolderListing getFolderListing( final ProjectExplorerOptions options ) {
         FolderListing result;
         if ( selectedItem == null ) {
             if ( options.contains( Option.BUSINESS_CONTENT ) ) {

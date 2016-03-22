@@ -38,7 +38,7 @@ public interface ExplorerService {
     String BUILD_PROJECT_PROPERTY_NAME = "org.kie.build.disable-project-explorer";
 
     ProjectExplorerContent getContent( final String path,
-                                       final ActiveOptions activeOptions );
+                                       final ProjectExplorerOptions projectExplorerOptions );
 
     ProjectExplorerContent getContent( final ProjectExplorerContentQuery query );
 
@@ -49,7 +49,7 @@ public interface ExplorerService {
                                     final String branch,
                                     final Project project,
                                     final FolderItem item,
-                                    final ActiveOptions options );
+                                    final ProjectExplorerOptions options );
 
     Package resolvePackage( final FolderItem item );
 

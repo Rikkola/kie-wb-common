@@ -20,8 +20,9 @@ import static org.mockito.Mockito.*;
 public class BreadcrumbNavigatorBusinessViewTest extends BaseBreadcrumbNavigatorTest {
 
     protected void doSetup() {
-        when( activeOptions.isBusinessViewActive() ).thenReturn( true );
-        when( activeOptions.isTechnicalViewActive() ).thenReturn( false );
+
+        when( activeOptions.getOptions().isBusinessViewActive() ).thenReturn( true );
+        when( activeOptions.getOptions().isTechnicalViewActive() ).thenReturn( false );
     }
 
     @Override

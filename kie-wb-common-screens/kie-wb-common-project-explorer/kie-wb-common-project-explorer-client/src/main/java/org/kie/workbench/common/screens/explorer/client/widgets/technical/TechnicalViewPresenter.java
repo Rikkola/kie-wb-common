@@ -37,6 +37,8 @@ public class TechnicalViewPresenter
 
     @Override
     protected boolean isViewVisible() {
-        return activeOptions.isTechnicalViewActive();
+        return projectExplorerOptions.isTechnicalViewActive();
     }
+
+
 }

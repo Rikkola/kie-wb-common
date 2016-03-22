@@ -16,8 +16,6 @@
 
 package org.kie.workbench.common.screens.explorer.service;
 
-import java.util.Set;
-
 import org.guvnor.common.services.project.model.Package;
 import org.guvnor.common.services.project.model.Project;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
@@ -28,13 +26,13 @@ import org.kie.workbench.common.screens.explorer.model.FolderItem;
 @Portable
 public class ProjectExplorerContentQuery {
 
-    private OrganizationalUnit organizationalUnit = null;
-    private Repository repository = null;
-    private String branch = null;
-    private Project project = null;
-    private org.guvnor.common.services.project.model.Package pkg = null;
-    private FolderItem item = null;
-    private ActiveOptions options = null;
+    private OrganizationalUnit                               organizationalUnit = null;
+    private Repository                                       repository         = null;
+    private String                                           branch             = null;
+    private Project                                          project            = null;
+    private org.guvnor.common.services.project.model.Package pkg                = null;
+    private FolderItem                                       item               = null;
+    private ProjectExplorerOptions                           options            = null;
 
     public ProjectExplorerContentQuery() {
     }
@@ -45,7 +43,7 @@ public class ProjectExplorerContentQuery {
 
     public ProjectExplorerContentQuery( final OrganizationalUnit organizationalUnit,
                                         final Repository repository,
-                                        final String branch) {
+                                        final String branch ) {
         this.organizationalUnit = organizationalUnit;
         this.repository = repository;
         this.branch = branch;
@@ -91,12 +89,12 @@ public class ProjectExplorerContentQuery {
                                         final Repository repository,
                                         final String branch,
                                         final Project project,
-                                        final ActiveOptions activeOptions ) {
+                                        final ProjectExplorerOptions projectExplorerOptions ) {
         this.organizationalUnit = organizationalUnit;
         this.repository = repository;
         this.branch = branch;
         this.project = project;
-        this.options = activeOptions;
+        this.options = projectExplorerOptions;
     }
 
     public OrganizationalUnit getOrganizationalUnit() {
@@ -119,7 +117,7 @@ public class ProjectExplorerContentQuery {
         return item;
     }
 
-    public ActiveOptions getOptions() {
+    public ProjectExplorerOptions getOptions() {
         return options;
     }
 
@@ -127,7 +125,7 @@ public class ProjectExplorerContentQuery {
         return branch;
     }
 
-    public void setOptions( ActiveOptions options ) {
+    public void setOptions( ProjectExplorerOptions options ) {
         this.options = options;
     }
 

@@ -20,7 +20,7 @@ import org.guvnor.common.services.project.model.Project;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.guvnor.structure.repositories.Repository;
 import org.kie.workbench.common.screens.explorer.model.FolderListing;
-import org.kie.workbench.common.screens.explorer.service.ActiveOptions;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.mockito.ArgumentCaptor;
 
 import static org.mockito.Matchers.*;
@@ -96,7 +96,7 @@ public class HelperWrapper {
                 projectArgumentCaptor.capture(),
                 folderListingArgumentCaptor.capture(),
                 packageArgumentCaptor.capture(),
-                any( ActiveOptions.class));
+                any( ProjectExplorerOptions.class));
 
     }
 

@@ -21,7 +21,9 @@ import org.guvnor.structure.repositories.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.kie.workbench.common.screens.explorer.client.widgets.ActiveContextOptions;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsContext;
+import org.kie.workbench.common.screens.explorer.client.widgets.menu.ExplorerMenu;
+import org.kie.workbench.common.screens.explorer.client.widgets.menu.ExplorerMenuView;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.uberfire.backend.vfs.Path;
@@ -36,7 +38,7 @@ public class ExplorerMenuTest {
     private ExplorerMenuView view;
 
     @Mock
-    private ActiveContextOptions activeOptions;
+    private ProjectExplorerOptionsContext activeOptions;
 
     @Mock
     private Command refreshCommand;
@@ -72,7 +74,7 @@ public class ExplorerMenuTest {
 
         when( activeOptions.isTechnicalViewActive() ).thenReturn( true );
         when( activeOptions.isTreeNavigatorVisible() ).thenReturn( true );
-        when( activeOptions.canShowTag() ).thenReturn( true );
+        when( activeOptions.getOptions().canShowTag() ).thenReturn( true );
 
         menu.refresh();
 
@@ -92,7 +94,7 @@ public class ExplorerMenuTest {
 
         when( activeOptions.isTechnicalViewActive() ).thenReturn( false );
         when( activeOptions.isTreeNavigatorVisible() ).thenReturn( false );
-        when( activeOptions.canShowTag() ).thenReturn( false );
+        when( activeOptions.getOptions().canShowTag() ).thenReturn( false );
 
         menu.refresh();
 
@@ -126,7 +128,7 @@ public class ExplorerMenuTest {
 
     @Test
     public void testOnShowTagFilterSelectedOn() throws Exception {
-        when( activeOptions.canShowTag() ).thenReturn( false );
+        when( activeOptions.getOptions().canShowTag() ).thenReturn( false );
 
         menu.onShowTagFilterSelected();
 
@@ -136,7 +138,7 @@ public class ExplorerMenuTest {
 
     @Test
     public void testOnShowTagFilterSelectedOff() throws Exception {
-        when( activeOptions.canShowTag() ).thenReturn( true );
+        when( activeOptions.getOptions().canShowTag() ).thenReturn( true );
 
         menu.onShowTagFilterSelected();
 

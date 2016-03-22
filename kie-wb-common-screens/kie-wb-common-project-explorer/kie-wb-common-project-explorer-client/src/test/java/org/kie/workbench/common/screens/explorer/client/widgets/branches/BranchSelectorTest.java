@@ -24,7 +24,7 @@ import org.guvnor.structure.repositories.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.kie.workbench.common.screens.explorer.client.widgets.ActiveContextItems;
+import org.kie.workbench.common.screens.explorer.client.widgets.ProjectExplorerContextItems;
 import org.mockito.Mock;
 
 import static org.junit.Assert.*;
@@ -39,14 +39,14 @@ public class BranchSelectorTest {
     @GwtMock
     private Widget widget;
 
-    private BranchSelector branchSelector;
-    private ActiveContextItems activeContextItems;
+    private BranchSelector              branchSelector;
+    private ProjectExplorerContextItems projectExplorerContextItems;
 
     @Before
     public void setUp() throws Exception {
-        activeContextItems = new ActiveContextItems();
+        projectExplorerContextItems = new ProjectExplorerContextItems();
         branchSelector = new BranchSelector( view,
-                                             activeContextItems );
+                                             projectExplorerContextItems );
     }
 
     @Test
@@ -74,7 +74,7 @@ public class BranchSelectorTest {
         branches.add( "master" );
 
         when( repository.getBranches() ).thenReturn( branches );
-        activeContextItems.setActiveBranch( "master" );
+        projectExplorerContextItems.setActiveBranch( "master" );
 
         branchSelector.setRepository( mock( Repository.class ) );
 
@@ -91,7 +91,7 @@ public class BranchSelectorTest {
         branches.add( "feature1" );
 
         when( repository.getBranches() ).thenReturn( branches );
-        activeContextItems.setActiveBranch( "master" );
+        projectExplorerContextItems.setActiveBranch( "master" );
 
         branchSelector.setRepository( repository );
 

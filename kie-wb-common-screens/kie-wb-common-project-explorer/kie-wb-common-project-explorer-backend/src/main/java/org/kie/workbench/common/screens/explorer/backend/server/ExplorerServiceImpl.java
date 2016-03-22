@@ -19,7 +19,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -28,7 +27,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.thoughtworks.xstream.XStream;
-import org.guvnor.common.services.backend.exceptions.ExceptionUtilities;
 import org.guvnor.common.services.project.events.DeleteProjectEvent;
 import org.guvnor.common.services.project.events.RenameProjectEvent;
 import org.guvnor.common.services.project.model.Package;
@@ -44,7 +42,7 @@ import org.kie.workbench.common.screens.explorer.model.FolderItemType;
 import org.kie.workbench.common.screens.explorer.model.FolderListing;
 import org.kie.workbench.common.screens.explorer.model.ProjectExplorerContent;
 import org.kie.workbench.common.screens.explorer.model.URIStructureExplorerModel;
-import org.kie.workbench.common.screens.explorer.service.ActiveOptions;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.ExplorerService;
 import org.kie.workbench.common.screens.explorer.service.Option;
 import org.kie.workbench.common.screens.explorer.service.ProjectExplorerContentQuery;
@@ -57,7 +55,6 @@ import org.uberfire.backend.server.UserServicesImpl;
 import org.uberfire.backend.server.VFSLockServiceImpl;
 import org.uberfire.backend.server.util.Paths;
 import org.uberfire.backend.vfs.Path;
-import org.uberfire.backend.vfs.impl.LockInfo;
 import org.uberfire.commons.async.DescriptiveRunnable;
 import org.uberfire.commons.async.SimpleAsyncExecutorService;
 import org.uberfire.ext.editor.commons.backend.service.helper.CopyHelper;
@@ -66,10 +63,7 @@ import org.uberfire.ext.editor.commons.service.CopyService;
 import org.uberfire.ext.editor.commons.service.DeleteService;
 import org.uberfire.ext.editor.commons.service.RenameService;
 import org.uberfire.io.IOService;
-import org.uberfire.java.nio.base.options.CommentedOption;
 import org.uberfire.java.nio.file.FileSystem;
-import org.uberfire.java.nio.file.Files;
-import org.uberfire.java.nio.file.StandardDeleteOption;
 import org.uberfire.rpc.SessionInfo;
 import org.uberfire.security.authz.AuthorizationManager;
 
@@ -162,7 +156,7 @@ public class ExplorerServiceImpl
 
     @Override
     public ProjectExplorerContent getContent( final String _path,
-                                              final ActiveOptions activeOptions ) {
+                                              final ProjectExplorerOptions projectExplorerOptions ) {
         checkNotEmpty( "path", _path );
 
         final Path path = Paths.convert( ioService.get( URI.create( _path.trim() ) ) );
@@ -186,7 +180,7 @@ public class ExplorerServiceImpl
                                                             repo,
                                                             branch,
                                                             project,
-                                                            activeOptions ) );
+                                                            projectExplorerOptions ) );
     }
 
     private String getBranchName( final Repository repository,
@@ -251,7 +245,7 @@ public class ExplorerServiceImpl
                                            final String branch,
                                            final Project project,
                                            final FolderItem item,
-                                           final ActiveOptions options ) {
+                                           final ProjectExplorerOptions options ) {
         //TODO: BUSINESS_CONTENT, TECHNICAL_CONTENT
         final FolderListing result = helper.getFolderListing( item,
                                                               options );

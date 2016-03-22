@@ -45,7 +45,7 @@ import org.gwtbootstrap3.client.ui.html.Div;
 import org.jboss.errai.security.shared.api.identity.User;
 import org.kie.workbench.common.screens.explorer.client.resources.ProjectExplorerResources;
 import org.kie.workbench.common.screens.explorer.client.resources.i18n.ProjectExplorerConstants;
-import org.kie.workbench.common.screens.explorer.client.widgets.ActiveContextOptions;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsContext;
 import org.kie.workbench.common.screens.explorer.client.widgets.BaseViewPresenter;
 import org.kie.workbench.common.screens.explorer.model.FolderItem;
 import org.kie.workbench.common.screens.explorer.model.FolderItemOperation;
@@ -60,21 +60,21 @@ import org.uberfire.workbench.type.DotResourceTypeDefinition;
 @Dependent
 public class BreadcrumbNavigator extends Composite implements Navigator {
 
-    private User user;
-    private DotResourceTypeDefinition hiddenTypeDef;
-    private ActiveContextOptions activeOptions;
-    private FolderListing activeContent;
+    private User                          user;
+    private DotResourceTypeDefinition     hiddenTypeDef;
+    private ProjectExplorerOptionsContext activeOptions;
+    private FolderListing                 activeContent;
 
-    private final FlowPanel container = GWT.create( FlowPanel.class );
-    private final FlexTable navigator = GWT.create( FlexTable.class );
+    private final FlowPanel container          = GWT.create( FlowPanel.class );
+    private final FlexTable navigator          = GWT.create( FlexTable.class );
     private final PanelBody navigatorPanelBody = GWT.create( PanelBody.class );
-    private final Panel navigatorPanel = GWT.create( Panel.class );
+    private final Panel     navigatorPanel     = GWT.create( Panel.class );
 
     private NavigatorOptions options = new NavigatorOptions();
     private BaseViewPresenter presenter;
 
     @Inject
-    public BreadcrumbNavigator( final ActiveContextOptions activeOptions,
+    public BreadcrumbNavigator( final ProjectExplorerOptionsContext activeOptions,
                                 final DotResourceTypeDefinition hiddenTypeDef,
                                 final User user ) {
         this.activeOptions = activeOptions;
@@ -102,7 +102,7 @@ public class BreadcrumbNavigator extends Composite implements Navigator {
     }
 
     @Override
-    @SuppressWarnings("unused")
+    @SuppressWarnings( "unused" )
     public void loadContent( final FolderListing content,
                              final Map<FolderItem, List<FolderItem>> siblings ) {
         if ( content != null ) {
@@ -159,7 +159,7 @@ public class BreadcrumbNavigator extends Composite implements Navigator {
     //Package protected for unit-testing
     void setupContent( final FolderListing content ) {
         final int folderCount = getFolderCount( content.getContent() );
-        if ( activeOptions.isTechnicalViewActive() || folderCount > 0 ) {
+        if ( activeOptions.getOptions().isTechnicalViewActive() || folderCount > 0 ) {
             showNavigatorPanel();
         } else {
             hideNavigatorPanel();

@@ -18,7 +18,6 @@ package org.kie.workbench.common.screens.explorer.client.widgets;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.guvnor.common.services.project.context.ProjectContext;
 import org.guvnor.common.services.project.events.DeleteProjectEvent;
 import org.guvnor.common.services.project.events.NewPackageEvent;
 import org.guvnor.common.services.project.events.NewProjectEvent;
@@ -39,6 +38,7 @@ import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.kie.workbench.common.screens.explorer.client.utils.Utils;
 import org.kie.workbench.common.screens.explorer.model.ProjectExplorerContent;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.ExplorerService;
 import org.kie.workbench.common.screens.explorer.service.ProjectExplorerContentQuery;
 import org.kie.workbench.common.widgets.client.resources.i18n.CommonConstants;
@@ -48,111 +48,112 @@ import org.uberfire.rpc.SessionInfo;
 import org.uberfire.security.impl.authz.RuntimeAuthorizationManager;
 import org.uberfire.workbench.events.ResourceBatchChangesEvent;
 
-public class ActiveContextManager {
+public class ProjectExplorerContextManager {
 
-    private ActiveContextItems activeContextItems;
-    private ActiveContextOptions activeOptions;
-    private Caller<ExplorerService> explorerService;
-    private RuntimeAuthorizationManager authorizationManager;
-    private transient SessionInfo sessionInfo;
+    private ProjectExplorerContextItems projectExplorerContextItems;
+    private Caller<ExplorerService>     explorerService;
 
-    private View view;
+    private BaseView baseView;
 
-    private RemoteCallback<ProjectExplorerContent> contentCallback;
+    private           ProjectExplorerOptions                 projectExplorerOptions;
+    private           RemoteCallback<ProjectExplorerContent> contentCallback;
+    private           RuntimeAuthorizationManager            authorizationManager;
+    private           ProjectBuilder                         projectBuilder;
+    private transient SessionInfo                            sessionInfo;
 
-    public ActiveContextManager() {
+
+    public ProjectExplorerContextManager() {
     }
 
     @Inject
-    public ActiveContextManager( final ActiveContextItems activeContextItems,
-                                 final ActiveContextOptions activeOptions,
-                                 final Caller<ExplorerService> explorerService,
-                                 final RuntimeAuthorizationManager authorizationManager,
-                                 final SessionInfo sessionInfo ) {
-        this.activeContextItems = activeContextItems;
-        this.activeOptions = activeOptions;
+    public ProjectExplorerContextManager( final ProjectExplorerContextItems projectExplorerContextItems,
+                                          final Caller<ExplorerService> explorerService,
+                                          final RuntimeAuthorizationManager authorizationManager,
+                                          final ProjectBuilder projectBuilder,
+                                          final SessionInfo sessionInfo ) {
+        this.projectExplorerContextItems = projectExplorerContextItems;
         this.explorerService = explorerService;
         this.authorizationManager = authorizationManager;
+        this.projectBuilder = projectBuilder;
         this.sessionInfo = sessionInfo;
     }
 
-    public void init( final View view,
+    public void init( final BaseView baseView,
+                      final ProjectExplorerOptions projectExplorerOptions,
                       final RemoteCallback<ProjectExplorerContent> contentCallback ) {
-        this.view = view;
+        this.baseView = baseView;
+        this.projectExplorerOptions = projectExplorerOptions;
         this.contentCallback = contentCallback;
     }
 
     public void initActiveContext( final String path ) {
-        view.showBusyIndicator( CommonConstants.INSTANCE.Loading() );
+        baseView.showBusyIndicator( CommonConstants.INSTANCE.Loading() );
 
-        explorerService.call( contentCallback,
-                              new HasBusyIndicatorDefaultErrorCallback( view ) ).getContent( path,
-                                                                                             activeOptions.getOptions() );
+        explorerService.call( getContentCallback(),
+                              new HasBusyIndicatorDefaultErrorCallback( baseView ) ).getContent( path,
+                                                                                                 projectExplorerOptions );
     }
 
-    public void initActiveContext( final OrganizationalUnit organizationalUnit ) {
+    private RemoteCallback<ProjectExplorerContent> getContentCallback() {
+        return new RemoteCallback<ProjectExplorerContent>() {
 
-        view.showBusyIndicator( CommonConstants.INSTANCE.Loading() );
-        refresh( new ProjectExplorerContentQuery( organizationalUnit ) );
+            @Override
+            public void callback( final ProjectExplorerContent content ) {
+
+                boolean signalChange = projectExplorerContextItems.setupActiveOrganizationalUnit( content );
+
+                if ( projectExplorerContextItems.setupActiveRepository( content ) ) {
+                    signalChange = true;
+                }
+
+                if ( projectExplorerContextItems.setupActiveBranch( content ) ) {
+                    signalChange = true;
+                }
+
+                if ( projectExplorerContextItems.setupActiveProject( content ) ) {
+                    signalChange = true;
+                    projectBuilder.buildProject( projectExplorerContextItems.getActiveProject() );
+                }
+
+                boolean folderChange = projectExplorerContextItems.setupActiveFolderAndPackage(
+                        content );
+                if ( signalChange || folderChange ) {
+                    projectExplorerContextItems.fireContextChangeEvent();
+                }
+
+                projectExplorerContextItems.setRepositories( content.getRepositories() );
+
+                if ( projectExplorerContextItems.getActiveFolderItem() == null ) {
+                    projectExplorerContextItems.setupActiveFolderAndPackage( content );
+                }
+
+                contentCallback.callback( content );
+            }
+        };
     }
 
-    public void initActiveContext( final OrganizationalUnit organizationalUnit,
-                                   final Repository repository,
-                                   final String branch ) {
+    public void refresh( final ProjectExplorerContentQuery query ) {
 
-        view.showBusyIndicator( CommonConstants.INSTANCE.Loading() );
-        refresh( new ProjectExplorerContentQuery( organizationalUnit,
-                                                  repository,
-                                                  branch ) );
-    }
+        query.setOptions( projectExplorerOptions );
 
-    public void initActiveContext( final OrganizationalUnit organizationalUnit,
-                                   final Repository repository,
-                                   final String branch,
-                                   final Project project ) {
-
-        view.showBusyIndicator( CommonConstants.INSTANCE.Loading() );
-        refresh( new ProjectExplorerContentQuery( organizationalUnit,
-                                                  repository,
-                                                  branch,
-                                                  project ) );
-    }
-
-    public void initActiveContext( final OrganizationalUnit organizationalUnit,
-                                   final Repository repository,
-                                   final String branch,
-                                   final Project project,
-                                   final org.guvnor.common.services.project.model.Package pkg ) {
-        view.showBusyIndicator( CommonConstants.INSTANCE.Loading() );
-        refresh( new ProjectExplorerContentQuery( organizationalUnit,
-                                                  repository,
-                                                  branch,
-                                                  project,
-                                                  pkg ) );
-    }
-
-    private void refresh( final ProjectExplorerContentQuery query ) {
-
-        query.setOptions( activeOptions.getOptions() );
-
-        explorerService.call( contentCallback,
-                              new HasBusyIndicatorDefaultErrorCallback( view ) ).getContent( query );
+        explorerService.call( getContentCallback(),
+                              new HasBusyIndicatorDefaultErrorCallback( baseView ) ).getContent( query );
     }
 
     private void refresh( final Project project ) {
-        refresh( new ProjectExplorerContentQuery( activeContextItems.getActiveOrganizationalUnit(),
-                                                  activeContextItems.getActiveRepository(),
-                                                  activeContextItems.getActiveBranch(),
+        refresh( new ProjectExplorerContentQuery( projectExplorerContextItems.getActiveOrganizationalUnit(),
+                                                  projectExplorerContextItems.getActiveRepository(),
+                                                  projectExplorerContextItems.getActiveBranch(),
                                                   project ) );
     }
 
     void refresh() {
-        refresh( new ProjectExplorerContentQuery( activeContextItems.getActiveOrganizationalUnit(),
-                                                  activeContextItems.getActiveRepository(),
-                                                  activeContextItems.getActiveBranch(),
-                                                  activeContextItems.getActiveProject(),
-                                                  activeContextItems.getActivePackage(),
-                                                  activeContextItems.getActiveFolderItem() ) );
+        refresh( new ProjectExplorerContentQuery( projectExplorerContextItems.getActiveOrganizationalUnit(),
+                                                  projectExplorerContextItems.getActiveRepository(),
+                                                  projectExplorerContextItems.getActiveBranch(),
+                                                  projectExplorerContextItems.getActiveProject(),
+                                                  projectExplorerContextItems.getActivePackage(),
+                                                  projectExplorerContextItems.getActiveFolderItem() ) );
     }
 
     private boolean isInActiveBranch( final Project project ) {
@@ -161,33 +162,24 @@ public class ActiveContextManager {
     }
 
     private Path getCurrentBranchRoot() {
-        if ( activeContextItems.getActiveRepository() == null ) {
+        if ( projectExplorerContextItems.getActiveRepository() == null ) {
             return null;
         } else {
-            return activeContextItems.getActiveRepository().getBranchRoot( activeContextItems.getActiveBranch() );
+            return projectExplorerContextItems.getActiveRepository().getBranchRoot( projectExplorerContextItems.getActiveBranch() );
         }
     }
 
-    public void initActiveContext( final ProjectContext context ) {
-        initActiveContext( context.getActiveOrganizationalUnit(),
-                           context.getActiveRepository(),
-                           context.getActiveBranch(),
-                           context.getActiveProject(),
-                           context.getActivePackage() );
-
-    }
-
     public void onBranchCreated( @Observes final NewBranchEvent event ) {
-        if ( activeContextItems.isTheActiveRepository( event.getRepositoryAlias() ) ) {
-            if ( activeContextItems.getActiveRepository() instanceof GitRepository ) {
-                addBranch( activeContextItems.getActiveRepository(),
+        if ( projectExplorerContextItems.isTheActiveRepository( event.getRepositoryAlias() ) ) {
+            if ( projectExplorerContextItems.getActiveRepository() instanceof GitRepository ) {
+                addBranch( projectExplorerContextItems.getActiveRepository(),
                            event.getBranchName(),
                            event.getBranchPath() );
             }
         }
 
-        if ( activeContextItems.getRepositories() != null ) {
-            for ( Repository repository : activeContextItems.getRepositories() ) {
+        if ( projectExplorerContextItems.getRepositories() != null ) {
+            for ( Repository repository : projectExplorerContextItems.getRepositories() ) {
                 if ( repository.getAlias().equals( event.getRepositoryAlias() ) ) {
                     addBranch( repository,
                                event.getBranchName(),
@@ -200,13 +192,14 @@ public class ActiveContextManager {
     private void addBranch( final Repository repository,
                             final String branchName,
                             final Path branchPath ) {
-        ( (GitRepository) repository ).addBranch( branchName, branchPath );
+        (( GitRepository ) repository).addBranch( branchName,
+                                                  branchPath );
         refresh();
     }
 
     // Refresh when a batch Resource change has occurred. Simply refresh everything.
     public void onBatchResourceChanges( @Observes final ResourceBatchChangesEvent resourceBatchChangesEvent ) {
-        if ( !view.isVisible() ) {
+        if ( !baseView.isVisible() ) {
             return;
         }
 
@@ -224,13 +217,13 @@ public class ActiveContextManager {
     }
 
     public void onSystemRepositoryChanged( @Observes final SystemRepositoryChangedEvent event ) {
-        if ( view.isVisible() ) {
+        if ( baseView.isVisible() ) {
             refresh();
         }
     }
 
     public void onOrganizationalUnitAdded( @Observes final NewOrganizationalUnitEvent event ) {
-        if ( !view.isVisible() ) {
+        if ( !baseView.isVisible() ) {
             return;
         }
         final OrganizationalUnit organizationalUnit = event.getOrganizationalUnit();
@@ -244,7 +237,7 @@ public class ActiveContextManager {
     }
 
     public void onOrganizationalUnitRemoved( @Observes final RemoveOrganizationalUnitEvent event ) {
-        if ( !view.isVisible() ) {
+        if ( !baseView.isVisible() ) {
             return;
         }
         final OrganizationalUnit organizationalUnit = event.getOrganizationalUnit();
@@ -256,7 +249,7 @@ public class ActiveContextManager {
     }
 
     public void onRepoAddedToOrganizationalUnitEvent( @Observes final RepoAddedToOrganizationalUnitEvent event ) {
-        if ( !view.isVisible() ) {
+        if ( !baseView.isVisible() ) {
             return;
         }
         final Repository repository = event.getRepository();
@@ -270,56 +263,56 @@ public class ActiveContextManager {
     }
 
     public void onRepoRemovedFromOrganizationalUnitEvent( @Observes final RepoRemovedFromOrganizationalUnitEvent event ) {
-        if ( view.isVisible() ) {
+        if ( baseView.isVisible() ) {
             refresh();
         }
     }
 
     public void onRepositoryRemovedEvent( @Observes final RepositoryRemovedEvent event ) {
-        if ( !view.isVisible() ) {
+        if ( !baseView.isVisible() ) {
             return;
         }
 
         // The following comparison must stay in that order to avoid a NullPointerException
-        if ( event.getRepository().equals( activeContextItems.getActiveRepository() ) ) {
-            activeContextItems.flush();
+        if ( event.getRepository().equals( projectExplorerContextItems.getActiveRepository() ) ) {
+            projectExplorerContextItems.flush();
         }
 
         refresh();
     }
 
     public void onRepositoryUpdatedEvent( @Observes final RepositoryEnvironmentUpdatedEvent event ) {
-        if ( activeContextItems.isTheActiveRepository( event.getUpdatedRepository().getAlias() ) ) {
+        if ( projectExplorerContextItems.isTheActiveRepository( event.getUpdatedRepository().getAlias() ) ) {
             refresh();
         } else {
-            activeContextItems.updateRepository( event.getUpdatedRepository().getAlias(),
+            projectExplorerContextItems.updateRepository( event.getUpdatedRepository().getAlias(),
                                                  event.getUpdatedRepository().getEnvironment() );
         }
     }
 
     public void onPackageAdded( @Observes final NewPackageEvent event ) {
-        if ( !view.isVisible() ) {
+        if ( !baseView.isVisible() ) {
             return;
         }
         final org.guvnor.common.services.project.model.Package pkg = event.getPackage();
         if ( pkg == null ) {
             return;
         }
-        if ( !Utils.isInProject( activeContextItems.getActiveProject(),
+        if ( !Utils.isInProject( projectExplorerContextItems.getActiveProject(),
                                  pkg ) ) {
             return;
         }
 
         refresh( new ProjectExplorerContentQuery(
-                        activeContextItems.getActiveOrganizationalUnit(),
-                        activeContextItems.getActiveRepository(),
-                        activeContextItems.getActiveBranch(),
-                        activeContextItems.getActiveProject(),
+                        projectExplorerContextItems.getActiveOrganizationalUnit(),
+                        projectExplorerContextItems.getActiveRepository(),
+                        projectExplorerContextItems.getActiveBranch(),
+                        projectExplorerContextItems.getActiveProject(),
                         pkg ) );
     }
 
     public void onProjectAdded( @Observes final NewProjectEvent event ) {
-        if ( view.isVisible() && event.getProject() != null ) {
+        if ( baseView.isVisible() && event.getProject() != null ) {
 
             if ( sessionInfo.getId().equals( event.getSessionId() )
                     && isInActiveBranch( event.getProject() ) ) {
@@ -346,15 +339,15 @@ public class ActiveContextManager {
     public void onProjectDelete( @Observes final DeleteProjectEvent event ) {
         if ( isInActiveBranch( event.getProject() ) && authorizationManager.authorize( event.getProject(),
                                                                                        sessionInfo.getIdentity() ) ) {
-            if ( activeContextItems.getActiveProject() != null && activeContextItems.getActiveProject().equals( event.getProject() ) ) {
-                activeContextItems.flushActiveProject();
+            if ( projectExplorerContextItems.getActiveProject() != null && projectExplorerContextItems.getActiveProject().equals( event.getProject() ) ) {
+                projectExplorerContextItems.flushActiveProject();
             }
 
-            view.showBusyIndicator( CommonConstants.INSTANCE.Loading() );
+            baseView.showBusyIndicator( CommonConstants.INSTANCE.Loading() );
             refresh( new ProjectExplorerContentQuery(
-                            activeContextItems.getActiveOrganizationalUnit(),
-                            activeContextItems.getActiveRepository(),
-                            activeContextItems.getActiveBranch() ) );
+                    projectExplorerContextItems.getActiveOrganizationalUnit(),
+                    projectExplorerContextItems.getActiveRepository(),
+                    projectExplorerContextItems.getActiveBranch() ) );
         }
     }
 }

@@ -37,7 +37,7 @@ import org.kie.workbench.common.screens.explorer.model.FolderItem;
 import org.kie.workbench.common.screens.explorer.model.FolderItemOperation;
 import org.kie.workbench.common.screens.explorer.model.FolderItemType;
 import org.kie.workbench.common.screens.explorer.model.FolderListing;
-import org.kie.workbench.common.screens.explorer.service.ActiveOptions;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.Option;
 import org.kie.workbench.common.screens.explorer.utils.Sorters;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
@@ -149,7 +149,7 @@ public class ExplorerServiceHelper {
     public FolderListing getFolderListing( final FolderItem selectedItem,
                                            final Project selectedProject,
                                            final Package selectedPackage,
-                                           final ActiveOptions options ) {
+                                           final ProjectExplorerOptions options ) {
         return folderListingResolver.resolve( selectedItem,
                                               selectedProject,
                                               selectedPackage,
@@ -158,7 +158,7 @@ public class ExplorerServiceHelper {
     }
 
     public FolderListing getFolderListing( final Package pkg,
-                                           final ActiveOptions options ) {
+                                           final ProjectExplorerOptions options ) {
         return new FolderListing( toFolderItem( pkg ),
                                   getItems( pkg,
                                             options ),
@@ -166,7 +166,7 @@ public class ExplorerServiceHelper {
     }
 
     public FolderListing getFolderListing( final FolderItem item,
-                                           final ActiveOptions options ) {
+                                           final ProjectExplorerOptions options ) {
 
         FolderListing result = null;
         if ( item.getItem() instanceof Path ) {
@@ -181,7 +181,7 @@ public class ExplorerServiceHelper {
     }
 
     public FolderListing getFolderListing( final Path path,
-                                           final ActiveOptions options
+                                           final ProjectExplorerOptions options
                                          ) {
         //Get list of files and folders contained in the path
         final List<FolderItem> folderItems = new ArrayList<FolderItem>();
@@ -229,7 +229,7 @@ public class ExplorerServiceHelper {
     }
 
     public List<FolderItem> getItems( final Package pkg,
-                                      final ActiveOptions options ) {
+                                      final ProjectExplorerOptions options ) {
         final List<FolderItem> folderItems = new ArrayList<FolderItem>();
         if ( pkg == null ) {
             return emptyList();
@@ -272,7 +272,7 @@ public class ExplorerServiceHelper {
     }
 
     private List<FolderItem> getItems( final Path packagePath,
-                                       final ActiveOptions options ) {
+                                       final ProjectExplorerOptions options ) {
         final List<FolderItem> folderItems = new ArrayList<FolderItem>();
         final boolean includeTags = options.contains( Option.SHOW_TAG_FILTER );
         final org.uberfire.java.nio.file.Path nioPackagePath = Paths.convert( packagePath );
@@ -306,7 +306,7 @@ public class ExplorerServiceHelper {
                        final Project selectedProject,
                        final FolderListing folderListing,
                        final Package selectedPackage,
-                       final ActiveOptions options ) {
+                       final ProjectExplorerOptions options ) {
 
         final org.uberfire.java.nio.file.Path userNavPath = userServices.buildPath( "explorer", "user.nav" );
         final org.uberfire.java.nio.file.Path lastUserNavPath = userServices.buildPath( "explorer", "last.user.nav" );
@@ -352,7 +352,7 @@ public class ExplorerServiceHelper {
                        final Project project,
                        final Package pkg,
                        final FolderItem item,
-                       final ActiveOptions options ) {
+                       final ProjectExplorerOptions options ) {
         final UserExplorerData content;
         final UserExplorerData _content = loadUserContent( userNav );
         if ( _content == null ) {

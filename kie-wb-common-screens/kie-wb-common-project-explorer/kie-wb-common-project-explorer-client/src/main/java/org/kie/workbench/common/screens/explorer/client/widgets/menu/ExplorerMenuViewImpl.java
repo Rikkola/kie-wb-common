@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.kie.workbench.common.screens.explorer.client;
+package org.kie.workbench.common.screens.explorer.client.widgets.menu;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -44,12 +44,12 @@ public class ExplorerMenuViewImpl
     @Inject
     private ProjectScreenMenuItem projectScreenMenuItem;
 
-    private final AnchorListItem businessView = new AnchorListItem( ProjectExplorerConstants.INSTANCE.projectView() );
-    private final AnchorListItem techView = new AnchorListItem( ProjectExplorerConstants.INSTANCE.repositoryView() );
-    private final AnchorListItem treeExplorer = new AnchorListItem( ProjectExplorerConstants.INSTANCE.showAsFolders() );
+    private final AnchorListItem businessView       = new AnchorListItem( ProjectExplorerConstants.INSTANCE.projectView() );
+    private final AnchorListItem techView           = new AnchorListItem( ProjectExplorerConstants.INSTANCE.repositoryView() );
+    private final AnchorListItem treeExplorer       = new AnchorListItem( ProjectExplorerConstants.INSTANCE.showAsFolders() );
     private final AnchorListItem breadcrumbExplorer = new AnchorListItem( ProjectExplorerConstants.INSTANCE.showAsLinks() );
-    private final AnchorListItem showTagFilter = new AnchorListItem( ProjectExplorerConstants.INSTANCE.enableTagFiltering() );
-    private final AnchorListItem archiveRepository = new AnchorListItem( ProjectExplorerConstants.INSTANCE.downloadRepository() );
+    private final AnchorListItem showTagFilter      = new AnchorListItem( ProjectExplorerConstants.INSTANCE.enableTagFiltering() );
+    private final AnchorListItem archiveRepository  = new AnchorListItem( ProjectExplorerConstants.INSTANCE.downloadRepository() );
 
     private final AnchorListItem archiveProject = new AnchorListItem( ProjectExplorerConstants.INSTANCE.downloadProject() );
 

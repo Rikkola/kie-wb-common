@@ -21,23 +21,23 @@ import javax.inject.Inject;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import org.guvnor.structure.repositories.Repository;
-import org.kie.workbench.common.screens.explorer.client.widgets.ActiveContextItems;
+import org.kie.workbench.common.screens.explorer.client.widgets.ProjectExplorerContextItems;
 
 public class BranchSelector
         implements IsWidget {
 
-    private BranchSelectorView view;
-    private ActiveContextItems activeContextItems;
-    private BranchChangeHandler branchChangeHandler;
+    private BranchSelectorView          view;
+    private ProjectExplorerContextItems projectExplorerContextItems;
+    private BranchChangeHandler         branchChangeHandler;
 
     public BranchSelector() {
     }
 
     @Inject
     public BranchSelector( final BranchSelectorView view,
-                           final ActiveContextItems activeContextItems ) {
+                           final ProjectExplorerContextItems projectExplorerContextItems ) {
         this.view = view;
-        this.activeContextItems = activeContextItems;
+        this.projectExplorerContextItems = projectExplorerContextItems;
         view.setPresenter( this );
     }
 
@@ -46,7 +46,7 @@ public class BranchSelector
 
         if ( repository != null && repository.getBranches() != null && repository.getBranches().size() > 1 ) {
 
-            view.setCurrentBranch( activeContextItems.getActiveBranch() );
+            view.setCurrentBranch( projectExplorerContextItems.getActiveBranch() );
             addBranches( repository );
             view.show();
 
@@ -58,7 +58,7 @@ public class BranchSelector
 
     private void addBranches( final Repository repository ) {
         for ( String branch : repository.getBranches() ) {
-            if ( !branch.equals( activeContextItems.getActiveBranch() ) && !branch.equals( "origin" ) ) {
+            if ( !branch.equals( projectExplorerContextItems.getActiveBranch() ) && !branch.equals( "origin" ) ) {
                 view.addBranch( branch );
             }
         }

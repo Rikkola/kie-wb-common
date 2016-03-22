@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.explorer.client.widgets.business.BusinessViewWidget;
 import org.kie.workbench.common.screens.explorer.client.widgets.navigator.Explorer;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerContentQuery;
 import org.kie.workbench.common.widgets.client.resources.i18n.CommonConstants;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -40,10 +41,10 @@ public class BaseViewPresenterBranchManagementTest {
     private BusinessViewWidget view;
 
     @Mock
-    private ActiveContextItems activeContextItems;
+    private ProjectExplorerContextItems projectExplorerContextItems;
 
     @Mock
-    private ActiveContextManager activeContextManager;
+    private ProjectExplorerContextManager projectExplorerContextManager;
 
     @Mock
     private Explorer explorer;
@@ -64,34 +65,34 @@ public class BaseViewPresenterBranchManagementTest {
 
     @Before
     public void setup() {
-        when( activeContextItems.getActiveOrganizationalUnit() ).thenReturn( organizationalUnit );
-        when( activeContextItems.getActiveRepository() ).thenReturn( repository );
+        when( projectExplorerContextItems.getActiveOrganizationalUnit() ).thenReturn( organizationalUnit );
+        when( projectExplorerContextItems.getActiveRepository() ).thenReturn( repository );
         when( view.getExplorer() ).thenReturn( explorer );
     }
 
     @Test
     public void testChangeBranch() throws Exception {
 
-        when( activeContextItems.getActiveBranch() ).thenReturn( "master" );
+        when( projectExplorerContextItems.getActiveBranch() ).thenReturn( "master" );
 
         presenter.onBranchSelected( "dev" );
 
         verify( explorer ).clear();
-        verify( activeContextManager ).initActiveContext( organizationalUnit,
-                                                          repository,
-                                                          "dev" );
+        verify( projectExplorerContextManager ).refresh( new ProjectExplorerContentQuery( organizationalUnit,
+                                                                                          repository,
+                                                                                          "dev" ) );
     }
 
     @Test
     public void testStillInSameBranch() throws Exception {
 
-        when( activeContextItems.getActiveBranch() ).thenReturn( "master" );
+        when( projectExplorerContextItems.getActiveBranch() ).thenReturn( "master" );
 
         presenter.onBranchSelected( "master" );
 
         verify( explorer, never() ).clear();
-        verify( activeContextManager, never() ).initActiveContext( any( OrganizationalUnit.class ),
-                                                                   any( Repository.class ),
-                                                                   anyString() );
+        verify( projectExplorerContextManager, never() ).refresh( new ProjectExplorerContentQuery( any( OrganizationalUnit.class ),
+                                                                                                   any( Repository.class ),
+                                                                                                   anyString() ) );
     }
 }

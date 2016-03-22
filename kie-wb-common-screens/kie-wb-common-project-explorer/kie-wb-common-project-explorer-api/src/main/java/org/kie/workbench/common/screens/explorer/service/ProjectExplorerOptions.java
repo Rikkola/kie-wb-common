@@ -5,24 +5,46 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ActiveOptions {
+public class ProjectExplorerOptions {
 
     private final HashSet<Option> set;
 
-    public ActiveOptions() {
+    public ProjectExplorerOptions() {
         this.set = new HashSet<Option>();
     }
 
-    public ActiveOptions( Option... options ) {
+    // only used by tests
+    @Deprecated
+    public ProjectExplorerOptions( Option... options ) {
         this.set = new HashSet<Option>( Arrays.asList( options ) );
     }
 
-    public ActiveOptions( Set<Option> options ) {
-        this.set = new HashSet<Option>( options );
+    public boolean areHiddenFilesVisible() {
+        return set.contains( Option.INCLUDE_HIDDEN_ITEMS );
     }
 
-    public ActiveOptions( ActiveOptions options ) {
-        set = new HashSet( options.getValues() );
+    public boolean isHeaderNavigationHidden() {
+        return set.contains( Option.NO_CONTEXT_NAVIGATION );
+    }
+
+    public boolean isBreadCrumbNavigationVisible() {
+        return set.contains( Option.BREADCRUMB_NAVIGATOR );
+    }
+
+    public boolean canShowTag() {
+        return set.contains( Option.SHOW_TAG_FILTER );
+    }
+
+    public boolean isBusinessViewActive() {
+        return set.contains( Option.BUSINESS_CONTENT );
+    }
+
+    public boolean isTechnicalViewActive() {
+        return set.contains( Option.TECHNICAL_CONTENT );
+    }
+
+    public boolean isTreeNavigatorVisible() {
+        return set.contains( Option.TREE_NAVIGATOR );
     }
 
     public void add( Option option ) {

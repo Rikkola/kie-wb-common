@@ -23,7 +23,7 @@ import org.jboss.errai.security.shared.api.identity.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.kie.workbench.common.screens.explorer.client.widgets.ActiveContextOptions;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsContext;
 import org.kie.workbench.common.screens.explorer.model.FolderItem;
 import org.kie.workbench.common.screens.explorer.model.FolderItemType;
 import org.kie.workbench.common.screens.explorer.model.FolderListing;
@@ -44,7 +44,7 @@ public abstract class BaseBreadcrumbNavigatorTest {
     private Path path;
 
     @Mock
-    protected ActiveContextOptions activeOptions;
+    protected ProjectExplorerOptionsContext activeOptions;
 
     @Mock
     private DotResourceTypeDefinition hiddenTypeDef;

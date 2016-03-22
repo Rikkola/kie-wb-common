@@ -32,8 +32,7 @@ import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.guvnor.structure.repositories.Repository;
 import org.kie.workbench.common.screens.explorer.client.widgets.BaseViewImpl;
 import org.kie.workbench.common.screens.explorer.client.widgets.BaseViewPresenter;
-import org.kie.workbench.common.screens.explorer.client.widgets.View;
-import org.kie.workbench.common.screens.explorer.client.widgets.branches.BranchChangeHandler;
+import org.kie.workbench.common.screens.explorer.client.widgets.BaseView;
 import org.kie.workbench.common.screens.explorer.client.widgets.branches.BranchSelector;
 import org.kie.workbench.common.screens.explorer.client.widgets.navigator.Explorer;
 import org.kie.workbench.common.screens.explorer.client.widgets.navigator.NavigatorExpandCollapseButton;
@@ -51,7 +50,7 @@ import org.uberfire.ext.widgets.common.client.common.BusyPopup;
 @ApplicationScoped
 public class TechnicalViewWidget
         extends BaseViewImpl
-        implements View {
+        implements BaseView {
 
     interface TechnicalViewImplBinder
             extends

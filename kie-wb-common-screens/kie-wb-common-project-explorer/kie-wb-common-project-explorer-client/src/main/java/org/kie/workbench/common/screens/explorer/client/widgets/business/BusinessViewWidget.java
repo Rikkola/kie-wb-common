@@ -45,8 +45,7 @@ import org.kie.workbench.common.screens.explorer.client.utils.Classifier;
 import org.kie.workbench.common.screens.explorer.client.utils.Utils;
 import org.kie.workbench.common.screens.explorer.client.widgets.BaseViewImpl;
 import org.kie.workbench.common.screens.explorer.client.widgets.BaseViewPresenter;
-import org.kie.workbench.common.screens.explorer.client.widgets.View;
-import org.kie.workbench.common.screens.explorer.client.widgets.branches.BranchChangeHandler;
+import org.kie.workbench.common.screens.explorer.client.widgets.BaseView;
 import org.kie.workbench.common.screens.explorer.client.widgets.branches.BranchSelector;
 import org.kie.workbench.common.screens.explorer.client.widgets.navigator.Explorer;
 import org.kie.workbench.common.screens.explorer.client.widgets.navigator.NavigatorExpandCollapseButton;
@@ -77,7 +76,7 @@ import com.google.gwt.user.client.ui.Widget;
  * Business View implementation
  */
 @ApplicationScoped
-public class BusinessViewWidget extends BaseViewImpl implements View {
+public class BusinessViewWidget extends BaseViewImpl implements BaseView {
 
     interface BusinessViewImplBinder
             extends

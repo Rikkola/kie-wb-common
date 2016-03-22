@@ -21,6 +21,7 @@ import org.guvnor.structure.repositories.impl.git.GitRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -29,60 +30,65 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ActiveContextManagerTest {
+public class ProjectExplorerContextManagerTest {
 
     @Mock
-    private ActiveContextItems activeContextItems;
+    private ProjectExplorerContextItems projectExplorerContextItems;
 
     @Mock
-    private View view;
+    private BaseView baseView;
+
+    @Mock
+    private ProjectExplorerOptions projectExplorerOptions;
 
     @Spy
     @InjectMocks
-    private ActiveContextManager activeContextManager;
+    private ProjectExplorerContextManager projectExplorerContextManager;
 
     @Before
     public void setUp() {
-        when( view.isVisible() ).thenReturn( true );
-        doNothing().when( activeContextManager ).refresh();
+        when( baseView.isVisible() ).thenReturn( true );
+        doNothing().when( projectExplorerContextManager ).refresh();
 
-        activeContextManager.init( view, null );
+        projectExplorerContextManager.init( baseView,
+                                            projectExplorerOptions,
+                                            null );
     }
 
     @Test
     public void removeActiveRepositoryTest() {
         GitRepository activeRepository = new GitRepository( "activeRepository" );
-        when( activeContextItems.getActiveRepository() ).thenReturn( activeRepository );
+        when( projectExplorerContextItems.getActiveRepository() ).thenReturn( activeRepository );
 
         RepositoryRemovedEvent repositoryRemovedEvent = new RepositoryRemovedEvent( activeRepository );
 
-        activeContextManager.onRepositoryRemovedEvent( repositoryRemovedEvent );
+        projectExplorerContextManager.onRepositoryRemovedEvent( repositoryRemovedEvent );
 
-        verify( activeContextItems ).flush();
+        verify( projectExplorerContextItems ).flush();
     }
 
     @Test
     public void removeInactiveRepositoryTest() {
         GitRepository activeRepository = new GitRepository( "activeRepository" );
-        when( activeContextItems.getActiveRepository() ).thenReturn( activeRepository );
+        when( projectExplorerContextItems.getActiveRepository() ).thenReturn( activeRepository );
 
         GitRepository inactiveRepository = new GitRepository( "inactiveRepository" );
         RepositoryRemovedEvent repositoryRemovedEvent = new RepositoryRemovedEvent( inactiveRepository );
 
-        activeContextManager.onRepositoryRemovedEvent( repositoryRemovedEvent );
+        projectExplorerContextManager.onRepositoryRemovedEvent( repositoryRemovedEvent );
 
-        verify( activeContextItems, never() ).flush();
+        verify( projectExplorerContextItems, never() ).flush();
     }
 
     @Test
     public void removeInactiveRepositoryWithNoActiveRepositoryTest() {
-        when( activeContextItems.getActiveRepository() ).thenReturn( null );
+        when( projectExplorerContextItems.getActiveRepository() ).thenReturn( null );
 
         GitRepository inactiveRepository = new GitRepository( "inactiveRepository" );
         RepositoryRemovedEvent repositoryRemovedEvent = new RepositoryRemovedEvent( inactiveRepository );
 
-        activeContextManager.onRepositoryRemovedEvent( repositoryRemovedEvent );
+        projectExplorerContextManager.onRepositoryRemovedEvent( repositoryRemovedEvent );
 
-        verify( activeContextItems, never() ).flush();
+        verify( projectExplorerContextItems, never() ).flush();
     }
 }

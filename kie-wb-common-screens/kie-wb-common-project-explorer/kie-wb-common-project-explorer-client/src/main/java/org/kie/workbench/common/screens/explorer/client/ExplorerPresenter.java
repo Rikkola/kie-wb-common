@@ -17,20 +17,20 @@ package org.kie.workbench.common.screens.explorer.client;
 
 import javax.inject.Inject;
 
-import org.guvnor.common.services.project.context.ProjectContext;
+import com.google.gwt.user.client.Window;
 import org.kie.workbench.common.screens.explorer.client.resources.i18n.ProjectExplorerConstants;
-import org.kie.workbench.common.screens.explorer.client.widgets.ActiveContextOptions;
-import org.kie.workbench.common.screens.explorer.client.widgets.BaseViewPresenter;
-import org.kie.workbench.common.screens.explorer.client.widgets.business.BusinessViewPresenter;
-import org.kie.workbench.common.screens.explorer.client.widgets.technical.TechnicalViewPresenter;
+import org.kie.workbench.common.screens.explorer.client.widgets.ActiveViewPresenter;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsBuilder;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsContext;
+import org.kie.workbench.common.screens.explorer.client.widgets.menu.ExplorerMenu;
 import org.uberfire.client.annotations.DefaultPosition;
 import org.uberfire.client.annotations.WorkbenchMenu;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
+import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberView;
 import org.uberfire.lifecycle.OnStartup;
-import org.uberfire.mvp.Command;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.workbench.model.CompassPosition;
 import org.uberfire.workbench.model.Position;
@@ -44,80 +44,49 @@ public class ExplorerPresenter {
 
     private ExplorerView view;
 
-    private BusinessViewPresenter businessViewPresenter;
-    private TechnicalViewPresenter technicalViewPresenter;
-
-    private ProjectContext context;
-
-    private ActiveContextOptions activeOptions;
-
-    public ExplorerMenu menu;
-
-    private final static String INIT_PATH = "init_path";
-    private final static String PATH = "path";
+    public  ExplorerMenu                  menu;
+    private ProjectExplorerOptionsBuilder projectExplorerOptionsBuilder;
+    private ActiveViewPresenter           activeViewPresenter;
+    private String                        initPath;
 
     public ExplorerPresenter() {
     }
 
     @Inject
     public ExplorerPresenter( final ExplorerView view,
-                              final BusinessViewPresenter businessViewPresenter,
-                              final TechnicalViewPresenter technicalViewPresenter,
-                              final ProjectContext context,
-                              final ActiveContextOptions activeOptions,
+                              final ActiveViewPresenter activeViewPresenter,
+                              final ProjectExplorerOptionsBuilder projectExplorerOptionsBuilder,
                               final ExplorerMenu menu ) {
         this.view = view;
-        this.businessViewPresenter = businessViewPresenter;
-        this.technicalViewPresenter = technicalViewPresenter;
-        this.context = context;
-        this.activeOptions = activeOptions;
+        this.activeViewPresenter = activeViewPresenter;
+        this.projectExplorerOptionsBuilder = projectExplorerOptionsBuilder;
         this.menu = menu;
 
-        menu.addRefreshCommand( new Command() {
-            @Override
-            public void execute() {
-                refresh();
-            }
-        } );
-        menu.addUpdateCommand( new Command() {
-            @Override
-            public void execute() {
-                update();
-            }
-        } );
+        this.menu.setActiveViewPresenter( activeViewPresenter );
     }
 
     @OnStartup
     public void onStartup( final PlaceRequest placeRequest ) {
-        activeOptions.init( placeRequest,
-                            new Command() {
-                                @Override
-                                public void execute() {
-                                    String path = placeRequest.getParameter( PATH,
-                                                                             null );
-                                    path = placeRequest.getParameter( INIT_PATH,
-                                                                      path );
-                                    init( path );
-                                }
-                            } );
+
+        setInitPath( placeRequest );
+
+        projectExplorerOptionsBuilder.build( placeRequest,
+                                             Window.Location.getParameterMap(),
+                                             new Callback<ProjectExplorerOptionsContext>() {
+                                                 @Override
+                                                 public void callback( final ProjectExplorerOptionsContext activeOptionsContext ) {
+                                                     init( activeOptionsContext );
+                                                 }
+                                             } );
+
     }
 
-    private void init( String initPath ) {
+    public void init( final ProjectExplorerOptionsContext activeOptionsContext ) {
 
         menu.refresh();
+        activeViewPresenter.init( initPath,
+                                  activeOptionsContext );
 
-        getActiveView().setVisible( true );
-        getInactiveView().setVisible( false );
-
-        if ( initPath == null ) {
-            technicalViewPresenter.initialiseViewForActiveContext( context );
-            businessViewPresenter.initialiseViewForActiveContext( context );
-        } else {
-            technicalViewPresenter.initialiseViewForActiveContext( initPath );
-            businessViewPresenter.initialiseViewForActiveContext( initPath );
-        }
-
-        update();
     }
 
     @WorkbenchPartView
@@ -140,27 +109,10 @@ public class ExplorerPresenter {
         return menu.asMenu();
     }
 
-    private void refresh() {
-        getActiveView().refresh();
-    }
-
-    private void update() {
-        getActiveView().update();
-    }
-
-    private BaseViewPresenter getActiveView() {
-        if ( activeOptions.isTechnicalViewActive() ) {
-            return technicalViewPresenter;
-        } else {
-            return businessViewPresenter;
-        }
-    }
-
-    private BaseViewPresenter getInactiveView() {
-        if ( activeOptions.isTechnicalViewActive() ) {
-            return businessViewPresenter;
-        } else {
-            return technicalViewPresenter;
-        }
+    private void setInitPath( final PlaceRequest placeRequest ) {
+        initPath = placeRequest.getParameter( "path",
+                                              null );
+        initPath = placeRequest.getParameter( "init_path",
+                                              initPath );
     }
 }

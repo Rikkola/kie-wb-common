@@ -15,8 +15,11 @@
  */
 package org.kie.workbench.common.screens.explorer.client.widgets;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwtmockito.GwtMock;
@@ -25,18 +28,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.kie.workbench.common.screens.explorer.service.ExplorerService;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsBuilder;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.Option;
-import org.uberfire.mocks.CallerMock;
-import org.uberfire.mocks.EventSourceMock;
-import org.uberfire.mvp.Command;
 import org.uberfire.mvp.PlaceRequest;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
-public class ActiveOptionsInitParamTest {
+public class ProjectExplorerOptionsParamTest {
 
     private final String mode;
     private final Option option1;
@@ -45,12 +46,9 @@ public class ActiveOptionsInitParamTest {
     @GwtMock
     private Window window;
 
-    private EventSourceMock<ActiveOptionsChangedEvent> changedEvent;
-    private ActiveContextOptions options;
-
-    public ActiveOptionsInitParamTest( final String mode,
-                                       final Option option1,
-                                       final Option option2 ) {
+    public ProjectExplorerOptionsParamTest( final String mode,
+                                            final Option option1,
+                                            final Option option2 ) {
         this.mode = mode;
         this.option1 = option1;
         this.option2 = option2;
@@ -58,32 +56,20 @@ public class ActiveOptionsInitParamTest {
 
     @Before
     public void setUp() throws Exception {
-
         GwtMockito.initMocks( this );
-
-        changedEvent = spy( new EventSourceMock<ActiveOptionsChangedEvent>() {
-            @Override
-            public void fire( ActiveOptionsChangedEvent event ) {
-
-            }
-        } );
-
     }
 
     @Test
     public void testParametersInPlaceRequest() throws Exception {
 
-        options = new ActiveContextOptions( new CallerMock<ExplorerService>( mock( ExplorerService.class ) ),
-                                            changedEvent );
-
         PlaceRequest placeRequest = mock( PlaceRequest.class );
         when( placeRequest.getParameter( "mode", "" ) ).thenReturn( mode );
 
-        options.init( placeRequest,
-                      mock( Command.class ) );
+        final ProjectExplorerOptions projectExplorerOptions = new ProjectExplorerOptionsBuilder().build( placeRequest,
+                                                                              new HashMap<String, List<String>>() );
 
-        assertTrue( options.getOptions().contains( option1 ) );
-        assertTrue( options.getOptions().contains( option2 ) );
+        assertTrue( projectExplorerOptions.contains( option1 ) );
+        assertTrue( projectExplorerOptions.contains( option2 ) );
     }
 
     @Test
@@ -91,23 +77,16 @@ public class ActiveOptionsInitParamTest {
         // Not sure how these are different from place request parameters,
         // I feel they are redundant. Afraid to remove them at this point.
 
-        options = new ActiveContextOptions( new CallerMock<ExplorerService>( mock( ExplorerService.class ) ),
-                                            changedEvent ) {
-            @Override
-            protected String getWindowParameter( String parameterName ) {
-                if ( parameterName.equals( "explorer_mode" ) ) {
-                    return mode;
-                } else {
-                    return null;
-                }
-            }
-        };
+        final HashMap<String, List<String>> parameterMap = new HashMap<String, List<String>>();
+        final ArrayList<String> strings = new ArrayList<String>();
+        strings.add( mode );
+        parameterMap.put( "explorer_mode", strings );
 
-        options.init( mock( PlaceRequest.class ),
-                      mock( Command.class ) );
+        final ProjectExplorerOptions projectExplorerOptions = new ProjectExplorerOptionsBuilder().build( mock( PlaceRequest.class ),
+                                                                              parameterMap );
 
-        assertTrue( options.getOptions().contains( option1 ) );
-        assertTrue( options.getOptions().contains( option2 ) );
+        assertTrue( projectExplorerOptions.contains( option1 ) );
+        assertTrue( projectExplorerOptions.contains( option2 ) );
     }
 
     @Parameterized.Parameters

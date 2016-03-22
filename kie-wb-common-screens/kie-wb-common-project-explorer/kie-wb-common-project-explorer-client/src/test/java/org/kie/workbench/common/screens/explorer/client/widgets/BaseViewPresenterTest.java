@@ -35,12 +35,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.explorer.backend.server.preferences.ExplorerPreferencesLoader;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsContext;
 import org.kie.workbench.common.screens.explorer.client.widgets.business.BusinessViewWidget;
+import org.kie.workbench.common.screens.explorer.client.widgets.itemactions.ItemCopier;
+import org.kie.workbench.common.screens.explorer.client.widgets.itemactions.ItemDeleter;
+import org.kie.workbench.common.screens.explorer.client.widgets.itemactions.ItemRenamer;
 import org.kie.workbench.common.screens.explorer.client.widgets.navigator.Explorer;
 import org.kie.workbench.common.screens.explorer.model.FolderItem;
 import org.kie.workbench.common.screens.explorer.model.FolderListing;
 import org.kie.workbench.common.screens.explorer.model.ProjectExplorerContent;
-import org.kie.workbench.common.screens.explorer.service.ActiveOptions;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.ExplorerService;
 import org.kie.workbench.common.screens.explorer.service.ProjectExplorerContentQuery;
 import org.kie.workbench.common.services.shared.preferences.ApplicationPreferences;
@@ -50,19 +54,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.uberfire.backend.vfs.Path;
 import org.uberfire.backend.vfs.VFSService;
 import org.uberfire.client.mvp.PlaceManager;
-import org.uberfire.ext.editor.commons.client.file.CommandWithFileNameAndCommitMessage;
-import org.uberfire.ext.editor.commons.client.file.CopyPopupView;
-import org.uberfire.ext.editor.commons.client.file.FileNameAndCommitMessage;
-import org.uberfire.ext.editor.commons.client.file.RenamePopupView;
-import org.uberfire.ext.editor.commons.client.validation.Validator;
 import org.uberfire.mocks.CallerMock;
 import org.uberfire.mocks.EventSourceMock;
-import org.uberfire.mvp.ParameterizedCommand;
+import org.uberfire.mvp.Command;
 import org.uberfire.rpc.SessionInfo;
 import org.uberfire.security.impl.authz.RuntimeAuthorizationManager;
 import org.uberfire.workbench.events.NotificationEvent;
@@ -76,7 +73,7 @@ public class BaseViewPresenterTest {
     CommonConstants commonConstants;
 
     private ExplorerService explorerServiceActual = mock( ExplorerService.class );
-    private BuildService buildServiceActual = mock( BuildService.class );
+    private BuildService    buildServiceActual    = mock( BuildService.class );
 
     @Spy
     private Caller<ExplorerService> explorerService = new CallerMock<ExplorerService>( explorerServiceActual );
@@ -115,13 +112,22 @@ public class BaseViewPresenterTest {
     private BusinessViewWidget view;
 
     @Mock
-    private ActiveContextItems activeContextItems;
+    private ProjectExplorerContextItems projectExplorerContextItems;
 
     @Mock
-    private ActiveContextManager activeContextManager;
+    private ProjectExplorerContextManager projectExplorerContextManager;
 
     @Mock
-    private ActiveContextOptions activeOptions;
+    private ProjectExplorerOptionsContext activeOptions;
+
+    @Mock
+    private ItemDeleter itemDeleter;
+
+    @Mock
+    private ItemCopier itemCopier;
+
+    @Mock
+    private ItemRenamer itemRenamer;
 
     private boolean isPresenterVisible = true;
 
@@ -133,15 +139,6 @@ public class BaseViewPresenterTest {
             return isPresenterVisible;
         }
 
-        @Override
-        protected RenamePopupView getRenameView() {
-            return mock( RenamePopupView.class );
-        }
-
-        @Override
-        protected CopyPopupView getCopyView() {
-            return mock( CopyPopupView.class );
-        }
     };
 
     private ProjectExplorerContent content = new ProjectExplorerContent( Collections.<OrganizationalUnit>emptySet(),
@@ -158,81 +155,65 @@ public class BaseViewPresenterTest {
     public void setup() {
         when( view.getExplorer() ).thenReturn( mock( Explorer.class ) );
         when( explorerServiceActual.getContent( any( ProjectExplorerContentQuery.class ) ) ).thenReturn( content );
-        when( activeOptions.getOptions() ).thenReturn( new ActiveOptions() );
+        when( activeOptions.getOptions() ).thenReturn( new ProjectExplorerOptions() );
     }
 
     @Test
     public void testInitCalled() throws Exception {
         presenter.init();
-        verify(view).init( presenter );
+        verify( view ).init( presenter );
     }
 
     @Test
-    public void testDeleteNotification() {
-        final ArgumentCaptor<ParameterizedCommand> commandCaptor = ArgumentCaptor.forClass( ParameterizedCommand.class );
-
-        doAnswer( new Answer<Void>() {
-
-            @Override
-            public Void answer( InvocationOnMock invocation ) throws Throwable {
-                commandCaptor.getValue().execute( "message" );
-                return null;
-            }
-        } ).when( view ).deleteItem( commandCaptor.capture() );
+    public void testDelete() {
 
         final FolderItem item = mock( FolderItem.class );
         presenter.deleteItem( item );
 
-        verify( notification,
-                times( 1 ) ).fire( any( NotificationEvent.class ) );
+        ArgumentCaptor<Command> commandArgumentCaptor = ArgumentCaptor.forClass( Command.class );
+
+        verify( itemDeleter ).delete( item,
+                                      commandArgumentCaptor.capture() );
+
+        commandArgumentCaptor.getValue().execute();
+
+        verify( projectExplorerContextManager ).refresh();
     }
 
     @Test
-    public void testCopyNotification() {
-        final ArgumentCaptor<CommandWithFileNameAndCommitMessage> commandCaptor = ArgumentCaptor.forClass( CommandWithFileNameAndCommitMessage.class );
-
-        doAnswer( new Answer<Void>() {
-
-            @Override
-            public Void answer( InvocationOnMock invocation ) throws Throwable {
-                commandCaptor.getValue().execute( new FileNameAndCommitMessage( "fileName",
-                                                                                "message" ) );
-                return null;
-            }
-        } ).when( view ).copyItem( any( Path.class ),
-                                   any( Validator.class ),
-                                   commandCaptor.capture(),
-                                   any( CopyPopupView.class ) );
+    public void testCopy() {
 
         final FolderItem item = mock( FolderItem.class );
         presenter.copyItem( item );
 
-        verify( notification,
-                times( 1 ) ).fire( any( NotificationEvent.class ) );
+        ArgumentCaptor<Command> commandArgumentCaptor = ArgumentCaptor.forClass( Command.class );
+
+        verify( itemCopier ).copy( item,
+                                   any( Path.class ),
+                                   commandArgumentCaptor.capture() );
+
+        commandArgumentCaptor.getValue().execute();
+
+        verify( view ).showBusyIndicator( "Loading" );
+        verify( projectExplorerContextManager ).refresh();
     }
 
     @Test
-    public void testRenameNotification() {
-        final ArgumentCaptor<CommandWithFileNameAndCommitMessage> commandCaptor = ArgumentCaptor.forClass( CommandWithFileNameAndCommitMessage.class );
-
-        doAnswer( new Answer<Void>() {
-
-            @Override
-            public Void answer( InvocationOnMock invocation ) throws Throwable {
-                commandCaptor.getValue().execute( new FileNameAndCommitMessage( "fileName",
-                                                                                "message" ) );
-                return null;
-            }
-        } ).when( view ).renameItem( any( Path.class ),
-                                     any( Validator.class ),
-                                     commandCaptor.capture(),
-                                     any( RenamePopupView.class ) );
+    public void testRename() {
 
         final FolderItem item = mock( FolderItem.class );
         presenter.renameItem( item );
 
-        verify( notification,
-                times( 1 ) ).fire( any( NotificationEvent.class ) );
+        ArgumentCaptor<Command> commandArgumentCaptor = ArgumentCaptor.forClass( Command.class );
+
+        verify( itemRenamer ).rename( any( Path.class ),
+                                      item,
+                                      commandArgumentCaptor.capture() );
+
+        commandArgumentCaptor.getValue().execute();
+
+        verify( view ).showBusyIndicator( "Loading" );
+        verify( projectExplorerContextManager ).refresh();
     }
 
     @Test
@@ -246,11 +227,11 @@ public class BaseViewPresenterTest {
                  "true" );
         }} );
 
-        when( activeContextItems.setupActiveProject( content ) ).thenReturn( true );
-        when( activeContextItems.getActiveOrganizationalUnit() ).thenReturn( ou );
-        when( activeContextItems.getActiveRepository() ).thenReturn( repository );
-        when( activeContextItems.getActiveBranch() ).thenReturn( "master" );
-        when( activeContextItems.getActiveProject() ).thenReturn( project );
+        when( projectExplorerContextItems.setupActiveProject( content ) ).thenReturn( true );
+        when( projectExplorerContextItems.getActiveOrganizationalUnit() ).thenReturn( ou );
+        when( projectExplorerContextItems.getActiveRepository() ).thenReturn( repository );
+        when( projectExplorerContextItems.getActiveBranch() ).thenReturn( "master" );
+        when( projectExplorerContextItems.getActiveProject() ).thenReturn( project );
 
         presenter.doContentCallback( content );
 
@@ -266,11 +247,11 @@ public class BaseViewPresenterTest {
 
         ApplicationPreferences.setUp( new HashMap<String, String>() );
 
-        when( activeContextItems.setupActiveProject( content ) ).thenReturn( true );
-        when( activeContextItems.getActiveOrganizationalUnit() ).thenReturn( ou );
-        when( activeContextItems.getActiveRepository() ).thenReturn( repository );
-        when( activeContextItems.getActiveBranch() ).thenReturn( "master" );
-        when( activeContextItems.getActiveProject() ).thenReturn( project );
+        when( projectExplorerContextItems.setupActiveProject( content ) ).thenReturn( true );
+        when( projectExplorerContextItems.getActiveOrganizationalUnit() ).thenReturn( ou );
+        when( projectExplorerContextItems.getActiveRepository() ).thenReturn( repository );
+        when( projectExplorerContextItems.getActiveBranch() ).thenReturn( "master" );
+        when( projectExplorerContextItems.getActiveProject() ).thenReturn( project );
 
         presenter.doContentCallback( content );
 
@@ -294,11 +275,11 @@ public class BaseViewPresenterTest {
             final ExplorerPreferencesLoader preferencesLoader = new ExplorerPreferencesLoader();
             ApplicationPreferences.setUp( preferencesLoader.load() );
 
-            when( activeContextItems.setupActiveProject( content ) ).thenReturn( true );
-            when( activeContextItems.getActiveOrganizationalUnit() ).thenReturn( ou );
-            when( activeContextItems.getActiveRepository() ).thenReturn( repository );
-            when( activeContextItems.getActiveBranch() ).thenReturn( "master" );
-            when( activeContextItems.getActiveProject() ).thenReturn( project );
+            when( projectExplorerContextItems.setupActiveProject( content ) ).thenReturn( true );
+            when( projectExplorerContextItems.getActiveOrganizationalUnit() ).thenReturn( ou );
+            when( projectExplorerContextItems.getActiveRepository() ).thenReturn( repository );
+            when( projectExplorerContextItems.getActiveBranch() ).thenReturn( "master" );
+            when( projectExplorerContextItems.getActiveProject() ).thenReturn( project );
 
             presenter.doContentCallback( content );
 
@@ -318,29 +299,29 @@ public class BaseViewPresenterTest {
 
         ApplicationPreferences.setUp( new ExplorerPreferencesLoader().load() );
 
-        when( activeContextItems.setupActiveBranch( content ) ).thenReturn( true );
+        when( projectExplorerContextItems.setupActiveBranch( content ) ).thenReturn( true );
         presenter.doContentCallback( content );
-        verify( activeContextItems ).fireContextChangeEvent();
+        verify( projectExplorerContextItems ).fireContextChangeEvent();
 
-        reset( activeContextItems );
-        when( activeContextItems.setupActiveBranch( content ) ).thenReturn( false );
+        reset( projectExplorerContextItems );
+        when( projectExplorerContextItems.setupActiveBranch( content ) ).thenReturn( false );
         presenter.doContentCallback( content );
-        verify( activeContextItems, never() ).fireContextChangeEvent();
+        verify( projectExplorerContextItems, never() ).fireContextChangeEvent();
 
-        reset( activeContextItems );
-        when( activeContextItems.setupActiveBranch( content ) ).thenReturn( true );
+        reset( projectExplorerContextItems );
+        when( projectExplorerContextItems.setupActiveBranch( content ) ).thenReturn( true );
         presenter.doContentCallback( content );
-        verify( activeContextItems ).fireContextChangeEvent();
+        verify( projectExplorerContextItems ).fireContextChangeEvent();
     }
 
     @Test
     public void testOnActiveOptionsChange() throws Exception {
 
-        presenter.onActiveOptionsChange( new ActiveOptionsChangedEvent() );
+        presenter.onActiveOptionsChange();
         verify( view ).setVisible( true );
 
         isPresenterVisible = false;
-        presenter.onActiveOptionsChange( new ActiveOptionsChangedEvent() );
+        presenter.onActiveOptionsChange();
         verify( view ).setVisible( false );
 
     }

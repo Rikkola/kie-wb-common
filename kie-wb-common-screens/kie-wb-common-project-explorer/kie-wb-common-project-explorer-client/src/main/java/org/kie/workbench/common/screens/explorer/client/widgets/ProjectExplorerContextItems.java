@@ -36,7 +36,7 @@ import org.kie.workbench.common.screens.explorer.model.ProjectExplorerContent;
 import org.kie.workbench.common.screens.explorer.service.ExplorerService;
 
 @ApplicationScoped
-public class ActiveContextItems {
+public class ProjectExplorerContextItems {
 
     protected Event<ProjectContextChangeEvent> contextChangedEvent;
 
@@ -52,12 +52,12 @@ public class ActiveContextItems {
     private Set<Repository>    repositories;
 
 
-    public ActiveContextItems() {
+    public ProjectExplorerContextItems() {
     }
 
     @Inject
-    public ActiveContextItems(final Event<ProjectContextChangeEvent> contextChangedEvent,
-                              final Caller<ExplorerService> explorerService) {
+    public ProjectExplorerContextItems( final Event<ProjectContextChangeEvent> contextChangedEvent,
+                                        final Caller<ExplorerService> explorerService ) {
         this.contextChangedEvent = contextChangedEvent;
         this.explorerService = explorerService;
     }

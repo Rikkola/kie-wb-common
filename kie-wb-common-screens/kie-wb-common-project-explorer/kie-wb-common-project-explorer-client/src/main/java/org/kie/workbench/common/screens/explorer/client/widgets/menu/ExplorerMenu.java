@@ -13,25 +13,23 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.kie.workbench.common.screens.explorer.client;
+package org.kie.workbench.common.screens.explorer.client.widgets.menu;
 
 import javax.inject.Inject;
 
 import org.guvnor.common.services.project.context.ProjectContext;
-import org.kie.workbench.common.screens.explorer.client.widgets.ActiveContextOptions;
-import org.uberfire.mvp.Command;
+import org.kie.workbench.common.screens.explorer.client.widgets.ActiveViewPresenter;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsContext;
 import org.uberfire.workbench.model.menu.Menus;
 
 public class ExplorerMenu {
 
-    private ActiveContextOptions activeOptions;
+    private ProjectExplorerOptionsContext activeOptions;
 
     private ProjectContext context;
 
-    private Command refreshCommand;
-    private Command updateCommand;
-
-    private ExplorerMenuView view;
+    private ExplorerMenuView    view;
+    private ActiveViewPresenter activeViewPresenter;
 
     public ExplorerMenu() {
 
@@ -39,7 +37,7 @@ public class ExplorerMenu {
 
     @Inject
     public ExplorerMenu( final ExplorerMenuView view,
-                         final ActiveContextOptions activeOptions,
+                         final ProjectExplorerOptionsContext activeOptions,
                          final ProjectContext projectContext ) {
         this.view = view;
         this.activeOptions = activeOptions;
@@ -53,13 +51,13 @@ public class ExplorerMenu {
     }
 
     public void refresh() {
-        if ( activeOptions.isTreeNavigatorVisible() ) {
+        if ( activeOptions.getOptions().isTreeNavigatorVisible() ) {
             view.showTreeNav();
         } else {
             view.showBreadcrumbNav();
         }
 
-        if ( activeOptions.isTechnicalViewActive() ) {
+        if ( activeOptions.getOptions().isTechnicalViewActive() ) {
             view.showTechViewIcon();
             view.hideBusinessViewIcon();
         } else {
@@ -67,61 +65,53 @@ public class ExplorerMenu {
             view.hideTechViewIcon();
         }
 
-        if ( activeOptions.canShowTag() ) {
+        if ( activeOptions.getOptions().canShowTag() ) {
             view.showTagFilterIcon();
         } else {
             view.hideTagFilterIcon();
         }
     }
 
-    public void addRefreshCommand( Command refreshCommand ) {
-        this.refreshCommand = refreshCommand;
-    }
-
-    public void addUpdateCommand( Command updateCommand ) {
-        this.updateCommand = updateCommand;
-    }
-
     public void onBusinessViewSelected() {
-        if ( !activeOptions.isBusinessViewActive() ) {
+        if ( !activeOptions.getOptions().isBusinessViewActive() ) {
             activeOptions.activateBusinessView();
             refresh();
-            updateCommand.execute();
+            activeViewPresenter.update();
         }
     }
 
     public void onTechViewSelected() {
-        if ( !activeOptions.isTechnicalViewActive() ) {
+        if ( !activeOptions.getOptions().isTechnicalViewActive() ) {
             activeOptions.activateTechView();
             refresh();
-            updateCommand.execute();
+            activeViewPresenter.update();
         }
     }
 
     public void onTreeExplorerSelected() {
-        if ( !activeOptions.isTreeNavigatorVisible() ) {
+        if ( !activeOptions.getOptions().isTreeNavigatorVisible() ) {
             activeOptions.activateTreeViewNavigation();
             refresh();
-            updateCommand.execute();
+            activeViewPresenter.update();
         }
     }
 
     public void onBreadCrumbExplorerSelected() {
-        if ( !activeOptions.isBreadCrumbNavigationVisible() ) {
+        if ( !activeOptions.getOptions().isBreadCrumbNavigationVisible() ) {
             activeOptions.activateBreadCrumbNavigation();
             refresh();
-            updateCommand.execute();
+            activeViewPresenter.update();
         }
     }
 
     public void onShowTagFilterSelected() {
-        if ( activeOptions.canShowTag() ) {
+        if ( activeOptions.getOptions().canShowTag() ) {
             activeOptions.disableTagFiltering();
         } else {
             activeOptions.activateTagFiltering();
         }
         refresh();
-        updateCommand.execute();
+        activeViewPresenter.update();
     }
 
     public void onArchiveActiveProject() {
@@ -133,6 +123,10 @@ public class ExplorerMenu {
     }
 
     public void onRefresh() {
-        refreshCommand.execute();
+        this.activeViewPresenter.init();
+    }
+
+    public void setActiveViewPresenter( final ActiveViewPresenter activeViewPresenter ) {
+        this.activeViewPresenter = activeViewPresenter;
     }
 }

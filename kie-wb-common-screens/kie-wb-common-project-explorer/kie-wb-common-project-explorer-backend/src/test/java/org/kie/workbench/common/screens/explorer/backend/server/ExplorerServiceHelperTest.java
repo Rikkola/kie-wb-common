@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.explorer.model.FolderItem;
 import org.kie.workbench.common.screens.explorer.model.FolderItemOperation;
-import org.kie.workbench.common.screens.explorer.service.ActiveOptions;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.Option;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.mockito.Mock;
@@ -207,8 +207,8 @@ public class ExplorerServiceHelperTest {
     }
 
     protected List<FolderItem> getFolderItems( Option... options ) {
-        final ActiveOptions activeOptions = new ActiveOptions( options );
-        return helper.getItems( pkg, activeOptions );
+        final ProjectExplorerOptions projectExplorerOptions = new ProjectExplorerOptions( options );
+        return helper.getItems( pkg, projectExplorerOptions );
     }
 
     @Test

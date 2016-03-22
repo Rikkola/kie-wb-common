@@ -15,17 +15,18 @@
  */
 package org.kie.workbench.common.screens.explorer.client;
 
-import org.guvnor.common.services.project.context.ProjectContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.kie.workbench.common.screens.explorer.client.widgets.ActiveContextOptions;
-import org.kie.workbench.common.screens.explorer.client.widgets.business.BusinessViewPresenter;
-import org.kie.workbench.common.screens.explorer.client.widgets.technical.TechnicalViewPresenter;
+import org.kie.workbench.common.screens.explorer.client.widgets.ActiveViewPresenter;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsBuilder;
+import org.kie.workbench.common.screens.explorer.client.widgets.options.ProjectExplorerOptionsContext;
+import org.kie.workbench.common.screens.explorer.client.widgets.menu.ExplorerMenu;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.uberfire.mvp.Command;
+import org.uberfire.client.callbacks.Callback;
 import org.uberfire.mvp.PlaceRequest;
 
 import static org.mockito.Mockito.*;
@@ -39,127 +40,83 @@ public class ExplorerPresenterTest {
     private ExplorerMenu menu;
 
     @Mock
-    private ActiveContextOptions activeOptions;
+    private ActiveViewPresenter activeViewPresenter;
 
     @Mock
-    private BusinessViewPresenter businessViewPresenter;
+    private ProjectExplorerOptionsBuilder projectExplorerOptionsBuilder;
 
-    @Mock
-    private TechnicalViewPresenter technicalViewPresenter;
-    private ProjectContext context;
+    @Captor
+    private ArgumentCaptor<Callback> callbackArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        context = new ProjectContext();
         explorer = new ExplorerPresenter( mock( ExplorerView.class ),
-                                          businessViewPresenter,
-                                          technicalViewPresenter,
-                                          context,
-                                          activeOptions,
+                                          activeViewPresenter,
+                                          projectExplorerOptionsBuilder,
                                           menu );
     }
 
     @Test
     public void testOnStartUpNoInitPath() throws Exception {
 
-        when( activeOptions.isTechnicalViewActive() ).thenReturn( true );
-
         PlaceRequest placeRequest = mock( PlaceRequest.class );
 
-        ArgumentCaptor<Command> argumentCaptor = ArgumentCaptor.forClass( Command.class );
 
         explorer.onStartup( placeRequest );
 
-        verify( activeOptions ).init( eq( placeRequest ),
-                                      argumentCaptor.capture() );
+        verify( projectExplorerOptionsBuilder ).build( placeRequest,
+                                                       anyMap(),
+                                                       callbackArgumentCaptor.capture() );
 
-        argumentCaptor.getValue().execute();
 
-        verify( technicalViewPresenter ).setVisible( true );
-        verify( businessViewPresenter ).setVisible( false );
+        final ProjectExplorerOptionsContext activeOptionsContext = mock( ProjectExplorerOptionsContext.class );
+        callbackArgumentCaptor.getValue().callback( activeOptionsContext );
 
-        verify( technicalViewPresenter ).initialiseViewForActiveContext( context );
-        verify( businessViewPresenter ).initialiseViewForActiveContext( context );
+        verify( activeViewPresenter ).init( null,
+                                            activeOptionsContext );
     }
 
     @Test
-    public void testOnStartUpNoInit() throws Exception {
-
-        when( activeOptions.isBusinessViewActive() ).thenReturn( true );
+    public void testOnStartUpInitPath() throws Exception {
 
         PlaceRequest placeRequest = mock( PlaceRequest.class );
         when( placeRequest.getParameter( eq( "init_path" ),
                                          anyString() ) ).thenReturn( "something" );
 
-        ArgumentCaptor<Command> argumentCaptor = ArgumentCaptor.forClass( Command.class );
 
         explorer.onStartup( placeRequest );
 
-        verify( activeOptions ).init( eq( placeRequest ),
-                                      argumentCaptor.capture() );
+        verify( projectExplorerOptionsBuilder ).build( placeRequest,
+                                                       anyMap(),
+                                                       callbackArgumentCaptor.capture() );
 
-        argumentCaptor.getValue().execute();
 
-        verify( technicalViewPresenter ).setVisible( false );
-        verify( businessViewPresenter ).setVisible( true );
+        final ProjectExplorerOptionsContext activeOptionsContext = mock( ProjectExplorerOptionsContext.class );
+        callbackArgumentCaptor.getValue().callback( activeOptionsContext );
 
-        verify( technicalViewPresenter ).initialiseViewForActiveContext( "something" );
-        verify( businessViewPresenter ).initialiseViewForActiveContext( "something" );
+        verify( activeViewPresenter ).init( "something",
+                                            activeOptionsContext );
     }
 
     @Test
-    public void testTechViewRefresh() throws Exception {
-        ArgumentCaptor<Command> argumentCaptor = ArgumentCaptor.forClass( Command.class );
+    public void testOnStartUpPath() throws Exception {
 
-        when( activeOptions.isTechnicalViewActive() ).thenReturn( true );
+        PlaceRequest placeRequest = mock( PlaceRequest.class );
+        when( placeRequest.getParameter( eq( "path" ),
+                                         anyString() ) ).thenReturn( "something_else" );
 
-        verify( menu ).addRefreshCommand( argumentCaptor.capture() );
 
-        argumentCaptor.getValue().execute();
+        explorer.onStartup( placeRequest );
 
-        verify( technicalViewPresenter ).refresh();
-        verify( businessViewPresenter, never() ).refresh();
-    }
+        verify( projectExplorerOptionsBuilder ).build( placeRequest,
+                                              anyMap(),
+                                              callbackArgumentCaptor.capture() );
 
-    @Test
-    public void testBusinessViewRefresh() throws Exception {
-        ArgumentCaptor<Command> argumentCaptor = ArgumentCaptor.forClass( Command.class );
 
-        when( activeOptions.isBusinessViewActive() ).thenReturn( true );
+        final ProjectExplorerOptionsContext activeOptionsContext = mock( ProjectExplorerOptionsContext.class );
+        callbackArgumentCaptor.getValue().callback( activeOptionsContext );
 
-        verify( menu ).addRefreshCommand( argumentCaptor.capture() );
-
-        argumentCaptor.getValue().execute();
-
-        verify( technicalViewPresenter, never() ).refresh();
-        verify( businessViewPresenter ).refresh();
-    }
-
-    @Test
-    public void testTechViewUpdate() throws Exception {
-        ArgumentCaptor<Command> argumentCaptor = ArgumentCaptor.forClass( Command.class );
-
-        when( activeOptions.isTechnicalViewActive() ).thenReturn( true );
-
-        verify( menu ).addUpdateCommand( argumentCaptor.capture() );
-
-        argumentCaptor.getValue().execute();
-
-        verify( technicalViewPresenter ).update();
-        verify( businessViewPresenter, never() ).update();
-    }
-
-    @Test
-    public void testBusinessViewUpdate() throws Exception {
-        ArgumentCaptor<Command> argumentCaptor = ArgumentCaptor.forClass( Command.class );
-
-        when( activeOptions.isBusinessViewActive() ).thenReturn( true );
-
-        verify( menu ).addUpdateCommand( argumentCaptor.capture() );
-
-        argumentCaptor.getValue().execute();
-
-        verify( technicalViewPresenter, never() ).update();
-        verify( businessViewPresenter ).update();
+        verify( activeViewPresenter ).init( "something_else",
+                                            activeOptionsContext );
     }
 }

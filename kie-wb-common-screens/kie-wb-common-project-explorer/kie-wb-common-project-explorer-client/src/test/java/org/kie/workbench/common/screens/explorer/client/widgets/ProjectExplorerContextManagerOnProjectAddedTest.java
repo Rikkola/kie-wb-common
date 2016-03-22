@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.explorer.model.ProjectExplorerContent;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.ExplorerService;
 import org.kie.workbench.common.screens.explorer.service.ProjectExplorerContentQuery;
 import org.mockito.ArgumentCaptor;
@@ -41,13 +42,13 @@ import static org.kie.workbench.common.screens.explorer.client.TestUtils.*;
 import static org.mockito.Mockito.*;
 
 @RunWith( MockitoJUnitRunner.class )
-public class ActiveContextManagerOnProjectAddedTest {
+public class ProjectExplorerContextManagerOnProjectAddedTest {
 
     @Mock
-    ActiveContextItems activeContextItems;
+    ProjectExplorerContextItems projectExplorerContextItems;
 
     @Mock
-    ActiveContextOptions activeOptions;
+    ProjectExplorerOptions projectExplorerOptions;
 
     @Mock
     ExplorerService explorerService;
@@ -62,7 +63,7 @@ public class ActiveContextManagerOnProjectAddedTest {
     User identity;
 
     @Mock
-    View view;
+    BaseView baseView;
 
     @Mock
     RemoteCallback<ProjectExplorerContent> remoteCallback;
@@ -70,46 +71,47 @@ public class ActiveContextManagerOnProjectAddedTest {
     @Captor
     ArgumentCaptor<ProjectExplorerContentQuery> projectExplorerContentQueryCaptor;
 
-    private ActiveContextManager activeContextManager;
+    private ProjectExplorerContextManager projectExplorerContextManager;
 
     @Before
     public void setUp() {
-        when( view.isVisible() ).thenReturn( true );
+        when( baseView.isVisible() ).thenReturn( true );
 
         when( sessionInfo.getIdentity() ).thenReturn( identity );
         when( sessionInfo.getId() ).thenReturn( "sessionID" );
 
-        this.activeContextManager = spy( new ActiveContextManager( activeContextItems,
-                                                                   activeOptions,
-                                                                   new CallerMock<ExplorerService>( explorerService ),
-                                                                   authorizationManager,
-                                                                   sessionInfo ) );
+        this.projectExplorerContextManager = spy( new ProjectExplorerContextManager( projectExplorerContextItems,
+                                                                                     new CallerMock<ExplorerService>( explorerService ),
+                                                                                     authorizationManager,
+                                                                                     mock( ProjectBuilder.class ),
+                                                                                     sessionInfo ) );
 
-        this.activeContextManager.init( view,
-                                        remoteCallback );
+        this.projectExplorerContextManager.init( baseView,
+                                                 projectExplorerOptions,
+                                                 remoteCallback );
     }
 
     @Test
     public void testViewNotVisible() throws Exception {
-        when( view.isVisible() ).thenReturn( false );
+        when( baseView.isVisible() ).thenReturn( false );
 
-        activeContextManager.onProjectAdded( new NewProjectEvent() );
+        projectExplorerContextManager.onProjectAdded( new NewProjectEvent() );
 
         verify( explorerService, never() ).getContent( any( ProjectExplorerContentQuery.class ) );
     }
 
     @Test
     public void testProjectNull() throws Exception {
-        activeContextManager.onProjectAdded( new NewProjectEvent() );
+        projectExplorerContextManager.onProjectAdded( new NewProjectEvent() );
 
         verify( explorerService, never() ).getContent( any( ProjectExplorerContentQuery.class ) );
     }
 
     @Test
     public void testNotInCurrentSession() throws Exception {
-        activeContextManager.onProjectAdded( new NewProjectEvent( mock( Project.class ),
-                                                                  "differentID",
-                                                                  "userName" ) );
+        projectExplorerContextManager.onProjectAdded( new NewProjectEvent( mock( Project.class ),
+                                                                           "differentID",
+                                                                           "userName" ) );
 
         verifyFullRefresh();
     }
@@ -117,8 +119,8 @@ public class ActiveContextManagerOnProjectAddedTest {
     @Test
     public void testNotInSameBranch() throws Exception {
         final Repository repository = mock( Repository.class );
-        when( activeContextItems.getActiveRepository() ).thenReturn( repository );
-        when( activeContextItems.getActiveBranch() ).thenReturn( "master" );
+        when( projectExplorerContextItems.getActiveRepository() ).thenReturn( repository );
+        when( projectExplorerContextItems.getActiveBranch() ).thenReturn( "master" );
 
         final Path masterRootPath = getPathMock( "default://master@uf-playground/" );
 
@@ -126,7 +128,7 @@ public class ActiveContextManagerOnProjectAddedTest {
 
         final Project project = getProjectMock( "default://devBranch@uf-playground/myProject" );
 
-        activeContextManager.onProjectAdded( new NewProjectEvent( project,
+        projectExplorerContextManager.onProjectAdded( new NewProjectEvent( project,
                                                                   "sessionID",
                                                                   "userName" ) );
 
@@ -136,8 +138,8 @@ public class ActiveContextManagerOnProjectAddedTest {
     @Test
     public void testProjectRefresh() throws Exception {
         final Repository repository = mock( Repository.class );
-        when( activeContextItems.getActiveRepository() ).thenReturn( repository );
-        when( activeContextItems.getActiveBranch() ).thenReturn( "master" );
+        when( projectExplorerContextItems.getActiveRepository() ).thenReturn( repository );
+        when( projectExplorerContextItems.getActiveBranch() ).thenReturn( "master" );
 
         final Path masterRootPath = getPathMock( "default://master@uf-playground/" );
 
@@ -145,7 +147,7 @@ public class ActiveContextManagerOnProjectAddedTest {
 
         final Project project = getProjectMock( "default://master@uf-playground/myProject" );
 
-        activeContextManager.onProjectAdded( new NewProjectEvent( project,
+        projectExplorerContextManager.onProjectAdded( new NewProjectEvent( project,
                                                                   "sessionID",
                                                                   "userName" ) );
 

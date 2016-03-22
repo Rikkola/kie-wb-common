@@ -40,26 +40,26 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith( MockitoJUnitRunner.class )
-public class ActiveContextItemsTest {
+public class ProjectExplorerContextItemsTest {
 
     @Mock
     ExplorerService explorerService;
-    private ActiveContextItems activeContextItems;
+    private ProjectExplorerContextItems projectExplorerContextItems;
 
     @Before
     public void setUp() throws Exception {
-        activeContextItems = new ActiveContextItems( new EventSourceMock<ProjectContextChangeEvent>(),
-                                                     new CallerMock<ExplorerService>( explorerService ) );
+        projectExplorerContextItems = new ProjectExplorerContextItems( new EventSourceMock<ProjectContextChangeEvent>(),
+                                                                       new CallerMock<ExplorerService>( explorerService ) );
     }
 
     @Test
     public void testSetupActiveBranch() throws Exception {
 
-        assertTrue( activeContextItems.setupActiveBranch( getProjectContext( "master" ) ) );
+        assertTrue( projectExplorerContextItems.setupActiveBranch( getProjectContext( "master" ) ) );
 
-        assertFalse( activeContextItems.setupActiveBranch( getProjectContext( "master" ) ) );
+        assertFalse( projectExplorerContextItems.setupActiveBranch( getProjectContext( "master" ) ) );
 
-        assertTrue( activeContextItems.setupActiveBranch( getProjectContext( "hahaaNotTheSame" ) ) );
+        assertTrue( projectExplorerContextItems.setupActiveBranch( getProjectContext( "hahaaNotTheSame" ) ) );
     }
 
     private ProjectExplorerContent getProjectContext( final String branch ) {

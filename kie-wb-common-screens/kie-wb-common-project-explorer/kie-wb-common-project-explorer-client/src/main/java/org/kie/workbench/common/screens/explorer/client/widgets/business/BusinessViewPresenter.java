@@ -37,6 +37,6 @@ public class BusinessViewPresenter
 
     @Override
     protected boolean isViewVisible() {
-        return activeOptions.isBusinessViewActive();
+        return projectExplorerOptions.isBusinessViewActive();
     }
 }

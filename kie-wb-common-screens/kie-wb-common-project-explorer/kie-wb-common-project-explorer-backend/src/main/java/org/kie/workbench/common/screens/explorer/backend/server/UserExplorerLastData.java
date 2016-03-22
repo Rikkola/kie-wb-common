@@ -23,7 +23,7 @@ import org.guvnor.common.services.project.model.Project;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.guvnor.structure.repositories.Repository;
 import org.kie.workbench.common.screens.explorer.model.FolderItem;
-import org.kie.workbench.common.screens.explorer.service.ActiveOptions;
+import org.kie.workbench.common.screens.explorer.service.ProjectExplorerOptions;
 import org.kie.workbench.common.screens.explorer.service.Option;
 
 public class UserExplorerLastData {
@@ -58,7 +58,7 @@ public class UserExplorerLastData {
         lastPackage = new LastPackage( organizationalUnit, repository, branch, project, pkg );
     }
 
-    public void setOptions( final ActiveOptions options ) {
+    public void setOptions( final ProjectExplorerOptions options ) {
         this.options.clear();
         this.options.addAll( options.getValues() );
     }

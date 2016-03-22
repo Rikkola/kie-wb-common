@@ -1,4 +1,4 @@
-package org.kie.workbench.common.screens.explorer.client;
+package org.kie.workbench.common.screens.explorer.client.widgets.menu;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
