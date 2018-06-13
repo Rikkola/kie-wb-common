@@ -25,13 +25,14 @@ import org.uberfire.backend.vfs.Path;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @RunWith(GwtMockitoTestRunner.class)
 public class EnumDropDownUtilitiesTest {
 
     @Test
-    public void testCommaseparatedValues() throws Exception {
+    public void testCommaSeparatedValues_1() {
         final DropDownData downData = mock(DropDownData.class);
         doReturn(new String[]{"a", "\"b, c\"", "d"}).when(downData).getFixedList();
 
@@ -48,5 +49,105 @@ public class EnumDropDownUtilitiesTest {
         verify(listBox).addItem("a");
         verify(listBox).addItem("\"b, c\"");
         verify(listBox).addItem("d");
+
+        verify(listBox).setItemSelected(0, true);
+        verify(listBox).setItemSelected(1, true);
+        verify(listBox).setItemSelected(2, true);
+    }
+
+    @Test
+    public void testCommaSeparatedValues_2() {
+        final DropDownData downData = mock(DropDownData.class);
+        doReturn(new String[]{"a", "\"b, c\"", "d"}).when(downData).getFixedList();
+
+        final ListBox listBox = mock(ListBox.class);
+
+        new EnumDropDownUtilities().setDropDownData(" ( \"a\",\"d\" )",
+                                                    downData,
+                                                    true,
+                                                    mock(Path.class),
+                                                    listBox);
+
+        verify(listBox).clear();
+
+        verify(listBox).addItem("a");
+        verify(listBox).addItem("\"b, c\"");
+        verify(listBox).addItem("d");
+
+        verify(listBox).setItemSelected(0, true);
+        verify(listBox, never()).setItemSelected(1, true);
+        verify(listBox).setItemSelected(2, true);
+    }
+
+    @Test
+    public void testCommaSeparatedValues_3() {
+        final DropDownData downData = mock(DropDownData.class);
+        doReturn(new String[]{"a", "\"b, c\"", "d"}).when(downData).getFixedList();
+
+        final ListBox listBox = mock(ListBox.class);
+
+        new EnumDropDownUtilities().setDropDownData(" ( \"a\",\"\"b, c\"\" )",
+                                                    downData,
+                                                    true,
+                                                    mock(Path.class),
+                                                    listBox);
+
+        verify(listBox).clear();
+
+        verify(listBox).addItem("a");
+        verify(listBox).addItem("\"b, c\"");
+        verify(listBox).addItem("d");
+
+        verify(listBox).setItemSelected(0, true);
+        verify(listBox).setItemSelected(1, true);
+        verify(listBox, never()).setItemSelected(2, true);
+    }
+
+    @Test
+    public void testCommaSeparatedValues_4() {
+        final DropDownData downData = mock(DropDownData.class);
+        doReturn(new String[]{"a", "\"b, c\"", "d"}).when(downData).getFixedList();
+
+        final ListBox listBox = mock(ListBox.class);
+
+        new EnumDropDownUtilities().setDropDownData(" ( \"\"b, c\"\",\"d\" )",
+                                                    downData,
+                                                    true,
+                                                    mock(Path.class),
+                                                    listBox);
+
+        verify(listBox).clear();
+
+        verify(listBox).addItem("a");
+        verify(listBox).addItem("\"b, c\"");
+        verify(listBox).addItem("d");
+
+        verify(listBox, never()).setItemSelected(0, true);
+        verify(listBox).setItemSelected(1, true);
+        verify(listBox).setItemSelected(2, true);
+    }
+
+    @Test
+    public void testCommaSeparatedValues_5() {
+        final DropDownData downData = mock(DropDownData.class);
+        doReturn(new String[]{"a", "\"b, c\"", "d"}).when(downData).getFixedList();
+
+        final ListBox listBox = mock(ListBox.class);
+
+        new EnumDropDownUtilities().setDropDownData(" ( \"\"b, c\"\" )",
+                                                    downData,
+                                                    true,
+                                                    mock(Path.class),
+                                                    listBox);
+
+        verify(listBox).clear();
+
+        verify(listBox).addItem("a");
+        verify(listBox).addItem("\"b, c\"");
+        verify(listBox).addItem("d");
+
+        verify(listBox, never()).setItemSelected(0, true);
+        verify(listBox).setItemSelected(1, true);
+        verify(listBox, never()).setItemSelected(2, true);
     }
 }
