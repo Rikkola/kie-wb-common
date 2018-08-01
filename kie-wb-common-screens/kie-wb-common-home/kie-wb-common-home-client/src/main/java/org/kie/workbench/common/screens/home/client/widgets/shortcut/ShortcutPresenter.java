@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 import org.kie.workbench.common.screens.home.client.widgets.shortcut.subheading.ShortcutSubHeadingLinkPresenter;
 import org.kie.workbench.common.screens.home.client.widgets.shortcut.subheading.ShortcutSubHeadingTextPresenter;
@@ -40,7 +39,9 @@ public class ShortcutPresenter {
 
         void setAction(Command action);
 
-        void addSubHeadingChild(IsElement child);
+        void addSubHeadingChild(ShortcutSubHeadingLinkPresenter link);
+
+        void addSubHeadingChild(ShortcutSubHeadingTextPresenter text);
     }
 
     private View view;
@@ -103,13 +104,13 @@ public class ShortcutPresenter {
         final ShortcutSubHeadingTextPresenter textPresenter = textPresenters.get();
         textPresenter.setup(subHeading,
                             part);
-        view.addSubHeadingChild(textPresenter.getView());
+        view.addSubHeadingChild(textPresenter);
     }
 
     private void addLink(final HomeShortcutLink link) {
         final ShortcutSubHeadingLinkPresenter linkPresenter = linkPresenters.get();
         linkPresenter.setup(link);
-        view.addSubHeadingChild(linkPresenter.getView());
+        view.addSubHeadingChild(linkPresenter);
     }
 
     public View getView() {

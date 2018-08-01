@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
-import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -39,7 +39,6 @@ import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 import org.kie.workbench.common.screens.library.api.LibraryInfo;
 import org.kie.workbench.common.screens.library.api.LibraryService;
-import org.kie.workbench.common.screens.library.client.events.ProjectDetailEvent;
 import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
 import org.kie.workbench.common.screens.library.client.widgets.common.TileWidget;
 import org.kie.workbench.common.screens.library.client.widgets.library.AddProjectButtonPresenter;
@@ -48,7 +47,8 @@ import org.uberfire.ext.widgets.common.client.common.HasBusyIndicator;
 import org.uberfire.mvp.Command;
 import org.uberfire.spaces.Space;
 
-public class PopulatedLibraryScreen {
+public class PopulatedLibraryScreen
+        implements HasView<PopulatedLibraryScreen> {
 
     public interface View extends UberElement<PopulatedLibraryScreen>,
                                   HasBusyIndicator {
@@ -62,7 +62,6 @@ public class PopulatedLibraryScreen {
         void clearFilterText();
 
         String getNumberOfAssetsMessage(int numberOfAssets);
-
     }
 
     private View view;

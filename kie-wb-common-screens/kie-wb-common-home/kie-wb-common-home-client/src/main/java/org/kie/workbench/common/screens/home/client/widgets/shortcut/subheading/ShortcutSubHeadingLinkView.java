@@ -53,6 +53,6 @@ public class ShortcutSubHeadingLinkView implements ShortcutSubHeadingLinkPresent
     @EventHandler("link")
     public void linkClick(final ClickEvent clickEvent) {
         clickEvent.stopPropagation();
-        presenter.goToPerspective();
+        presenter.onGoToPerspective();
     }
 }

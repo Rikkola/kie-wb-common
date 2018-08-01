@@ -58,7 +58,7 @@ public class LibraryScreen {
 
         void setContributorsCount(int count);
 
-        void updateContent(HTMLElement content);
+        void updateContent(HasView hasView);
     }
 
     protected List<WorkspaceProject> projects;
@@ -176,22 +176,22 @@ public class LibraryScreen {
     }
 
     private void showEmptyLibraryScreen() {
-        view.updateContent(emptyLibraryScreen.getView().getElement());
+        view.updateContent(emptyLibraryScreen);
         view.setProjectsCount(0);
     }
 
     private void showPopulatedLibraryScreen() {
-        view.updateContent(populatedLibraryScreen.getView().getElement());
+        view.updateContent(populatedLibraryScreen);
         view.setProjectsCount(populatedLibraryScreen.getProjectsCount());
     }
 
     public void showContributors() {
-        view.updateContent(contributorsListPresenter.getView().getElement());
+        view.updateContent(contributorsListPresenter);
     }
 
     public void showMetrics() {
         orgUnitsMetricsScreen.refresh();
-        view.updateContent(orgUnitsMetricsScreen.getView().getElement());
+        view.updateContent(orgUnitsMetricsScreen);
     }
 
     public boolean userCanCreateProjects() {

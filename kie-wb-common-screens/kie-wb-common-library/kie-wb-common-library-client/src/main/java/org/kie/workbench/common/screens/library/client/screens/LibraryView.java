@@ -20,7 +20,6 @@ import javax.inject.Inject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import org.jboss.errai.common.client.dom.Anchor;
 import org.jboss.errai.common.client.dom.Div;
-import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.ListItem;
 import org.jboss.errai.common.client.dom.Span;
 import org.jboss.errai.ui.client.local.api.IsElement;
@@ -177,8 +176,8 @@ public class LibraryView implements LibraryScreen.View,
     }
 
     @Override
-    public void updateContent(HTMLElement content) {
+    public void updateContent(HasView content) {
         mainContainer.setTextContent("");
-        mainContainer.appendChild(content);
+        mainContainer.appendChild(content.getView().getElement());
     }
 }

@@ -226,13 +226,11 @@ public class LibraryScreenTest {
     @Test
     public void showProjectsTest() {
         doReturn(true).when(libraryService).hasProjects(any());
-        final HTMLElement populatedLibraryScreenElement = mock(HTMLElement.class);
-        when(populatedLibraryScreen.getView().getElement()).thenReturn(populatedLibraryScreenElement);
         doReturn(3).when(populatedLibraryScreen).getProjectsCount();
 
         libraryScreen.showProjects();
 
-        verify(view).updateContent(populatedLibraryScreenElement);
+        verify(view).updateContent(populatedLibraryScreen);
         verify(view).setProjectsCount(3);
     }
 
@@ -289,12 +287,10 @@ public class LibraryScreenTest {
     @Test
     public void showNoProjectsTest() {
         doReturn(false).when(libraryService).hasProjects(any());
-        final HTMLElement emptyLibraryScreenElement = mock(HTMLElement.class);
-        when(emptyLibraryScreen.getView().getElement()).thenReturn(emptyLibraryScreenElement);
 
         libraryScreen.showProjects();
 
-        verify(view).updateContent(emptyLibraryScreenElement);
+        verify(view).updateContent(emptyLibraryScreen);
         verify(view).setProjectsCount(0);
     }
 

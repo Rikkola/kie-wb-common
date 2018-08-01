@@ -16,7 +16,6 @@
 
 package org.kie.workbench.common.screens.home.client.widgets.shortcut;
 
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -25,6 +24,8 @@ import org.jboss.errai.common.client.dom.Heading;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
+import org.kie.workbench.common.screens.home.client.widgets.shortcut.subheading.ShortcutSubHeadingLinkPresenter;
+import org.kie.workbench.common.screens.home.client.widgets.shortcut.subheading.ShortcutSubHeadingTextPresenter;
 import org.uberfire.mvp.Command;
 
 @Templated
@@ -72,7 +73,12 @@ public class ShortcutView implements ShortcutPresenter.View,
     }
 
     @Override
-    public void addSubHeadingChild(org.jboss.errai.common.client.api.IsElement child) {
-        subHeading.appendChild(child.getElement());
+    public void addSubHeadingChild(ShortcutSubHeadingLinkPresenter linkPresenter) {
+        subHeading.appendChild(linkPresenter.getView().getElement());
+    }
+
+    @Override
+    public void addSubHeadingChild(ShortcutSubHeadingTextPresenter text) {
+        subHeading.appendChild(text.getView().getElement());
     }
 }

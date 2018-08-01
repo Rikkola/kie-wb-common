@@ -25,7 +25,8 @@ import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
 import org.kie.workbench.common.screens.library.client.widgets.library.AddProjectButtonPresenter;
 import org.uberfire.client.mvp.UberElement;
 
-public class EmptyLibraryScreen {
+public class EmptyLibraryScreen
+        implements HasView<EmptyLibraryScreen> {
 
     public interface View extends UberElement<EmptyLibraryScreen> {
 
@@ -76,7 +77,8 @@ public class EmptyLibraryScreen {
         return projectController.canCreateProjects();
     }
 
-    public View getView() {
+    @Override
+    public UberElement<EmptyLibraryScreen> getView() {
         return view;
     }
 }

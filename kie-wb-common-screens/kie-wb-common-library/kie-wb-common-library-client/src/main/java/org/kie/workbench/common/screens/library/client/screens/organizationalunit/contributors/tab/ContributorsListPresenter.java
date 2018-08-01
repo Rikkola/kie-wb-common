@@ -19,6 +19,7 @@ package org.kie.workbench.common.screens.library.client.screens.organizationalun
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -29,11 +30,13 @@ import org.guvnor.structure.events.AfterEditOrganizationalUnitEvent;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
+import org.kie.workbench.common.screens.library.client.screens.HasView;
 import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.edit.EditContributorsPopUpPresenter;
 import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
 import org.uberfire.client.mvp.UberElement;
 
-public class ContributorsListPresenter {
+public class ContributorsListPresenter
+        implements HasView<ContributorsListPresenter> {
 
     public interface View extends UberElement<ContributorsListPresenter> {
 
@@ -81,7 +84,7 @@ public class ContributorsListPresenter {
     public void setup() {
         view.init(this);
         updateContributors(projectContext.getActiveOrganizationalUnit()
-                                         .orElseThrow(() -> new IllegalStateException("Cannot setup contributors list without an active organizational unit.")));
+                                   .orElseThrow(() -> new IllegalStateException("Cannot setup contributors list without an active organizational unit.")));
     }
 
     public void updateContributors(final OrganizationalUnit organizationalUnit) {
@@ -100,7 +103,7 @@ public class ContributorsListPresenter {
 
     private void updateView(final List<String> contributors) {
         final OrganizationalUnit organizationalUnit = projectContext.getActiveOrganizationalUnit()
-                                                                    .orElseThrow(() -> new IllegalStateException("Cannot update contributors list without an active organizational unit."));
+                .orElseThrow(() -> new IllegalStateException("Cannot update contributors list without an active organizational unit."));
 
         view.clearContributors();
 
@@ -129,14 +132,14 @@ public class ContributorsListPresenter {
 
     public boolean userCanUpdateOrganizationalUnit() {
         return organizationalUnitController.canUpdateOrgUnit(projectContext.getActiveOrganizationalUnit()
-                                                                           .orElseThrow(() -> new IllegalStateException("Cannot update organizational unit when none is active.")));
+                                                                     .orElseThrow(() -> new IllegalStateException("Cannot update organizational unit when none is active.")));
     }
 
     public int getContributorsCount() {
         return projectContext.getActiveOrganizationalUnit()
-                             .orElseThrow(() -> new IllegalStateException("Cannot get contributors count when no organizational unit is active."))
-                             .getContributors()
-                             .size();
+                .orElseThrow(() -> new IllegalStateException("Cannot get contributors count when no organizational unit is active."))
+                .getContributors()
+                .size();
     }
 
     public View getView() {

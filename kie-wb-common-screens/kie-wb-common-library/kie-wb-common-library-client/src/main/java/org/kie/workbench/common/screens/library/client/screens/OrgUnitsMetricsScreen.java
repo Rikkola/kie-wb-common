@@ -27,7 +27,8 @@ import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
 import org.kie.workbench.common.screens.library.client.util.OrgUnitsMetricsFactory;
 import org.uberfire.client.mvp.UberElement;
 
-public class OrgUnitsMetricsScreen {
+public class OrgUnitsMetricsScreen
+        implements HasView<OrgUnitsMetricsScreen> {
 
     public interface View extends UberElement<OrgUnitsMetricsScreen> {
 
@@ -94,7 +95,7 @@ public class OrgUnitsMetricsScreen {
         this.view.init(this);
 
         this.organizationalUnit = projectContext.getActiveOrganizationalUnit()
-                                                .orElseThrow(() -> new IllegalStateException("Cannot initialize OrgUnitsMetricsScreen without an active organizational unit."));
+                .orElseThrow(() -> new IllegalStateException("Cannot initialize OrgUnitsMetricsScreen without an active organizational unit."));
 
         this.commitsOverTimeDisplayer = metricsFactory.lookupCommitsOverTimeDisplayer(organizationalUnit);
         this.commitsPerAuthorDisplayer = metricsFactory.lookupCommitsPerAuthorDisplayer(organizationalUnit);

@@ -69,7 +69,7 @@ public class ShortcutSubHeadingLinkPresenterTest {
         presenter.setup(new HomeShortcutLink("label",
                                              "perspectiveIdentifier"));
 
-        presenter.goToPerspective();
+        presenter.onGoToPerspective();
 
         verify(shortcutHelper).goTo("perspectiveIdentifier");
     }

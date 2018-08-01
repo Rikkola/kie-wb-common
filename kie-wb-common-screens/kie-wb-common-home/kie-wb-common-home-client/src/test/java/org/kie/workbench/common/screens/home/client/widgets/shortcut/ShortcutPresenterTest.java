@@ -99,10 +99,10 @@ public class ShortcutPresenterTest {
         verify(textPresenter).setup(shortcut.getSubHeading(),
                                     2);
         verify(view,
-               times(2)).addSubHeadingChild(textPresenter.getView());
+               times(2)).addSubHeadingChild(textPresenter);
 
         verify(linkPresenter).setup(link);
-        verify(view).addSubHeadingChild(linkPresenter.getView());
+        verify(view).addSubHeadingChild(linkPresenter);
     }
 
     @Test

@@ -58,7 +58,7 @@ public class ShortcutSubHeadingLinkPresenter {
         }
     }
 
-    void goToPerspective() {
+    public void onGoToPerspective() {
         shortcutHelper.goTo(link.getPerspectiveIdentifier());
     }
 
