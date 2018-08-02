@@ -22,14 +22,15 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import org.jboss.errai.common.client.dom.Button;
 import org.jboss.errai.common.client.dom.Div;
-import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.Input;
+import org.jboss.errai.common.client.dom.elemental2.Elemental2DomUtil;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.kie.workbench.common.screens.library.client.resources.i18n.LibraryConstants;
+import org.kie.workbench.common.screens.library.client.widgets.example.ExampleProjectWidget;
 import org.uberfire.ext.widgets.common.client.common.BusyPopup;
 
 @Templated
@@ -40,6 +41,9 @@ public class ImportProjectsView implements ImportPresenter.View,
 
     @Inject
     private TranslationService ts;
+
+    @Inject
+    private Elemental2DomUtil elemental2DomUtil;
 
     @Inject
     @DataField("title")
@@ -79,8 +83,8 @@ public class ImportProjectsView implements ImportPresenter.View,
     }
 
     @Override
-    public void addProject(HTMLElement project) {
-        projectList.appendChild(project);
+    public void addProject(ExampleProjectWidget projectWidget) {
+        projectList.appendChild(elemental2DomUtil.asHTMLElement(projectWidget.getView().getElement()));
     }
 
     @Override

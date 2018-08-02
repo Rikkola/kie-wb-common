@@ -32,7 +32,6 @@ import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.ErrorCallback;
 import org.jboss.errai.common.client.api.RemoteCallback;
-import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.elemental2.Elemental2DomUtil;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 import org.kie.workbench.common.screens.examples.model.ImportProject;
@@ -55,7 +54,7 @@ public abstract class ImportPresenter {
 
         void clearProjects();
 
-        void addProject(HTMLElement project);
+        void addProject(ExampleProjectWidget project);
 
         String getNumberOfAssetsMessage(int numberOfAssets);
 
@@ -175,7 +174,7 @@ public abstract class ImportPresenter {
         view.clearProjects();
         final List<ExampleProjectWidget> sortedProjectWidgets = sortProjectWidgets(projectWidgets);
         sortedProjectWidgets.stream().forEach(projectWidget -> {
-            view.addProject(elemental2DomUtil.asHTMLElement(projectWidget.getView().getElement()));
+            view.addProject(projectWidget);
         });
     }
 
