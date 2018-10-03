@@ -127,6 +127,12 @@
       <artifactId>kie-wb-common-dynamic-forms-client</artifactId>
     </dependency>
 
+    <!-- Verifier -->
+    <dependency>
+      <groupId>org.kie.workbench.services</groupId>
+      <artifactId>kie-wb-common-verifier-reporting-client</artifactId>
+    </dependency>
+
     <!-- DMN Editor -->
     <dependency>
       <groupId>org.kie.workbench</groupId>

@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.jboss.errai.common.client.dom.HTMLElement;
 import org.kie.workbench.common.dmn.api.definition.HasExpression;
 import org.kie.workbench.common.dmn.api.definition.HasName;
+import org.kie.workbench.common.dmn.client.commands.general.DMNDecisionTableAnalyzerProvider;
 import org.kie.workbench.common.dmn.client.decision.DecisionNavigatorPresenter;
 import org.kie.workbench.common.dmn.client.editors.toolbar.ToolbarStateHandler;
 import org.kie.workbench.common.dmn.client.session.DMNSession;
@@ -41,12 +42,15 @@ public class ExpressionEditor implements ExpressionEditorView.Presenter {
     private Optional<HasExpression> hasExpression = Optional.empty();
 
     private DecisionNavigatorPresenter decisionNavigator;
+    private DMNDecisionTableAnalyzerProvider verifier;
 
     @SuppressWarnings("unchecked")
     public ExpressionEditor(final ExpressionEditorView view,
-                            final DecisionNavigatorPresenter decisionNavigator) {
+                            final DecisionNavigatorPresenter decisionNavigator,
+                            final DMNDecisionTableAnalyzerProvider verifier) {
         this.view = view;
         this.decisionNavigator = decisionNavigator;
+        this.verifier = verifier;
         this.view.init(this);
     }
 
@@ -74,6 +78,9 @@ public class ExpressionEditor implements ExpressionEditorView.Presenter {
     public void setExpression(final String nodeUUID,
                               final HasExpression hasExpression,
                               final Optional<HasName> hasName) {
+
+        verifier.newAnalyzer(hasExpression.getExpression());
+
         this.hasExpression = Optional.ofNullable(hasExpression);
         view.setExpression(nodeUUID,
                            hasExpression,

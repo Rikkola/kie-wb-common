@@ -66,6 +66,7 @@ public class NavigateToExpressionEditorCommand extends BaseNavigateCommand imple
             public CommandResult<CanvasViolation> execute(final AbstractCanvasHandler context) {
                 enableHandlers(false);
                 hidePaletteWidget(true);
+
                 editor.setExpression(nodeUUID,
                                      hasExpression,
                                      hasName);

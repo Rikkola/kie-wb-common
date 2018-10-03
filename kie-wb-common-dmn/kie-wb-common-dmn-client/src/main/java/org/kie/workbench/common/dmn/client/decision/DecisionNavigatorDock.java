@@ -27,8 +27,6 @@ import org.uberfire.client.workbench.docks.UberfireDockPosition;
 import org.uberfire.client.workbench.docks.UberfireDocks;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
 
-import static org.kie.workbench.common.dmn.client.resources.i18n.DMNEditorConstants.DecisionNavigatorPresenter_DecisionNavigator;
-
 @ApplicationScoped
 public class DecisionNavigatorDock {
 
@@ -127,7 +125,7 @@ public class DecisionNavigatorDock {
     }
 
     private String dockLabel() {
-        return translationService.format(DecisionNavigatorPresenter_DecisionNavigator);
+        return "gsagfdggd"; //translationService.format(DecisionNavigatorPresenter_DecisionNavigator);
     }
 
     private DefaultPlaceRequest placeRequest() {

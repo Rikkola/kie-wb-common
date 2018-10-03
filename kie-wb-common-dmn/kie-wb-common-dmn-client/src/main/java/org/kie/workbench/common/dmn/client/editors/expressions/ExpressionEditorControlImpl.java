@@ -22,6 +22,7 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.kie.workbench.common.dmn.client.commands.general.DMNDecisionTableAnalyzerProvider;
 import org.kie.workbench.common.dmn.client.decision.DecisionNavigatorPresenter;
 import org.kie.workbench.common.dmn.client.session.DMNSession;
 import org.kie.workbench.common.stunner.core.client.canvas.AbstractCanvas;
@@ -35,6 +36,9 @@ public class ExpressionEditorControlImpl extends AbstractCanvasControl<AbstractC
     private ExpressionEditorView view;
     private DecisionNavigatorPresenter decisionNavigator;
     private Optional<ExpressionEditorView.Presenter> expressionEditor = Optional.empty();
+
+    @Inject
+    private DMNDecisionTableAnalyzerProvider verifier;
 
     @Inject
     public ExpressionEditorControlImpl(final ExpressionEditorView view,
@@ -54,7 +58,8 @@ public class ExpressionEditorControlImpl extends AbstractCanvasControl<AbstractC
     ExpressionEditorView.Presenter makeExpressionEditor(final ExpressionEditorView view,
                                                         final DecisionNavigatorPresenter decisionNavigator) {
         return new ExpressionEditor(view,
-                                    decisionNavigator);
+                                    decisionNavigator,
+                                    verifier);
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.dmn.api.definition.HasName;
 import org.kie.workbench.common.dmn.api.definition.v1_1.Decision;
+import org.kie.workbench.common.dmn.client.commands.general.DMNDecisionTableAnalyzerProvider;
 import org.kie.workbench.common.dmn.client.decision.DecisionNavigatorPresenter;
 import org.kie.workbench.common.dmn.client.editors.toolbar.ToolbarStateHandler;
 import org.kie.workbench.common.dmn.client.session.DMNSession;
@@ -102,7 +103,8 @@ public class ExpressionEditorTest {
         this.expressionGridCache = new ExpressionGridCacheImpl();
 
         testedEditor = spy(new ExpressionEditor(view,
-                                                decisionNavigator));
+                                                decisionNavigator,
+                                                mock(DMNDecisionTableAnalyzerProvider.class)));
         testedEditor.bind(dmnSession);
         when(session.getCanvasControl(eq(ExpressionGridCache.class))).thenReturn(expressionGridCache);
     }
