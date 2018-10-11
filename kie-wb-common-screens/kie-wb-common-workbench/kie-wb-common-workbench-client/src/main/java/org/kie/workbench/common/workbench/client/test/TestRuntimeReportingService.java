@@ -55,7 +55,6 @@ public class TestRuntimeReportingService {
                 dataProvider.getList().addAll(message.getFailures());
                 dataProvider.flush();
             }
-            showTestPanelEvent.fire(new OnShowTestPanelEvent());
         }
     }
 

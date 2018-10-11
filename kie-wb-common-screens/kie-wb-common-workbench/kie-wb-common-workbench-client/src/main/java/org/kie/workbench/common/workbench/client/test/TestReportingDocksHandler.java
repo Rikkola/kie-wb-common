@@ -23,6 +23,7 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 
 import org.kie.workbench.common.workbench.client.docks.impl.AbstractWorkbenchDocksHandler;
+import org.kie.workbench.common.workbench.client.resources.i18n.DefaultWorkbenchConstants;
 import org.uberfire.client.workbench.docks.UberfireDock;
 import org.uberfire.client.workbench.docks.UberfireDockPosition;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
@@ -36,9 +37,9 @@ public class TestReportingDocksHandler
         List<UberfireDock> result = new ArrayList<>();
 
         result.add(new UberfireDock(UberfireDockPosition.EAST,
-                                    "PENCIL_SQUARE_O",
+                                    "PLAY_CIRCLE",
                                     new DefaultPlaceRequest("org.kie.guvnor.TestResults"),
-                                    perspectiveIdentifier).withSize(450).withLabel("constants.DocksStunnerPropertiesTitle()"));
+                                    perspectiveIdentifier).withSize(450).withLabel(DefaultWorkbenchConstants.INSTANCE.TestReport()));
 
         return result;
     }
