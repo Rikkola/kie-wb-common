@@ -48,9 +48,9 @@ public class TestReportingDocksHandler
                      false);
     }
 
-//    public void onDiagramLoseFocusEvent(@Observes OnDiagramLoseFocusEvent event) {
-//        refreshDocks(true,
-//                     true);
-//    }
+    public void onDiagramLoseFocusEvent(@Observes OnHideTestPanelEvent event) {
+        refreshDocks(true,
+                     true);
+    }
 
 }
