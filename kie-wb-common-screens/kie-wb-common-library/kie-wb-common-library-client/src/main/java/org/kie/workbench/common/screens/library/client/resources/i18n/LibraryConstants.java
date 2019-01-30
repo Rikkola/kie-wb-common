@@ -520,4 +520,10 @@ public class LibraryConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String ContributorTypeNotAllowed = "ContributorTypeNotAllowed";
+
+    @TranslationKey(defaultValue = "")
+    public static final String Testing = "Testing";
+
+    @TranslationKey(defaultValue = "")
+    public static final String Test = "Test";
 }
