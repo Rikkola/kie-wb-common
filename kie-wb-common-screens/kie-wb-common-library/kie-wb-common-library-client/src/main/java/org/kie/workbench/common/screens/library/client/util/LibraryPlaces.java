@@ -246,6 +246,7 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
     }
 
     public void onSelectPlaceEvent(@Observes final PlaceGainFocusEvent placeGainFocusEvent) {
+        Window.alert("library focus");
         if (isLibraryPerspectiveOpen() && !closingLibraryPlaces) {
             final PlaceRequest place = placeGainFocusEvent.getPlace();
 

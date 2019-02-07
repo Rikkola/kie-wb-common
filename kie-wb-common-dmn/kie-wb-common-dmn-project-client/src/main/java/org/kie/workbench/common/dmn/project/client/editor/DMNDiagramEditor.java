@@ -66,6 +66,7 @@ import org.uberfire.client.annotations.WorkbenchPartTitleDecoration;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.client.workbench.events.ChangeTitleWidgetEvent;
+import org.uberfire.client.workbench.events.PlaceHiddenEvent;
 import org.uberfire.client.workbench.widgets.common.ErrorPopupPresenter;
 import org.uberfire.ext.editor.commons.client.file.popups.SavePopUpPresenter;
 import org.uberfire.ext.editor.commons.client.menu.MenuItems;
@@ -77,6 +78,7 @@ import org.uberfire.lifecycle.OnMayClose;
 import org.uberfire.lifecycle.OnOpen;
 import org.uberfire.lifecycle.OnStartup;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.mvp.impl.PathPlaceRequest;
 import org.uberfire.workbench.model.menu.Menus;
 
 import static elemental2.dom.DomGlobal.setTimeout;
@@ -184,8 +186,6 @@ public class DMNDiagramEditor extends AbstractProjectDiagramEditor<DMNDiagramRes
     @OnClose
     public void onClose() {
         superOnClose();
-        decisionNavigatorDock.close();
-        decisionNavigatorDock.resetContent();
         dataTypesPage.disableShortcuts();
     }
 
@@ -197,7 +197,6 @@ public class DMNDiagramEditor extends AbstractProjectDiagramEditor<DMNDiagramRes
             final ExpressionEditorView.Presenter expressionEditor = ((DMNSession) sessionManager.getCurrentSession()).getExpressionEditor();
             expressionEditor.setToolbarStateHandler(new ProjectToolbarStateHandler(getMenuSessionItems()));
             decisionNavigatorDock.setupCanvasHandler(c);
-            decisionNavigatorDock.open();
             dataTypesPage.reload();
         });
     }
@@ -206,8 +205,22 @@ public class DMNDiagramEditor extends AbstractProjectDiagramEditor<DMNDiagramRes
     public void onFocus() {
         superDoFocus();
         onDiagramLoad();
+        decisionNavigatorDock.open();
         dataTypesPage.onFocus();
         dataTypesPage.enableShortcuts();
+    }
+
+    public void onPlaceHiddenEvent(@Observes PlaceHiddenEvent placeHiddenEvent) {
+        if (!(placeHiddenEvent.getPlace() instanceof PathPlaceRequest)) {  // Ignoring other requests
+            return;
+        }
+        PathPlaceRequest placeRequest = (PathPlaceRequest) placeHiddenEvent.getPlace();
+        if (placeRequest.getIdentifier().equals(DMNDiagramEditor.EDITOR_ID)
+                && placeRequest.getPath().equals(versionRecordManager.getCurrentPath())) {
+            decisionNavigatorDock.close();
+            decisionNavigatorDock.resetContent();
+        }
+
     }
 
     @OnLostFocus
