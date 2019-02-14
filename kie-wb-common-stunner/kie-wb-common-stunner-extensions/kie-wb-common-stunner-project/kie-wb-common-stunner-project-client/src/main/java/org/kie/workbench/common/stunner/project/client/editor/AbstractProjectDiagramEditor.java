@@ -554,7 +554,8 @@ public abstract class AbstractProjectDiagramEditor<R extends ClientResourceType>
         }
     }
 
-    protected void doLostFocus() {
+    protected void
+    doLostFocus() {
         if (null != getSessionPresenter()) {
             getSessionPresenter().lostFocus();
         }

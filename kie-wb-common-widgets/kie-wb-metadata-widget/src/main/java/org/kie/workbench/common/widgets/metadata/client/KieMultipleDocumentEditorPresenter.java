@@ -61,7 +61,7 @@ public interface KieMultipleDocumentEditorPresenter<D extends KieDocument> exten
     void makeMenuBar();
 
     /**
-     * Ensure resources are released correctly. To be used by subclasses @onClose method.
+     * Ensure resources are released correctly. To be used by subclasses @OnClose method.
      */
     void onClose();
 

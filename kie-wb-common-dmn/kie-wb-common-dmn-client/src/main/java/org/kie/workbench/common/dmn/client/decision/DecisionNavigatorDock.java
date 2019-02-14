@@ -78,6 +78,7 @@ public class DecisionNavigatorDock {
     }
 
     public void open() {
+
         if (isOpened()) {
             return;
         }

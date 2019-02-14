@@ -252,9 +252,7 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
             if (place instanceof PathPlaceRequest) {
                 libraryBreadcrumbs.setupForAsset(getActiveWorkspace(),
                                                  ((PathPlaceRequest) place).getPath());
-                showDocks();
             } else if (!place.getIdentifier().equals(ALERTS) && isLibraryPlace(place)) {
-                hideDocks();
                 if (projectContext.getActiveWorkspaceProject().isPresent()
                         && place.getIdentifier().equals(LibraryPlaces.PROJECT_SCREEN)) {
                     libraryBreadcrumbs.setupForProject(getActiveWorkspace());
@@ -268,12 +266,10 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
 
     public void showDocksWhenMinimizingEditor(@Observes PlaceMinimizedEvent placeMinimizedEvent) {
         editorMaximized = false;
-        showDocks();
     }
 
     public void hideDocksWhenMaximizingEditor(@Observes PlaceMaximizedEvent placeMaximizedEvent) {
         editorMaximized = true;
-        hideDocks();
     }
 
     /*
@@ -284,24 +280,6 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
         assetListUpdatedEvent.fire(event);
     }
 
-    public void hideDocks() {
-//        if (!docksHidden) {
-//            docks.hide();
-//            docksHidden = true;
-//        }
-    }
-
-    public void showDocks() {
-//        if (docksHidden && !editorMaximized) {
-//            if (!docksReady) {
-//                docks.setup(LibraryPlaces.LIBRARY_PERSPECTIVE,
-//                            new DefaultPlaceRequest(PROJECT_EXPLORER));
-//                docksReady = true;
-//            }
-//            docks.show();
-//            docksHidden = false;
-//        }
-    }
 
     private boolean isLibraryPlace(final PlaceRequest place) {
         return LIBRARY_PLACES.contains(place.getIdentifier());
@@ -518,7 +496,6 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
 
         libraryBreadcrumbs.setupForSpace(activeOu);
 
-        hideDocks();
     }
 
     public void goToProject(final WorkspaceProject project) {
