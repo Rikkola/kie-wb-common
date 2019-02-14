@@ -110,7 +110,7 @@ public abstract class KieEditor<T>
     protected AlertsButtonMenuItemBuilder alertsButtonMenuItemBuilder;
     protected Metadata metadata;
     @Inject
-    private AuthoringWorkbenchDocks docks;
+    protected AuthoringWorkbenchDocks docks;
     private ViewDRLSourceWidget sourceWidget;
     private MayCloseHandler mayCloseHandler = DEFAULT_MAY_CLOSE_HANDLER;
 

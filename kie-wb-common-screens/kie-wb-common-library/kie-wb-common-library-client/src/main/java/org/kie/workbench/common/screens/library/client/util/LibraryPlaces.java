@@ -146,8 +146,6 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
 
     private WorkspaceProjectContext projectContext;
 
-    private AuthoringWorkbenchDocks docks;
-
     private Event<WorkspaceProjectContextChangeEvent> projectContextChangeEvent;
 
     private Event<NotificationEvent> notificationEvent;
@@ -192,7 +190,6 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
                          final Caller<KieModuleService> moduleService,
                          final PlaceManager placeManager,
                          final WorkspaceProjectContext projectContext,
-                         final AuthoringWorkbenchDocks docks,
                          final Event<WorkspaceProjectContextChangeEvent> projectContextChangeEvent,
                          final Event<NotificationEvent> notificationEvent,
                          final TranslationUtils translationUtils,
@@ -213,7 +210,6 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
         this.moduleService = moduleService;
         this.placeManager = placeManager;
         this.projectContext = projectContext;
-        this.docks = docks;
         this.projectContextChangeEvent = projectContextChangeEvent;
         this.notificationEvent = notificationEvent;
         this.translationUtils = translationUtils;

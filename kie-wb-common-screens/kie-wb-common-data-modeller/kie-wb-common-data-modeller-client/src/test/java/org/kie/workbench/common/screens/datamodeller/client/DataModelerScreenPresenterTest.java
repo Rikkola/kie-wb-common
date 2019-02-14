@@ -643,6 +643,7 @@ public class DataModelerScreenPresenterTest
 
         presenter.onFocus();
 
+        verify(docks).show();
         verify(view, never()).redraw();
         verify(dataModelerWBContext, never()).setActiveContext(any());
         verify(dataModelerFocusEvent, never()).fire(any());
@@ -660,6 +661,7 @@ public class DataModelerScreenPresenterTest
 
         presenter.onFocus();
 
+        verify(docks).show();
         verify(view).redraw();
         verify(dataModelerWBContext).setActiveContext(any());
         verify(dataModelerFocusEvent).fire(any());

@@ -62,6 +62,7 @@ import org.kie.workbench.common.widgets.client.popups.validation.ValidationPopup
 import org.kie.workbench.common.widgets.metadata.client.KieEditorWrapperView;
 import org.kie.workbench.common.widgets.metadata.client.validation.JavaFileNameValidator;
 import org.kie.workbench.common.widgets.metadata.client.widget.OverviewWidgetPresenter;
+import org.kie.workbench.common.workbench.client.docks.AuthoringWorkbenchDocks;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -81,7 +82,8 @@ import org.uberfire.security.authz.AuthorizationManager;
 import org.uberfire.workbench.events.NotificationEvent;
 import org.uberfire.workbench.model.menu.MenuItem;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(GwtMockitoTestRunner.class)
 public abstract class DataModelerScreenPresenterTestBase {
@@ -153,80 +155,64 @@ public abstract class DataModelerScreenPresenterTestBase {
 
     @Mock
     protected CopyPopUpPresenter copyPopUpPresenter;
-
-    @Mock
-    private BasicFileMenuBuilder menuBuilder;
-
     @Spy
     @InjectMocks
     protected FileMenuBuilderImpl fileMenuBuilder;
-
     @Mock
     protected ProjectController projectController;
-
     @Mock
     protected WorkspaceProjectContext workbenchContext;
-
     @Mock
     protected DeletePopUpPresenter deletePopUpPresenter;
-
     @Mock
     protected ShowAssetUsagesDisplayer showAssetUsages;
-
     @Mock
     protected AlertsButtonMenuItemBuilder alertsButtonMenuItemBuilder;
-
     @Mock
     protected MenuItem alertsButtonMenuItem;
-
     protected DataModelerScreenPresenter presenter;
-
     /**
      * Emulates the overview returned from server.
      */
     @Mock
     protected Overview overview;
-
     /**
      * Emulates the project returned from server.
      */
     @Mock
     protected KieModule kieModule;
-
     /**
      * Emulates the data object returned from server.
      */
     protected DataObject testObject1;
-
     /**
      * Emulates the model returned from server.
      */
     protected DataModel testModel;
-
     /**
      * Emulates the source returned from server.
      */
     protected String testSource = "public class Dummy {}";
-
     /**
      * Emulates the list for parse errors returned from server when a java filed couldn't be parsed.
      */
     protected List<DataModelerError> testErrors;
-
     /**
      * Emulates the packages definition returned form server.
      */
     protected Set<String> testPackages;
-
     /**
      * Emulates the annotation definitions returned from server.
      */
     protected Map<String, AnnotationDefinition> testAnnotationDefs;
-
     /**
      * Emulates the property types definitions returned from server.
      */
     protected List<PropertyType> testTypeDefs;
+    @Mock
+    private BasicFileMenuBuilder menuBuilder;
+    @Mock
+    public AuthoringWorkbenchDocks docks;
 
     @Before
     public void setUp() throws Exception {
@@ -243,6 +229,8 @@ public abstract class DataModelerScreenPresenterTestBase {
                                                    sessionInfo) {
 
             {
+                DataModelerScreenPresenterTestBase.this.docks = mock(AuthoringWorkbenchDocks.class);
+                docks = DataModelerScreenPresenterTestBase.this.docks;
                 kieView = mock(KieEditorWrapperView.class);
                 this.versionRecordManager = DataModelerScreenPresenterTestBase.this.versionRecordManager;
                 this.authorizationManager = DataModelerScreenPresenterTestBase.this.authorizationManager;
