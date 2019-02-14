@@ -23,7 +23,6 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.guvnor.common.services.shared.validation.model.ValidationMessage;
 import org.guvnor.messageconsole.events.PublishBaseEvent;
@@ -88,8 +87,8 @@ import org.uberfire.ext.widgets.common.client.callbacks.CommandErrorCallback;
 import org.uberfire.ext.widgets.common.client.resources.i18n.CommonConstants;
 import org.uberfire.lifecycle.OnClose;
 import org.uberfire.lifecycle.OnFocus;
+import org.uberfire.lifecycle.OnLostFocus;
 import org.uberfire.lifecycle.OnMayClose;
-import org.uberfire.lifecycle.OnOpen;
 import org.uberfire.lifecycle.OnStartup;
 import org.uberfire.mvp.Command;
 import org.uberfire.mvp.ParameterizedCommand;
@@ -205,6 +204,7 @@ public class DataModelerScreenPresenter
 
     @OnFocus
     public void onFocus() {
+        super.onFocus();
         if (!loading && context != null && workbenchContext.getActiveModule().isPresent()) {
             view.redraw();
             setActiveContext();
@@ -228,11 +228,6 @@ public class DataModelerScreenPresenter
     @OnMayClose
     public boolean onMayClose() {
         return !isDirty();
-    }
-
-    @OnOpen
-    public void onOpen() {
-        Window.alert("open");
     }
 
     @OnClose

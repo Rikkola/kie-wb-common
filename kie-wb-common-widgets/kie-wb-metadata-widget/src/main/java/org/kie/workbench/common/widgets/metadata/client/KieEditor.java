@@ -23,6 +23,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.guvnor.common.services.project.client.context.WorkspaceProjectContext;
 import org.guvnor.common.services.project.client.security.ProjectController;
@@ -40,6 +41,7 @@ import org.kie.workbench.common.widgets.metadata.client.validation.AssetUpdateVa
 import org.kie.workbench.common.widgets.metadata.client.widget.OverviewWidgetPresenter;
 import org.kie.workbench.common.workbench.client.docks.AuthoringWorkbenchDocks;
 import org.uberfire.backend.vfs.ObservablePath;
+import org.uberfire.client.workbench.events.PlaceHiddenEvent;
 import org.uberfire.client.workbench.type.ClientResourceType;
 import org.uberfire.client.workbench.widgets.multipage.Page;
 import org.uberfire.ext.editor.commons.client.BaseEditor;
@@ -52,6 +54,9 @@ import org.uberfire.ext.editor.commons.client.validation.ValidationErrorReason;
 import org.uberfire.ext.editor.commons.client.validation.Validator;
 import org.uberfire.ext.editor.commons.client.validation.ValidatorWithReasonCallback;
 import org.uberfire.ext.editor.commons.service.support.SupportsSaveAndRename;
+import org.uberfire.lifecycle.OnClose;
+import org.uberfire.lifecycle.OnFocus;
+import org.uberfire.lifecycle.OnLostFocus;
 import org.uberfire.mvp.Command;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
@@ -157,17 +162,25 @@ public abstract class KieEditor<T>
                         final boolean displayShowMoreVersions,
                         final MenuItems... menuItems) {
         kieView.setPresenter(this);
-        if (!docks.isSetup()) {
-            docks.setup("LibraryPerspective",
-                        new DefaultPlaceRequest("org.kie.guvnor.explorer"));
-        }
-        docks.show();
         super.init(path,
                    place,
                    type,
                    addFileChangeListeners,
                    displayShowMoreVersions,
                    menuItems);
+    }
+
+    @OnFocus
+    public void onFocus() {
+        if (!docks.isSetup()) {
+            docks.setup("LibraryPerspective",
+                        new DefaultPlaceRequest("org.kie.guvnor.explorer"));
+        }
+        docks.show();
+    }
+
+    private void hideDataModellerDocks(@Observes PlaceHiddenEvent event) {
+        docks.hide();
     }
 
     @Override
@@ -254,9 +267,9 @@ public abstract class KieEditor<T>
         }
     }
 
-    protected void onClose() {
+    @OnClose
+    public void onClose() {
         kieView.clear();
-        docks.hide();
     }
 
     protected void addImportsTab(IsWidget importsWidget) {

@@ -19,7 +19,6 @@ package org.kie.workbench.common.dmn.client.decision;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import com.google.gwt.user.client.Window;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.kie.workbench.common.stunner.core.client.canvas.CanvasHandler;
@@ -79,7 +78,6 @@ public class DecisionNavigatorDock {
     }
 
     public void open() {
-        Window.alert("opening dock");
         if (isOpened()) {
             return;
         }
@@ -91,7 +89,6 @@ public class DecisionNavigatorDock {
     }
 
     public void close() {
-        Window.alert("closing dock");
 
         if (!isOpened()) {
             return;
