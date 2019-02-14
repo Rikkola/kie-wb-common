@@ -17,11 +17,13 @@
 package org.kie.workbench.common.screens.datamodeller.client;
 
 import java.util.List;
+
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.guvnor.common.services.shared.validation.model.ValidationMessage;
 import org.guvnor.messageconsole.events.PublishBaseEvent;
@@ -87,6 +89,7 @@ import org.uberfire.ext.widgets.common.client.resources.i18n.CommonConstants;
 import org.uberfire.lifecycle.OnClose;
 import org.uberfire.lifecycle.OnFocus;
 import org.uberfire.lifecycle.OnMayClose;
+import org.uberfire.lifecycle.OnOpen;
 import org.uberfire.lifecycle.OnStartup;
 import org.uberfire.mvp.Command;
 import org.uberfire.mvp.ParameterizedCommand;
@@ -103,106 +106,57 @@ import org.uberfire.workbench.model.menu.Menus;
 public class DataModelerScreenPresenter
         extends KieEditor<String> {
 
-    public interface DataModelerScreenView
-            extends
-            KieEditorView {
-
-        void setContext(DataModelerContext context);
-
-        void refreshTypeLists(boolean keepCurrentSelection);
-
-        void showYesNoCancelPopup(String title,
-                                  String message,
-                                  Command yesCommand,
-                                  String yesButtonText,
-                                  ButtonType yesButtonType,
-                                  Command noCommand,
-                                  String noButtonText,
-                                  ButtonType noButtonType);
-
-        void showYesNoCancelPopup(String title,
-                                  String message,
-                                  Command yesCommand,
-                                  Command noCommand);
-
-        void showParseErrorsDialog(String title,
-                                   String message,
-                                   Command onCloseCommand);
-
-        void setDomainContainerTitle(String title,
-                                     String tooltip);
-
-        void redraw();
-    }
-
+    private static final int EDITABLE_SOURCE_TAB = 2;
+    private static int editorIds = 0;
     protected DataModelerScreenView view;
-
     @Inject
     protected EditJavaSourceWidget javaSourceEditor;
-
     @Inject
     protected Event<DataModelerEvent> dataModelerEvent;
-
     @Inject
     protected Event<UnpublishMessagesEvent> unpublishMessagesEvent;
-
     @Inject
     protected Event<PublishBatchMessagesEvent> publishBatchMessagesEvent;
-
     @Inject
     protected Event<LockRequiredEvent> lockRequired;
-
     @Inject
     protected Event<DataModelerWorkbenchFocusEvent> dataModelerFocusEvent;
-
     @Inject
     protected Caller<DataModelerService> modelerService;
-
     @Inject
     protected ValidationPopup validationPopup;
-
     @Inject
     protected ValidatorService validatorService;
-
     @Inject
     protected Caller<ValidationService> validationService;
-
     @Inject
     protected JavaAssetUpdateValidator javaAssetUpdateValidator;
-
     @Inject
     protected JavaResourceType resourceType;
-
     @Inject
     protected DataModelerWorkbenchContext dataModelerWBContext;
-
     @Inject
     protected AuthorizationManager authorizationManager;
-
     @Inject
     protected ShowAssetUsagesDisplayer showAssetUsagesDisplayer;
-
     protected DataModelerContext context;
-
     protected boolean uiStarted = false;
-
     protected boolean loading = false;
-
     private boolean loadTypesInfo = false;
-
     private SessionInfo sessionInfo;
-
     private String currentMessageType;
-
     private Integer originalSourceHash = null;
-
     private boolean sourceEditionEnabled = false;
-
-    private static final int EDITABLE_SOURCE_TAB = 2;
-
-    private static int editorIds = 0;
-
     private String editorId;
+
+    @Inject
+    public DataModelerScreenPresenter(DataModelerScreenView baseView,
+                                      SessionInfo sessionInfo) {
+        super(baseView);
+        view = baseView;
+        this.sessionInfo = sessionInfo;
+        editorId = sessionInfo.getId() + "-" + editorIds++;
+    }
 
     @WorkbenchPartTitle
     public String getTitleText() {
@@ -222,15 +176,6 @@ public class DataModelerScreenPresenter
     @WorkbenchMenu
     public Menus getMenus() {
         return menus;
-    }
-
-    @Inject
-    public DataModelerScreenPresenter(DataModelerScreenView baseView,
-                                      SessionInfo sessionInfo) {
-        super(baseView);
-        view = baseView;
-        this.sessionInfo = sessionInfo;
-        editorId = sessionInfo.getId() + "-" + editorIds++;
     }
 
     @OnStartup
@@ -285,12 +230,17 @@ public class DataModelerScreenPresenter
         return !isDirty();
     }
 
+    @OnOpen
+    public void onOpen() {
+        Window.alert("open");
+    }
+
     @OnClose
-    public void OnClose() {
+    public void onClose() {
         versionRecordManager.clear();
         cleanSystemMessages(getCurrentMessageType());
         clearContext();
-        super.OnClose();
+        super.onClose();
         dataModelerWBContext.clearContext();
     }
 
@@ -1297,5 +1247,37 @@ public class DataModelerScreenPresenter
                                                                  false,
                                                                  true));
         }
+    }
+
+    public interface DataModelerScreenView
+            extends
+            KieEditorView {
+
+        void setContext(DataModelerContext context);
+
+        void refreshTypeLists(boolean keepCurrentSelection);
+
+        void showYesNoCancelPopup(String title,
+                                  String message,
+                                  Command yesCommand,
+                                  String yesButtonText,
+                                  ButtonType yesButtonType,
+                                  Command noCommand,
+                                  String noButtonText,
+                                  ButtonType noButtonType);
+
+        void showYesNoCancelPopup(String title,
+                                  String message,
+                                  Command yesCommand,
+                                  Command noCommand);
+
+        void showParseErrorsDialog(String title,
+                                   String message,
+                                   Command onCloseCommand);
+
+        void setDomainContainerTitle(String title,
+                                     String tooltip);
+
+        void redraw();
     }
 }

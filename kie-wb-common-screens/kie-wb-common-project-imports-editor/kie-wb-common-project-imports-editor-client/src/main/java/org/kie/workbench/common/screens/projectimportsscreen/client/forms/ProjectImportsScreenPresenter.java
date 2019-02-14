@@ -178,6 +178,7 @@ public class ProjectImportsScreenPresenter
     @OnClose
     public void onClose() {
         versionRecordManager.clear();
+        super.onClose();
     }
 
     @WorkbenchMenu

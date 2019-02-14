@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.kie.workbench.common.workbench.client.docks.impl;
+package org.kie.workbench.common.screens.datamodeller.client.docks;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -28,6 +29,7 @@ import org.kie.workbench.common.screens.datamodeller.client.context.DataModelerW
 import org.kie.workbench.common.screens.datamodeller.client.context.DataModelerWorkbenchContextChangeEvent;
 import org.kie.workbench.common.screens.datamodeller.client.context.DataModelerWorkbenchFocusEvent;
 import org.kie.workbench.common.workbench.client.authz.WorkbenchFeatures;
+import org.kie.workbench.common.workbench.client.docks.impl.AbstractWorkbenchDocksHandler;
 import org.kie.workbench.common.workbench.client.resources.i18n.DefaultWorkbenchConstants;
 import org.kie.workbench.common.workbench.client.resources.images.WorkbenchImageResources;
 import org.uberfire.client.workbench.docks.UberfireDock;

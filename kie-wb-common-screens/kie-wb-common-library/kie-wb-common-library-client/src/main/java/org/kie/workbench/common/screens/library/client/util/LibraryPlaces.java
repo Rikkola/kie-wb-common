@@ -246,7 +246,6 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
     }
 
     public void onSelectPlaceEvent(@Observes final PlaceGainFocusEvent placeGainFocusEvent) {
-        Window.alert("library focus");
         if (isLibraryPerspectiveOpen() && !closingLibraryPlaces) {
             final PlaceRequest place = placeGainFocusEvent.getPlace();
 
@@ -286,22 +285,22 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
     }
 
     public void hideDocks() {
-        if (!docksHidden) {
-            docks.hide();
-            docksHidden = true;
-        }
+//        if (!docksHidden) {
+//            docks.hide();
+//            docksHidden = true;
+//        }
     }
 
     public void showDocks() {
-        if (docksHidden && !editorMaximized) {
-            if (!docksReady) {
-                docks.setup(LibraryPlaces.LIBRARY_PERSPECTIVE,
-                            new DefaultPlaceRequest(PROJECT_EXPLORER));
-                docksReady = true;
-            }
-            docks.show();
-            docksHidden = false;
-        }
+//        if (docksHidden && !editorMaximized) {
+//            if (!docksReady) {
+//                docks.setup(LibraryPlaces.LIBRARY_PERSPECTIVE,
+//                            new DefaultPlaceRequest(PROJECT_EXPLORER));
+//                docksReady = true;
+//            }
+//            docks.show();
+//            docksHidden = false;
+//        }
     }
 
     private boolean isLibraryPlace(final PlaceRequest place) {

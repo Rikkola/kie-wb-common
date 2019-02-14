@@ -167,6 +167,7 @@ public abstract class KieTextEditorPresenter
     @OnClose
     public void onClose() {
         this.versionRecordManager.clear();
+        super.onClose();
     }
 
     @OnMayClose

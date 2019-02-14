@@ -124,6 +124,7 @@ public class CaseManagementDiagramEditor extends AbstractProjectDiagramEditor<Ca
     @OnClose
     public void onClose() {
         super.doClose();
+        super.onClose();
     }
 
     @OnFocus

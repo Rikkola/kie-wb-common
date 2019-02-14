@@ -108,6 +108,7 @@ public class GuvnorDefaultEditorPresenter
     @OnClose
     public void onClose() {
         versionRecordManager.clear();
+        super.onClose();
     }
 
     @WorkbenchPartTitle

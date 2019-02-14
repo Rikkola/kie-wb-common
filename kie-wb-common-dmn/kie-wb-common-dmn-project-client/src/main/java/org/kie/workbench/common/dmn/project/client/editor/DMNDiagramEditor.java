@@ -187,6 +187,7 @@ public class DMNDiagramEditor extends AbstractProjectDiagramEditor<DMNDiagramRes
     public void onClose() {
         superOnClose();
         dataTypesPage.disableShortcuts();
+        super.onClose();
     }
 
     @Override

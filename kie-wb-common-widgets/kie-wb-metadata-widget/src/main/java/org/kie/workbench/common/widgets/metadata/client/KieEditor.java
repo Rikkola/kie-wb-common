@@ -38,6 +38,7 @@ import org.kie.workbench.common.widgets.client.menu.FileMenuBuilder;
 import org.kie.workbench.common.widgets.client.source.ViewDRLSourceWidget;
 import org.kie.workbench.common.widgets.metadata.client.validation.AssetUpdateValidator;
 import org.kie.workbench.common.widgets.metadata.client.widget.OverviewWidgetPresenter;
+import org.kie.workbench.common.workbench.client.docks.AuthoringWorkbenchDocks;
 import org.uberfire.backend.vfs.ObservablePath;
 import org.uberfire.client.workbench.type.ClientResourceType;
 import org.uberfire.client.workbench.widgets.multipage.Page;
@@ -53,6 +54,7 @@ import org.uberfire.ext.editor.commons.client.validation.ValidatorWithReasonCall
 import org.uberfire.ext.editor.commons.service.support.SupportsSaveAndRename;
 import org.uberfire.mvp.Command;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.mvp.impl.DefaultPlaceRequest;
 import org.uberfire.workbench.events.NotificationEvent;
 import org.uberfire.workbench.model.menu.MenuItem;
 
@@ -60,37 +62,17 @@ public abstract class KieEditor<T>
         extends BaseEditor<T, Metadata>
         implements KieEditorWrapperView.KieEditorWrapperPresenter {
 
+    //This implementation always permits closure as something went wrong loading the Editor's content
+    private final MayCloseHandler EXCEPTION_MAY_CLOSE_HANDLER = new MayCloseHandler() {
+        @Override
+        public boolean mayClose(final Object object) {
+            return true;
+        }
+    };
     @Inject
     protected KieEditorWrapperView kieView;
     @Inject
     protected OverviewWidgetPresenter overviewWidget;
-
-    @Inject
-    protected FileMenuBuilder fileMenuBuilder;
-
-    @Inject
-    protected WorkspaceProjectContext workbenchContext;
-    @Inject
-    protected SavePopUpPresenter savePopUpPresenter;
-    @Inject
-    protected DeletePopUpPresenter deletePopUpPresenter;
-    @Inject
-    protected RenamePopUpPresenter renamePopUpPresenter;
-    @Inject
-    protected CopyPopUpPresenter copyPopUpPresenter;
-
-    @Inject
-    protected ProjectController projectController;
-
-    @Inject
-    protected AssetUpdateValidator assetUpdateValidator;
-
-    @Inject
-    protected AlertsButtonMenuItemBuilder alertsButtonMenuItemBuilder;
-
-    protected Metadata metadata;
-    private ViewDRLSourceWidget sourceWidget;
-
     //The default implementation delegates to the HashCode comparison in BaseEditor
     private final MayCloseHandler DEFAULT_MAY_CLOSE_HANDLER = new MayCloseHandler() {
 
@@ -103,14 +85,28 @@ public abstract class KieEditor<T>
             }
         }
     };
-    //This implementation always permits closure as something went wrong loading the Editor's content
-    private final MayCloseHandler EXCEPTION_MAY_CLOSE_HANDLER = new MayCloseHandler() {
-        @Override
-        public boolean mayClose(final Object object) {
-            return true;
-        }
-    };
-
+    @Inject
+    protected FileMenuBuilder fileMenuBuilder;
+    @Inject
+    protected WorkspaceProjectContext workbenchContext;
+    @Inject
+    protected SavePopUpPresenter savePopUpPresenter;
+    @Inject
+    protected DeletePopUpPresenter deletePopUpPresenter;
+    @Inject
+    protected RenamePopUpPresenter renamePopUpPresenter;
+    @Inject
+    protected CopyPopUpPresenter copyPopUpPresenter;
+    @Inject
+    protected ProjectController projectController;
+    @Inject
+    protected AssetUpdateValidator assetUpdateValidator;
+    @Inject
+    protected AlertsButtonMenuItemBuilder alertsButtonMenuItemBuilder;
+    protected Metadata metadata;
+    @Inject
+    private AuthoringWorkbenchDocks docks;
+    private ViewDRLSourceWidget sourceWidget;
     private MayCloseHandler mayCloseHandler = DEFAULT_MAY_CLOSE_HANDLER;
 
     protected KieEditor() {
@@ -161,6 +157,11 @@ public abstract class KieEditor<T>
                         final boolean displayShowMoreVersions,
                         final MenuItems... menuItems) {
         kieView.setPresenter(this);
+        if (!docks.isSetup()) {
+            docks.setup("LibraryPerspective",
+                        new DefaultPlaceRequest("org.kie.guvnor.explorer"));
+        }
+        docks.show();
         super.init(path,
                    place,
                    type,
@@ -253,8 +254,9 @@ public abstract class KieEditor<T>
         }
     }
 
-    protected void OnClose() {
+    protected void onClose() {
         kieView.clear();
+        docks.hide();
     }
 
     protected void addImportsTab(IsWidget importsWidget) {
