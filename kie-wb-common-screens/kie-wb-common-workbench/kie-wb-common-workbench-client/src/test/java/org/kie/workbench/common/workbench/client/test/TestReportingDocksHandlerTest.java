@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.kie.workbench.common.workbench.client.docks.AuthoringWorkbenchDocks;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.client.workbench.docks.UberfireDock;
 
 import static org.junit.Assert.assertEquals;
@@ -33,6 +34,9 @@ public class TestReportingDocksHandlerTest {
 
     @Mock
     private AuthoringWorkbenchDocks authoringWorkbenchDocks;
+
+    @Mock
+    private PlaceManager placeManager;
 
     @InjectMocks
     private TestReportingDocksHandler testReportingDocksHandler;
@@ -48,6 +52,8 @@ public class TestReportingDocksHandlerTest {
         final UberfireDock dock = docks.iterator().next();
 
         testReportingDocksHandler.expandTestResultsDock();
+
+        verify(placeManager).closePlace("org.kie.guvnor.TestResults");
         verify(authoringWorkbenchDocks).expandAuthoringDock(dock);
     }
 }
