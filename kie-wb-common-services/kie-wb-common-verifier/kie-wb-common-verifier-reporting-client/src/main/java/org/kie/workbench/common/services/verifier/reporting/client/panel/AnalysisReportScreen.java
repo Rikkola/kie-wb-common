@@ -19,33 +19,26 @@ package org.kie.workbench.common.services.verifier.reporting.client.panel;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.drools.verifier.api.Status;
 import org.drools.verifier.api.reporting.Issue;
 import org.kie.workbench.common.services.verifier.reporting.client.resources.i18n.AnalysisConstants;
 import org.uberfire.client.annotations.DefaultPosition;
-import org.uberfire.client.annotations.WorkbenchMenu;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
-import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.lifecycle.OnClose;
 import org.uberfire.lifecycle.OnStartup;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.workbench.model.CompassPosition;
 import org.uberfire.workbench.model.Position;
-import org.uberfire.workbench.model.menu.MenuFactory;
 import org.uberfire.workbench.model.menu.Menus;
 
-//@ApplicationScoped
-//@WorkbenchScreen(identifier = AnalysisReportScreen.IDENTIFIER, preferredWidth = 360)
 @Dependent
 public class AnalysisReportScreen {
 

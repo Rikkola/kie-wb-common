@@ -16,6 +16,10 @@
 
 package org.kie.workbench.common.widgets.metadata.client;
 
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentDelete;
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentRename;
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentUpdate;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,10 +80,6 @@ import org.uberfire.workbench.events.NotificationEvent;
 import org.uberfire.workbench.model.menu.MenuItem;
 import org.uberfire.workbench.model.menu.Menus;
 
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentDelete;
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentRename;
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentUpdate;
-
 /**
  * A base for Multi-Document-Interface editors. This base implementation adds default Menus for Save", "Copy",
  * "Rename", "Delete", "Validate" and "VersionRecordManager" drop-down that can be overriden by subclasses.
@@ -90,20 +90,16 @@ import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopu
  */
 public abstract class KieMultipleDocumentEditor<D extends KieDocument> implements KieMultipleDocumentEditorPresenter<D> {
 
-    protected final Set<D> documents = new HashSet<>();
-    //This implementation always permits closure as something went wrong loading the Editor's content
-    private final MayCloseHandler EXCEPTION_MAY_CLOSE_HANDLER = (originalHashCode, currentHashCode) -> true;
     //Injected
     protected KieMultipleDocumentEditorWrapperView kieEditorWrapperView;
     protected OverviewWidgetPresenter overviewWidget;
-    //The default implementation delegates to the HashCode comparison in BaseEditor
-    private final MayCloseHandler DEFAULT_MAY_CLOSE_HANDLER = this::doMayClose;
     protected ImportsWidgetPresenter importsWidget;
     protected Event<NotificationEvent> notificationEvent;
     protected Event<ChangeTitleWidgetEvent> changeTitleEvent;
     protected WorkspaceProjectContext workbenchContext;
     protected SavePopUpPresenter savePopUpPresenter;
     protected DownloadMenuItem downloadMenuItem;
+
     protected FileMenuBuilder fileMenuBuilder;
     protected VersionRecordManager versionRecordManager;
     protected RegisteredDocumentsMenuBuilder registeredDocumentsMenuBuilder;
@@ -112,17 +108,36 @@ public abstract class KieMultipleDocumentEditor<D extends KieDocument> implement
     protected ProjectController projectController;
     protected Event<NotificationEvent> notification;
     protected Promises promises;
+
     //Constructed
     protected BaseEditorView editorView;
     protected ViewDRLSourceWidget sourceWidget = GWT.create(ViewDRLSourceWidget.class);
-    protected Menus menus;
 
-    protected D activeDocument = null;
-    @Inject
-    protected PlaceManager placeManager;
     private MenuItem saveMenuItem;
     private MenuItem versionMenuItem;
     private MenuItem registeredDocumentsMenuItem;
+
+    protected Menus menus;
+
+    protected D activeDocument = null;
+    protected final Set<D> documents = new HashSet<>();
+
+    @Inject
+    protected PlaceManager placeManager;
+
+    //Handler for MayClose requests
+    protected interface MayCloseHandler {
+
+        boolean mayClose(final Integer originalHashCode,
+                         final Integer currentHashCode);
+    }
+
+    //The default implementation delegates to the HashCode comparison in BaseEditor
+    private final MayCloseHandler DEFAULT_MAY_CLOSE_HANDLER = this::doMayClose;
+
+    //This implementation always permits closure as something went wrong loading the Editor's content
+    private final MayCloseHandler EXCEPTION_MAY_CLOSE_HANDLER = (originalHashCode, currentHashCode) -> true;
+
     private MayCloseHandler mayCloseHandler = DEFAULT_MAY_CLOSE_HANDLER;
 
     KieMultipleDocumentEditor() {
@@ -801,12 +816,5 @@ public abstract class KieMultipleDocumentEditor<D extends KieDocument> implement
             document.setOriginalHashCode(currentHashCode);
             overviewWidget.resetDirty();
         };
-    }
-
-    //Handler for MayClose requests
-    protected interface MayCloseHandler {
-
-        boolean mayClose(final Integer originalHashCode,
-                         final Integer currentHashCode);
     }
 }
