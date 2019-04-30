@@ -21,5 +21,4 @@ public interface AnalyzerController {
     void initialiseAnalysis();
 
     void terminateAnalysis();
-
 }

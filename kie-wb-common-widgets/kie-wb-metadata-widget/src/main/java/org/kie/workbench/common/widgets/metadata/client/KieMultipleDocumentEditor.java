@@ -16,10 +16,6 @@
 
 package org.kie.workbench.common.widgets.metadata.client;
 
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentDelete;
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentRename;
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentUpdate;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +43,8 @@ import org.kie.soup.project.datamodel.imports.Imports;
 import org.kie.workbench.common.widgets.client.callbacks.CommandBuilder;
 import org.kie.workbench.common.widgets.client.callbacks.CommandDrivenErrorCallback;
 import org.kie.workbench.common.widgets.client.datamodel.AsyncPackageDataModelOracle;
+import org.kie.workbench.common.widgets.client.docks.DockPlaceHolderPlace;
+import org.kie.workbench.common.widgets.client.docks.DockPlaceHolderView;
 import org.kie.workbench.common.widgets.client.menu.FileMenuBuilder;
 import org.kie.workbench.common.widgets.client.source.ViewDRLSourceWidget;
 import org.kie.workbench.common.widgets.configresource.client.widget.bound.ImportsWidgetPresenter;
@@ -55,6 +53,9 @@ import org.kie.workbench.common.widgets.metadata.client.validation.AssetUpdateVa
 import org.kie.workbench.common.widgets.metadata.client.widget.OverviewWidgetPresenter;
 import org.uberfire.backend.vfs.ObservablePath;
 import org.uberfire.backend.vfs.Path;
+import org.uberfire.client.mvp.AbstractWorkbenchActivity;
+import org.uberfire.client.mvp.PlaceManager;
+import org.uberfire.client.mvp.PlaceStatus;
 import org.uberfire.client.promise.Promises;
 import org.uberfire.client.workbench.events.ChangeTitleWidgetEvent;
 import org.uberfire.ext.editor.commons.client.BaseEditorView;
@@ -75,6 +76,10 @@ import org.uberfire.workbench.events.NotificationEvent;
 import org.uberfire.workbench.model.menu.MenuItem;
 import org.uberfire.workbench.model.menu.Menus;
 
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentDelete;
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentRename;
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentUpdate;
+
 /**
  * A base for Multi-Document-Interface editors. This base implementation adds default Menus for Save", "Copy",
  * "Rename", "Delete", "Validate" and "VersionRecordManager" drop-down that can be overriden by subclasses.
@@ -85,16 +90,20 @@ import org.uberfire.workbench.model.menu.Menus;
  */
 public abstract class KieMultipleDocumentEditor<D extends KieDocument> implements KieMultipleDocumentEditorPresenter<D> {
 
+    protected final Set<D> documents = new HashSet<>();
+    //This implementation always permits closure as something went wrong loading the Editor's content
+    private final MayCloseHandler EXCEPTION_MAY_CLOSE_HANDLER = (originalHashCode, currentHashCode) -> true;
     //Injected
     protected KieMultipleDocumentEditorWrapperView kieEditorWrapperView;
     protected OverviewWidgetPresenter overviewWidget;
+    //The default implementation delegates to the HashCode comparison in BaseEditor
+    private final MayCloseHandler DEFAULT_MAY_CLOSE_HANDLER = this::doMayClose;
     protected ImportsWidgetPresenter importsWidget;
     protected Event<NotificationEvent> notificationEvent;
     protected Event<ChangeTitleWidgetEvent> changeTitleEvent;
     protected WorkspaceProjectContext workbenchContext;
     protected SavePopUpPresenter savePopUpPresenter;
     protected DownloadMenuItem downloadMenuItem;
-
     protected FileMenuBuilder fileMenuBuilder;
     protected VersionRecordManager versionRecordManager;
     protected RegisteredDocumentsMenuBuilder registeredDocumentsMenuBuilder;
@@ -103,33 +112,17 @@ public abstract class KieMultipleDocumentEditor<D extends KieDocument> implement
     protected ProjectController projectController;
     protected Event<NotificationEvent> notification;
     protected Promises promises;
-
     //Constructed
     protected BaseEditorView editorView;
     protected ViewDRLSourceWidget sourceWidget = GWT.create(ViewDRLSourceWidget.class);
-
-    private MenuItem saveMenuItem;
-    private MenuItem versionMenuItem;
-    private MenuItem registeredDocumentsMenuItem;
-
     protected Menus menus;
 
     protected D activeDocument = null;
-    protected final Set<D> documents = new HashSet<>();
-
-    //Handler for MayClose requests
-    protected interface MayCloseHandler {
-
-        boolean mayClose(final Integer originalHashCode,
-                         final Integer currentHashCode);
-    }
-
-    //The default implementation delegates to the HashCode comparison in BaseEditor
-    private final MayCloseHandler DEFAULT_MAY_CLOSE_HANDLER = this::doMayClose;
-
-    //This implementation always permits closure as something went wrong loading the Editor's content
-    private final MayCloseHandler EXCEPTION_MAY_CLOSE_HANDLER = (originalHashCode, currentHashCode) -> true;
-
+    @Inject
+    protected PlaceManager placeManager;
+    private MenuItem saveMenuItem;
+    private MenuItem versionMenuItem;
+    private MenuItem registeredDocumentsMenuItem;
     private MayCloseHandler mayCloseHandler = DEFAULT_MAY_CLOSE_HANDLER;
 
     KieMultipleDocumentEditor() {
@@ -261,6 +254,26 @@ public abstract class KieMultipleDocumentEditor<D extends KieDocument> implement
         });
 
         path.onConcurrentUpdate((eventInfo) -> document.setConcurrentUpdateSessionInfo(eventInfo));
+    }
+
+    protected void registerDock(final String id,
+                                final IsWidget widget) {
+
+        final DockPlaceHolderPlace placeRequest = new DockPlaceHolderPlace(id);
+        placeManager.registerOnOpenCallback(placeRequest, () -> {
+            if (getDockPresenter(placeRequest).isPresent()) {
+                getDockPresenter(placeRequest).get().setWidget(widget);
+            }
+        });
+    }
+
+    private Optional<DockPlaceHolderView> getDockPresenter(final PlaceRequest placeRequest) {
+        if (PlaceStatus.OPEN.equals(placeManager.getStatus(placeRequest))) {
+            final AbstractWorkbenchActivity panelActivity = (AbstractWorkbenchActivity) placeManager.getActivity(placeRequest);
+            return Optional.of((DockPlaceHolderView) panelActivity.getWidget());
+        } else {
+            return Optional.empty();
+        }
     }
 
     //Package protected to allow overriding for Unit Tests
@@ -788,5 +801,12 @@ public abstract class KieMultipleDocumentEditor<D extends KieDocument> implement
             document.setOriginalHashCode(currentHashCode);
             overviewWidget.resetDirty();
         };
+    }
+
+    //Handler for MayClose requests
+    protected interface MayCloseHandler {
+
+        boolean mayClose(final Integer originalHashCode,
+                         final Integer currentHashCode);
     }
 }
