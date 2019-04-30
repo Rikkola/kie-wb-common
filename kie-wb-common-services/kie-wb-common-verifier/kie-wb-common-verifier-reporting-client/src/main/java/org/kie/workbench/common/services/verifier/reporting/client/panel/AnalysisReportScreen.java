@@ -20,38 +20,44 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.drools.verifier.api.Status;
 import org.drools.verifier.api.reporting.Issue;
 import org.kie.workbench.common.services.verifier.reporting.client.resources.i18n.AnalysisConstants;
 import org.uberfire.client.annotations.DefaultPosition;
+import org.uberfire.client.annotations.WorkbenchMenu;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.lifecycle.OnClose;
+import org.uberfire.lifecycle.OnStartup;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.workbench.model.CompassPosition;
 import org.uberfire.workbench.model.Position;
+import org.uberfire.workbench.model.menu.MenuFactory;
+import org.uberfire.workbench.model.menu.Menus;
 
-@ApplicationScoped
-@WorkbenchScreen(identifier = AnalysisReportScreen.IDENTIFIER, preferredWidth = 360)
+//@ApplicationScoped
+//@WorkbenchScreen(identifier = AnalysisReportScreen.IDENTIFIER, preferredWidth = 360)
+@Dependent
 public class AnalysisReportScreen {
 
     public static final String IDENTIFIER = "org.kie.workbench.common.services.verifier.reporting.client.panel.AnalysisReportScreen";
 
     private static final Logger LOGGER = Logger.getLogger("DTable Analyzer");
-
+    private final ListDataProvider<Issue> dataProvider = new ListDataProvider<Issue>();
     private AnalysisReportScreenView view;
     private PlaceManager placeManager;
-
     private Event<IssueSelectedEvent> issueSelectedEvent;
-    private final ListDataProvider<Issue> dataProvider = new ListDataProvider<Issue>();
     private PlaceRequest currentPlace;
+    private Menus menu;
 
     public AnalysisReportScreen() {
     }
@@ -66,6 +72,24 @@ public class AnalysisReportScreen {
 
         view.setPresenter(this);
         view.setUpDataProvider(dataProvider);
+    }
+
+    @OnStartup
+    public void onStartup() {
+//        final MenuFactory.TopLevelMenusBuilder<MenuFactory.MenuBuilder> m =
+//                MenuFactory
+//                        .newTopLevelCustomMenu(new GearMenuItemBuilder(
+//                                new GearMenuItemBuilder.GearMenuItem("Automatic",
+//                                                                     () -> {
+//                                                                         Window.alert("Automatic");
+//                                                                     }),
+//                                new GearMenuItemBuilder.GearMenuItem("Manual",
+//                                                                     () -> {
+//                                                                         Window.alert("Manual");
+//                                                                     }))
+//                        )
+//                        .endMenu();
+//        menu = m.build();
     }
 
     @OnClose
@@ -136,6 +160,11 @@ public class AnalysisReportScreen {
         view.showIssue(issue);
         fireIssueSelectedEvent(issue);
     }
+
+//    @WorkbenchMenu
+//    public Menus getMenu() {
+//        return menu;
+//    }
 
     void fireIssueSelectedEvent(final Issue issue) {
         LOGGER.finest("issue.debug: " + issue.getDebugMessage());
