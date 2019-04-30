@@ -16,10 +16,6 @@
 
 package org.kie.workbench.common.widgets.metadata.client;
 
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentDelete;
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentRename;
-import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentUpdate;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +29,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import elemental2.promise.Promise;
 import org.guvnor.common.services.project.client.context.WorkspaceProjectContext;
@@ -47,6 +44,7 @@ import org.kie.soup.project.datamodel.imports.Imports;
 import org.kie.workbench.common.widgets.client.callbacks.CommandBuilder;
 import org.kie.workbench.common.widgets.client.callbacks.CommandDrivenErrorCallback;
 import org.kie.workbench.common.widgets.client.datamodel.AsyncPackageDataModelOracle;
+import org.kie.workbench.common.widgets.client.docks.DockPlaceHolder;
 import org.kie.workbench.common.widgets.client.docks.DockPlaceHolderPlace;
 import org.kie.workbench.common.widgets.client.docks.DockPlaceHolderView;
 import org.kie.workbench.common.widgets.client.menu.FileMenuBuilder;
@@ -80,6 +78,10 @@ import org.uberfire.workbench.events.NotificationEvent;
 import org.uberfire.workbench.model.menu.MenuItem;
 import org.uberfire.workbench.model.menu.Menus;
 
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentDelete;
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentRename;
+import static org.uberfire.ext.widgets.common.client.common.ConcurrentChangePopup.newConcurrentUpdate;
+
 /**
  * A base for Multi-Document-Interface editors. This base implementation adds default Menus for Save", "Copy",
  * "Rename", "Delete", "Validate" and "VersionRecordManager" drop-down that can be overriden by subclasses.
@@ -90,16 +92,20 @@ import org.uberfire.workbench.model.menu.Menus;
  */
 public abstract class KieMultipleDocumentEditor<D extends KieDocument> implements KieMultipleDocumentEditorPresenter<D> {
 
+    protected final Set<D> documents = new HashSet<>();
+    //This implementation always permits closure as something went wrong loading the Editor's content
+    private final MayCloseHandler EXCEPTION_MAY_CLOSE_HANDLER = (originalHashCode, currentHashCode) -> true;
     //Injected
     protected KieMultipleDocumentEditorWrapperView kieEditorWrapperView;
     protected OverviewWidgetPresenter overviewWidget;
+    //The default implementation delegates to the HashCode comparison in BaseEditor
+    private final MayCloseHandler DEFAULT_MAY_CLOSE_HANDLER = this::doMayClose;
     protected ImportsWidgetPresenter importsWidget;
     protected Event<NotificationEvent> notificationEvent;
     protected Event<ChangeTitleWidgetEvent> changeTitleEvent;
     protected WorkspaceProjectContext workbenchContext;
     protected SavePopUpPresenter savePopUpPresenter;
     protected DownloadMenuItem downloadMenuItem;
-
     protected FileMenuBuilder fileMenuBuilder;
     protected VersionRecordManager versionRecordManager;
     protected RegisteredDocumentsMenuBuilder registeredDocumentsMenuBuilder;
@@ -108,36 +114,17 @@ public abstract class KieMultipleDocumentEditor<D extends KieDocument> implement
     protected ProjectController projectController;
     protected Event<NotificationEvent> notification;
     protected Promises promises;
-
     //Constructed
     protected BaseEditorView editorView;
     protected ViewDRLSourceWidget sourceWidget = GWT.create(ViewDRLSourceWidget.class);
-
-    private MenuItem saveMenuItem;
-    private MenuItem versionMenuItem;
-    private MenuItem registeredDocumentsMenuItem;
-
     protected Menus menus;
 
     protected D activeDocument = null;
-    protected final Set<D> documents = new HashSet<>();
-
     @Inject
     protected PlaceManager placeManager;
-
-    //Handler for MayClose requests
-    protected interface MayCloseHandler {
-
-        boolean mayClose(final Integer originalHashCode,
-                         final Integer currentHashCode);
-    }
-
-    //The default implementation delegates to the HashCode comparison in BaseEditor
-    private final MayCloseHandler DEFAULT_MAY_CLOSE_HANDLER = this::doMayClose;
-
-    //This implementation always permits closure as something went wrong loading the Editor's content
-    private final MayCloseHandler EXCEPTION_MAY_CLOSE_HANDLER = (originalHashCode, currentHashCode) -> true;
-
+    private MenuItem saveMenuItem;
+    private MenuItem versionMenuItem;
+    private MenuItem registeredDocumentsMenuItem;
     private MayCloseHandler mayCloseHandler = DEFAULT_MAY_CLOSE_HANDLER;
 
     KieMultipleDocumentEditor() {
@@ -273,7 +260,6 @@ public abstract class KieMultipleDocumentEditor<D extends KieDocument> implement
 
     protected void registerDock(final String id,
                                 final IsWidget widget) {
-
         final DockPlaceHolderPlace placeRequest = new DockPlaceHolderPlace(id);
         placeManager.registerOnOpenCallback(placeRequest, () -> {
             if (getDockPresenter(placeRequest).isPresent()) {
@@ -816,5 +802,12 @@ public abstract class KieMultipleDocumentEditor<D extends KieDocument> implement
             document.setOriginalHashCode(currentHashCode);
             overviewWidget.resetDirty();
         };
+    }
+
+    //Handler for MayClose requests
+    protected interface MayCloseHandler {
+
+        boolean mayClose(final Integer originalHashCode,
+                         final Integer currentHashCode);
     }
 }

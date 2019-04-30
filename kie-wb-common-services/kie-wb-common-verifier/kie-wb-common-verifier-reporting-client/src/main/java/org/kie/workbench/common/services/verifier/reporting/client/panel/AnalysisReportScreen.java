@@ -23,31 +23,23 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.drools.verifier.api.Status;
 import org.drools.verifier.api.reporting.Issue;
-import org.kie.workbench.common.services.verifier.reporting.client.resources.i18n.AnalysisConstants;
-import org.uberfire.client.annotations.DefaultPosition;
-import org.uberfire.client.annotations.WorkbenchPartTitle;
-import org.uberfire.client.annotations.WorkbenchPartView;
-import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.lifecycle.OnClose;
-import org.uberfire.lifecycle.OnStartup;
 import org.uberfire.mvp.PlaceRequest;
-import org.uberfire.workbench.model.CompassPosition;
-import org.uberfire.workbench.model.Position;
+import org.uberfire.workbench.model.menu.MenuFactory;
 import org.uberfire.workbench.model.menu.Menus;
 
 @Dependent
-public class AnalysisReportScreen {
-
-    public static final String IDENTIFIER = "org.kie.workbench.common.services.verifier.reporting.client.panel.AnalysisReportScreen";
+public class AnalysisReportScreen implements IsWidget {
 
     private static final Logger LOGGER = Logger.getLogger("DTable Analyzer");
     private final ListDataProvider<Issue> dataProvider = new ListDataProvider<Issue>();
     private AnalysisReportScreenView view;
-    private PlaceManager placeManager;
     private Event<IssueSelectedEvent> issueSelectedEvent;
     private PlaceRequest currentPlace;
     private Menus menu;
@@ -57,35 +49,30 @@ public class AnalysisReportScreen {
 
     @Inject
     public AnalysisReportScreen(final AnalysisReportScreenView view,
-                                final PlaceManager placeManager,
                                 final Event<IssueSelectedEvent> issueSelectedEvent) {
         this.view = view;
-        this.placeManager = placeManager;
         this.issueSelectedEvent = issueSelectedEvent;
 
         view.setPresenter(this);
         view.setUpDataProvider(dataProvider);
+
+        final MenuFactory.TopLevelMenusBuilder<MenuFactory.MenuBuilder> m =
+                MenuFactory
+                        .newTopLevelCustomMenu(new GearMenuItemBuilder(
+                                new GearMenuItemBuilder.GearMenuItem("Automatic",
+                                                                     () -> {
+                                                                         Window.alert("Automatic");
+                                                                     }),
+                                new GearMenuItemBuilder.GearMenuItem("Manual",
+                                                                     () -> {
+                                                                         Window.alert("Manual");
+                                                                     }))
+                        )
+                        .endMenu();
+        menu = m.build();
     }
 
-    @OnStartup
-    public void onStartup() {
-//        final MenuFactory.TopLevelMenusBuilder<MenuFactory.MenuBuilder> m =
-//                MenuFactory
-//                        .newTopLevelCustomMenu(new GearMenuItemBuilder(
-//                                new GearMenuItemBuilder.GearMenuItem("Automatic",
-//                                                                     () -> {
-//                                                                         Window.alert("Automatic");
-//                                                                     }),
-//                                new GearMenuItemBuilder.GearMenuItem("Manual",
-//                                                                     () -> {
-//                                                                         Window.alert("Manual");
-//                                                                     }))
-//                        )
-//                        .endMenu();
-//        menu = m.build();
-    }
-
-    @OnClose
+    // TODO
     public void onClose() {
         dataProvider.flush();
         view.clearIssue();
@@ -112,17 +99,6 @@ public class AnalysisReportScreen {
                     .get(0);
             onSelect(issue);
         }
-
-        if (!report.getAnalysisData()
-                .isEmpty()) {
-            LOGGER.finest("goto " + IDENTIFIER);
-            placeManager.goTo(IDENTIFIER);
-            LOGGER.finest("went " + IDENTIFIER);
-        } else {
-            LOGGER.finest("close " + IDENTIFIER);
-            placeManager.closePlace(IDENTIFIER);
-            LOGGER.finest("closed " + IDENTIFIER);
-        }
     }
 
     public void setCurrentPlace(final PlaceRequest place) {
@@ -134,17 +110,7 @@ public class AnalysisReportScreen {
         return new ArrayList<>(new IssuesSet(report.getAnalysisData()));
     }
 
-    @DefaultPosition
-    public Position getDefaultPosition() {
-        return CompassPosition.EAST;
-    }
-
-    @WorkbenchPartTitle
-    public String getTitle() {
-        return AnalysisConstants.INSTANCE.Analysis();
-    }
-
-    @WorkbenchPartView
+    @Override
     public Widget asWidget() {
         return view.asWidget();
     }
@@ -154,10 +120,9 @@ public class AnalysisReportScreen {
         fireIssueSelectedEvent(issue);
     }
 
-//    @WorkbenchMenu
-//    public Menus getMenu() {
-//        return menu;
-//    }
+    public Menus getMenu() {
+        return menu;
+    }
 
     void fireIssueSelectedEvent(final Issue issue) {
         LOGGER.finest("issue.debug: " + issue.getDebugMessage());

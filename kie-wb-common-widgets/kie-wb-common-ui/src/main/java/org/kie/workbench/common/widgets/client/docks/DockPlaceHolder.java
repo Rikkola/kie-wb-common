@@ -15,13 +15,18 @@
  */
 package org.kie.workbench.common.widgets.client.docks;
 
+import java.util.function.Consumer;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
+import org.uberfire.client.annotations.WorkbenchMenu;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
+import org.uberfire.workbench.model.menu.Menus;
 
 @ApplicationScoped
 @WorkbenchScreen(identifier = "org.docks.PlaceHolder")

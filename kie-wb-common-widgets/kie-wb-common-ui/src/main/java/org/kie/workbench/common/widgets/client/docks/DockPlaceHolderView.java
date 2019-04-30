@@ -20,6 +20,10 @@ import com.google.gwt.user.client.ui.IsWidget;
 public interface DockPlaceHolderView
         extends IsWidget {
 
+    DockPlaceHolder getPresenter();
+
+    void setPresenter(DockPlaceHolder presenter);
+
     void clear();
 
     void setWidget(IsWidget widget);
