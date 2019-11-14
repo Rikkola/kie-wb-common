@@ -65,8 +65,6 @@ public interface FileMenuBuilder extends HasLockSyncMenuStateHelper {
 
     FileMenuBuilder addValidate(final Command command);
 
-    FileMenuBuilder addRestoreVersion(final Path path);
-
     FileMenuBuilder addCommand(final String caption,
                                final Command command);
 

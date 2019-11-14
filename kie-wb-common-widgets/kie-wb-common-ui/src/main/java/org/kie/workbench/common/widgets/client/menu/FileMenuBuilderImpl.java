@@ -87,12 +87,6 @@ public class FileMenuBuilderImpl implements FileMenuBuilder {
     }
 
     @Override
-    public FileMenuBuilder addRestoreVersion(final Path path) {
-        menuBuilder.addRestoreVersion(path);
-        return this;
-    }
-
-    @Override
     public FileMenuBuilder addCommand(final String caption,
                                       final Command command) {
         menuBuilder.addCommand(caption,

@@ -253,8 +253,7 @@ abstract class KieMultipleDocumentEditorTestBase {
                                                                                        copyPopUpPresenter,
                                                                                        renamePopUpPresenter,
                                                                                        busyIndicatorView,
-                                                                                       notification,
-                                                                                       restoreVersionCommandProvider);
+                                                                                       notification);
         setField(basicFileMenuBuilder,
                  "restoreVersionCommandProvider",
                  restoreVersionCommandProvider);

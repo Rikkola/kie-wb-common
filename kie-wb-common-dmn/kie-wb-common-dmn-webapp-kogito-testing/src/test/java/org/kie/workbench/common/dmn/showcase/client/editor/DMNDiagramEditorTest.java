@@ -102,8 +102,7 @@ public class DMNDiagramEditorTest extends BaseDMNDiagramEditorTest {
                                                                  copyPopUpPresenter,
                                                                  renamePopUpPresenter,
                                                                  busyIndicatorView,
-                                                                 notificationEventSourceMock,
-                                                                 restoreVersionCommandProvider);
+                                                                 notificationEventSourceMock);
         doAnswer(i -> {
             DMNDiagramEditorTest.this.basicFileMenuBuilder.addSave(saveMenuItem);
             return fileMenuBuilder;
