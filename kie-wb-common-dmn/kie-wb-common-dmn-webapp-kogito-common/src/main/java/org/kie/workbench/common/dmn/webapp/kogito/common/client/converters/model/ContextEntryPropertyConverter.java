@@ -25,6 +25,7 @@ import org.kie.workbench.common.dmn.api.definition.HasComponentWidths;
 import org.kie.workbench.common.dmn.api.definition.model.ContextEntry;
 import org.kie.workbench.common.dmn.api.definition.model.Expression;
 import org.kie.workbench.common.dmn.api.definition.model.InformationItem;
+import org.kie.workbench.common.dmn.api.property.dmn.Id;
 import org.kie.workbench.common.dmn.webapp.kogito.marshaller.js.model.dmn12.JSITContextEntry;
 import org.kie.workbench.common.dmn.webapp.kogito.marshaller.js.model.dmn12.JSITExpression;
 import org.kie.workbench.common.dmn.webapp.kogito.marshaller.js.model.dmn12.JSITInformationItem;
@@ -50,6 +51,7 @@ public class ContextEntryPropertyConverter {
         }
 
         final ContextEntry result = new ContextEntry();
+        result.setId(new Id(dmn.getId()));
         if (Objects.nonNull(variable)) {
             variable.setParent(result);
             result.setVariable(variable);
@@ -74,6 +76,7 @@ public class ContextEntryPropertyConverter {
             expression = getWrappedJSITLiteralExpression(mockLiteralExpression, "dmn", "literalExpression");
         }
 
+        result.setId(wb.getId().getValue());
         result.setVariable(variable);
         result.setExpression(expression);
         return result;
