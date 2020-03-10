@@ -23,6 +23,7 @@ import org.kie.workbench.common.dmn.api.definition.HasExpression;
 import org.kie.workbench.common.dmn.api.definition.HasTypeRef;
 import org.kie.workbench.common.dmn.api.definition.HasTypeRefs;
 import org.kie.workbench.common.dmn.api.definition.HasVariable;
+import org.kie.workbench.common.dmn.api.property.dmn.Id;
 import org.kie.workbench.common.stunner.core.util.HashUtil;
 
 import static org.kie.workbench.common.dmn.api.definition.model.common.HasTypeRefHelper.getNotNullHasTypeRefs;
@@ -36,6 +37,11 @@ public class ContextEntry extends DMNModelInstrumentedBase implements HasExpress
 
     private InformationItem variable;
     private Expression expression;
+    private Id id;
+
+    public ContextEntry() {
+        id = new Id();
+    }
 
     @Override
     public InformationItem getVariable() {
@@ -94,5 +100,13 @@ public class ContextEntry extends DMNModelInstrumentedBase implements HasExpress
         hasTypeRefs.addAll(getNotNullHasTypeRefs(getVariable()));
 
         return hasTypeRefs;
+    }
+
+    public Id getId() {
+        return id;
+    }
+
+    public void setId(Id id) {
+        this.id = id;
     }
 }

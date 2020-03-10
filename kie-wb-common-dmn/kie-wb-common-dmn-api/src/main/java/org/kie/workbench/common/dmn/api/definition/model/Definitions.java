@@ -157,11 +157,7 @@ public class Definitions extends NamedElement implements DMNPropertySet {
     }
 
     public ExpressionLanguage getExpressionLanguage() {
-        if (expressionLanguage == null) {
-            return new ExpressionLanguage(DEFAULT_EXPRESSION_LANGUAGE);
-        } else {
-            return expressionLanguage;
-        }
+        return expressionLanguage;
     }
 
     public void setExpressionLanguage(final ExpressionLanguage value) {
@@ -169,11 +165,7 @@ public class Definitions extends NamedElement implements DMNPropertySet {
     }
 
     public String getTypeLanguage() {
-        if (typeLanguage == null) {
-            return DEFAULT_TYPE_LANGUAGE;
-        } else {
-            return typeLanguage;
-        }
+        return typeLanguage;
     }
 
     public void setTypeLanguage(final String value) {

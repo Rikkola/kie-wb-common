@@ -24,6 +24,7 @@ import org.kie.workbench.common.dmn.api.definition.HasComponentWidths;
 import org.kie.workbench.common.dmn.api.definition.model.ContextEntry;
 import org.kie.workbench.common.dmn.api.definition.model.Expression;
 import org.kie.workbench.common.dmn.api.definition.model.InformationItem;
+import org.kie.workbench.common.dmn.api.property.dmn.Id;
 import org.kie.workbench.common.dmn.backend.definition.v1_1.dd.ComponentWidths;
 
 public class ContextEntryPropertyConverter {
@@ -35,10 +36,13 @@ public class ContextEntryPropertyConverter {
                                                                             hasComponentWidthsConsumer);
 
         final ContextEntry result = new ContextEntry();
+        result.setId(new Id(dmn.getId()));
+
         if (Objects.nonNull(variable)) {
             variable.setParent(result);
         }
         result.setVariable(variable);
+
         if (Objects.nonNull(expression)) {
             expression.setParent(result);
         }
@@ -63,6 +67,7 @@ public class ContextEntryPropertyConverter {
         }
         expression.setParent(result);
 
+        result.setId(wb.getId().getValue());
         result.setVariable(variable);
         result.setExpression(expression);
         return result;
