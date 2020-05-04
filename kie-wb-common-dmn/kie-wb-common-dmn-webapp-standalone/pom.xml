@@ -868,7 +868,7 @@
               <localWorkers>${gwt.compiler.localWorkers}</localWorkers>
               <deploy>${project.build.directory}/gwt-symbols-deploy</deploy>
               <draftCompile>true</draftCompile>
-              <extraJvmArgs>-Xmx4096m -Xms1024m -Xss1M -XX:CompileThreshold=7000 -Derrai.dynamic_validation.enabled=true -Derrai.jboss.home=${errai.jboss.home}</extraJvmArgs>
+              <extraJvmArgs>-Xmx8192m -Xms2048m -Xss2M -XX:CompileThreshold=7000 -Derrai.dynamic_validation.enabled=true -Derrai.jboss.home=${errai.jboss.home}</extraJvmArgs>
               <module>org.kie.workbench.common.dmn.showcase.FastCompiledDMNShowcase</module>
               <logLevel>INFO</logLevel>
               <noServer>false</noServer>
@@ -914,6 +914,10 @@
                 <compileSourcesArtifact>org.kie.workbench.services:kie-wb-common-datamodel-api</compileSourcesArtifact>
                 <compileSourcesArtifact>org.kie.workbench.services:kie-wb-common-services-api</compileSourcesArtifact>
                 <compileSourcesArtifact>org.kie.workbench:kie-wb-common-kogito-client</compileSourcesArtifact>
+                <compileSourcesArtifact>org.kie:kie-dmn-api</compileSourcesArtifact>
+                <compileSourcesArtifact>org.kie:kie-dmn-feel</compileSourcesArtifact>
+                <compileSourcesArtifact>org.kie:kie-dmn-feel-gwt</compileSourcesArtifact>
+                <compileSourcesArtifact>org.kie:kie-dmn-model</compileSourcesArtifact>
 
                 <!-- UF-ext -->
                 <compileSourcesArtifact>org.uberfire:uberfire-runtime-plugins-api</compileSourcesArtifact>
