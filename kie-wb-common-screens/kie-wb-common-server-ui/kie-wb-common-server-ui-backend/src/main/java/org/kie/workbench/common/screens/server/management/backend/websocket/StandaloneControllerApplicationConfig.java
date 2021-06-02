@@ -18,10 +18,10 @@ package org.kie.workbench.common.screens.server.management.backend.websocket;
 
 import java.util.Collections;
 import java.util.Set;
-import javax.websocket.Endpoint;
-import javax.websocket.server.ServerApplicationConfig;
-import javax.websocket.server.ServerEndpointConfig;
 
+import jakarta.websocket.Endpoint;
+import jakarta.websocket.server.ServerApplicationConfig;
+import jakarta.websocket.server.ServerEndpointConfig;
 import org.kie.server.controller.websocket.WebSocketKieServerControllerImpl;
 import org.kie.server.controller.websocket.management.WebSocketKieServerMgmtControllerImpl;
 import org.kie.server.controller.websocket.notification.WebSocketKieServerControllerNotification;
