@@ -1,0 +1,5 @@
+org.kie.workbench.common.dmn.showcase.client.feel.FEELDemoEditorActivity
+org.kie.workbench.common.dmn.showcase.client.navigator.DMNDiagramsNavigatorScreenActivity
+org.kie.workbench.common.dmn.showcase.client.editor.DMNDiagramEditorActivity
+org.kie.workbench.common.dmn.client.docks.navigator.DecisionNavigatorPresenterActivity
+org.kie.workbench.common.dmn.client.docks.preview.PreviewDiagramScreenActivity

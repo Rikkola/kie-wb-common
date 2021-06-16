@@ -103,6 +103,11 @@
   </build>
 
   <dependencies>
+    <dependency>
+    <groupId>javax.json</groupId>
+    <artifactId>javax.json-api</artifactId>
+    <version>1.0</version>
+  </dependency><!-- TODO -->
 
     <!-- dependencies added because of new illegal transitive dependency check -->
     <dependency>
@@ -448,8 +453,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
       <scope>test</scope>
     </dependency>
 
