@@ -24,7 +24,7 @@ import org.uberfire.preferences.shared.bean.BasePreference;
 @WorkbenchPreference(identifier = "LibraryPreferences",
         bundleKey = "LibraryPreferences.Label")
 public class LibraryPreferences implements BasePreference<LibraryPreferences> {
-    
+
     @Property(bundleKey = "LibraryPreferences.OrganizationalUnitPreferences")
     LibraryOrganizationalUnitPreferences organizationalUnitPreferences;
 

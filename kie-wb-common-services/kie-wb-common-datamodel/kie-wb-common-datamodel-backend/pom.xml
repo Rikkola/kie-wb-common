@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.kie.workbench.services</groupId>
     <artifactId>kie-wb-common-datamodel</artifactId>
-    <version>7.55.0-SNAPSHOT</version>
+    <version>7.56.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>kie-wb-common-datamodel-backend</artifactId>
@@ -183,8 +183,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
       <scope>test</scope>
     </dependency>
 
