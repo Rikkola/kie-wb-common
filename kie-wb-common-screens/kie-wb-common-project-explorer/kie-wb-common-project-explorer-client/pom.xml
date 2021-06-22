@@ -154,6 +154,10 @@
           <groupId>ant</groupId>
           <artifactId>ant</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.mortbay.jasper</groupId>
+          <artifactId>apache-el</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 

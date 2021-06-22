@@ -236,6 +236,17 @@
     <dependency>
       <groupId>org.kie.server</groupId>
       <artifactId>kie-server-api</artifactId>
+      <exclusions>
+        <!--        TODO exclude these or fix them in the drools repo? -->
+        <exclusion>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- GWT and GWT Extensions -->
@@ -254,6 +265,10 @@
         <exclusion>
           <groupId>ant</groupId>
           <artifactId>ant</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.mortbay.jasper</groupId>
+          <artifactId>apache-el</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
